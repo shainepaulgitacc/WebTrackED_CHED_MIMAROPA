@@ -1,0 +1,31 @@
+﻿.dash-box {
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.hover-effect:hover {
+    background-color: #0D66FF !important;
+}
+.hover-effect:hover i{
+    color: white !important
+}
+.hover-effect:hover h2 {
+    color: white !important
+}
+.hover-effect:hover span {
+    color: white !important
+}
+
+#recents{
+    height: 500px;
+}
+
+@media screen and (max-width: 600px) {
+    #recents {
+        height: 100%;
+    }   
+}
+@media screen and (max-width: 900px) {
+    #recents {
+        height: 100%;
+    }
+}

@@ -1,0 +1,41 @@
+﻿@page
+@model RegisterModel
+@{
+    Layout = "~/Areas/Identity/Pages/_LoginRegisterLayout.cshtml";
+    ViewData["Title"] = "Register";
+}
+<div id="login" class="shadow p-lg-5 p-md-5 p-3 rounded-2">
+    <div class="d-flex justify-content-center">
+        <img src="~/Logo/@Model.LogoFileName" width="150" height="150" class="rounded-circle mb-2" />
+    </div>
+    <h4 class="text-center fw-bold mb-4 text-dark text">@(Model.FirstUser?"First User":"Register")</h4>
+    <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+    <form method="post" id="form-pass">
+        @Html.AntiForgeryToken()
+        <div class="mb-3">
+            <label asp-for="Input.Email" class="fw-bold mb-2 text-dark text"></label><span class="text-danger fw-bold">*</span>
+            <input asp-for="Input.Email" class="form-control border-2 border border-primary border-opacity-75" placeholder="Enter here.." />
+            <span asp-validation-for="Input.Email" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Input.Password" class="fw-bold mb-2 text"></label><span class="text-danger fw-bold">*</span>
+            <input asp-for="Input.Password" type="password" class="form-control border-2 border border-primary border-opacity-75" placeholder="Enter here.." />
+            <span asp-validation-for="Input.Password" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Input.ConfirmPassword" class="fw-bold mb-2 text"></label><span class="text-danger fw-bold">*</span>
+            <input asp-for="Input.ConfirmPassword" type="password" class="form-control border-2 border border-primary border-opacity-75" placeholder="Enter here.." />
+            <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
+        </div>
+        <button type="submit" id="submitButton" class="btn btn-primary w-100 mb-2">
+            <span class="button-text">Register</span>
+            <span class="d-none spinner-grow spinner-grow-sm loading-spinner"></span>
+            <span class="d-none loading-text">Loading...</span>
+            <i class="fa-solid fa-user"></i>
+        </button>
+        <span class="d-block text-center text">Go back to login <a class="fw-bolder" asp-page="./Login" asp-route-returnUrl="@Model.ReturnUrl">Click here</a></span>
+    </form>
+</div>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

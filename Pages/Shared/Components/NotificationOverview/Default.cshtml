@@ -1,0 +1,39 @@
+﻿@model NotificationOverviewViewModel
+<div class="col-12 rounded-3 bg-white shadow p-3 mb-3">
+	<div class="row">
+		<div class="col-lg-4 col-md-4 col-12">
+			<div class="d-flex align-items-center gap-3 mb-3 mb-lg-0">
+				<i class="fa-solid fa-eye-slash fs-5 text-warning"></i>
+				<div>
+					<h6 class="text-secondary fw-light m-0">Unseen Notification</h6>
+					<h6 class="mb-0">Total: <b>@Model.Notifications.Where(x => !x.IsViewed).Count().ToString("00")</b></h6>
+				</div>
+
+			</div>
+		</div>
+		<div class="col-lg-4 col-md-4 col-12">
+			<div class="d-flex align-items-center gap-3  mb-3 mb-lg-0">
+				<i class="fa-solid fa-bell fs-5 text-primary"></i>
+				<div>
+					<h6 class="text-secondary fw-light mb-0">All Notification</h6>
+					<h6 class="mb-0">Total: <b>@Model.Notifications.Count().ToString("00")</b></h6>
+				</div>
+
+			</div>
+		</div>
+		<div class="col-lg-4 col-md-4 col-12">
+			<div class="d-flex align-items-center gap-3  mb-3 mb-lg-0">
+				<i class="fa-solid fa-inbox fs-5 text-info"></i>
+				<div>
+					<h6 class="text-secondary fw-light mb-0">Archive</h6>
+					<h6 class="mb-0">Total: <b>@Model.Notifications.Where(x => x.IsArchived).Count().ToString("00")</b></h6>
+				</div>
+				@if (!Model.IsPageArchived)
+				{
+					<a asp-page="./ArchivedNotification" class="text-decoration-none px-2 py-1 rounded-circle btn-info btn border border-info border-opacity-25 text-white"><i class="fa-solid fa-arrow-right"></i></a>
+				}
+			</div>
+		</div>
+	</div>
+
+</div>

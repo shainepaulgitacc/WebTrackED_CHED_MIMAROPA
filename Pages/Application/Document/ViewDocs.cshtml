@@ -1,0 +1,299 @@
+﻿@page
+@model WebTrackED_CHED_MIMAROPA.Pages.Application.Document.ViewDocsModel
+
+@{
+    ViewData["Title"] = "Document-View";
+    var prevPage = Model.PreviousPage;
+    var breadcrump_data = new BreadCrumpViewModel
+            {
+                pageName = "View Document",
+                date = DateTime.Now,
+                breadCrump = new (string, string?, string, bool,int?)[]
+                                                                {
+                ("fa-solid fa-list-check",prevPage,"Document List",false,null),
+                ("fa-solid fa-file-circle-question",null,"Document View",true,null)
+
+                       }
+            };
+            var fileName = Model.DocumentAttachment.DocumentAttachment.FileName;
+            var splitFile = fileName.Split('=');
+            var finalFileName = splitFile[splitFile.Length - 1];
+            var returnUrlVal = "./Ended/Index";
+}
+@await Component.InvokeAsync("BreadCrump", breadcrump_data)
+<div class="rounded-2 overflow-hidden bg-white shadow">
+    <h5 class="py-2 text-white   text-center bg-primary">Document Ref#.Code: <span class="fw-bolder">@(Model.DocumentAttachment.DocumentAttachment.DocumentType == DocumentType.WalkIn ? $"dW{Model.DocumentAttachment.DocumentAttachment.Id.ToString("00000")}" : $"dE{Model.DocumentAttachment.DocumentAttachment.Id.ToString("00000")}")</span></h5>
+    <div class="container px-lg-5 px-3 pt-2 pb-5">
+        <div class="row">
+            <div class="col-12">
+                <div class="mb-2 row">
+                    <div class="col-lg-6 col-12 mb-2 mb-lg-0">
+                        <span class="@(User.IsInRole("Sender")?"d-none":"") fw-bolder d-block mb-2">
+                              Sender - 
+                            @if(Model.DocumentAttachment.DocumentAttachment.DocumentType == DocumentType.OnlineSubmission)
+                            {
+                                <span class="fw-lighter">@($"{Model.DocumentAttachment.SenderAccount.FirstName} {Model.DocumentAttachment.SenderAccount.MiddleName} {Model.DocumentAttachment.SenderAccount.LastName} {Model.DocumentAttachment.SenderAccount.Suffixes}")</span>
+                                <a asp-page="/Application/Profiles/Index" asp-route-accId="@Model.DocumentAttachment.SenderAccount.Id">(View Profile)</a>
+                            }
+                            else
+                            {
+                                <span class="text-opacity-50 fw-bold text-body-tertiary">From Records Office</span>
+                            }
+
+                    </span>
+                        <span class="@(Model.DocumentAttachment.DocumentAttachment.Status == Status.Pending ? "bg-info":Model.DocumentAttachment.DocumentAttachment.Status == Status.OnProcess ? "bg-primary":Model.DocumentAttachment.DocumentAttachment.Status == Status.PreparingRelease  ?"bg-warning" :Model.DocumentAttachment.DocumentAttachment.Status == Status.Approved ? "bg-success" :"bg-danger") text-white fw-bolder px-3 py-2 rounded-pill">@(Model.DocumentAttachment.DocumentAttachment.Status == Status.PreparingRelease ? "Ready for Release":Model.DocumentAttachment.DocumentAttachment.Status)</span>
+                        <span class="text-dark fw-bolder px-3 py-2 rounded-pill bg-secondary-subtle">@(Model.DocumentAttachment.DocumentAttachment.DocumentType == DocumentType.WalkIn ? "Walk In":"Electronic")</span>
+                    </div>
+                   
+                    <div class="col-lg-6 col-12 mb-2 mb-lg-0">
+                        <span class="text-secondary d-lg-block text-end">Submitted at: @Model.DocumentAttachment.DocumentAttachment.AddedAt.ToString("MMM dd, yyy hh:mm tt")</span>
+                        @if (Model.DocumentAttachment.DocumentTracking.ReviewerStatus == ReviewerStatus.Approved || Model.DocumentAttachment.DocumentTracking.ReviewerStatus == ReviewerStatus.Disapproved)
+                        {
+                            <span class="text-secondary  d-lg-block text-end">Ended in: @Model.DocumentAttachment.DocumentTracking.UpdatedAt.ToString("MMM dd, yyy hh:mm tt")</span>
+                        }
+                    </div>
+                </div>
+               
+                <div class="mb-3 row rounded-2 bg-info-subtle mt-4 p-3">
+                    <div class="col-lg-1 col-12  mb-2 mb-lg-0">
+                        <div class="h-100 d-flex justify-content-lg-center align-items-center">
+                            <i class="fa-solid fa-file-signature fs-2"></i>
+                        </div>
+                        
+                    </div>
+                   
+                    <div class="col-lg-11 col-12">
+                        <h6 class="fw-bolder">(@Model.DocumentAttachment.Category.CategoryName)<span class="fw-lighter">@Model.DocumentAttachment.SubCategory.SubCategoryName</h6>
+                        @if(Model.DocumentAttachment.DocumentAttachment.Prioritization != null)
+                        {
+                            <h5 class="@(Model.DocumentAttachment.DocumentAttachment.Prioritization == Prioritization.Usual ? "text-primary":"text-danger") fw-bolder p-0 m-0">@Model.DocumentAttachment.DocumentAttachment.Prioritization</h5>
+                        }
+                        else
+                        {
+                            <h5 class="text-body-tertiary fw-bolder p-0 m-0">Not Set</h5>
+                        }
+                         @if (Model.DocumentAttachment.DocumentAttachment.Status == Status.OnProcess && User.IsInRole("Admin"))
+                        {
+                            <form id="form-prioritization" method="post" asp-page-handler="SetPrioritization" asp-route-prevPage="@Model.PreviousPage" asp-route-pId="@Model.DocumentAttachment.DocumentAttachment.Id">
+                                @Html.AntiForgeryToken()
+                                <label asp-for="Prioritization" class="fst-italic fw-light"><i class="fa-solid fa-pen"></i></label>
+                           
+                                    <select id="prioritization" asp-for="Prioritization" class="border-0 border-bottom border-2 border-primary bg-transparent" asp-items="@Html.GetEnumSelectList<Prioritization>()">
+                                    <option selected hidden disabled value="">Select...</option>
+                                    </select>
+                            
+                            
+                            </form>
+                        }
+                    </div>
+                </div>
+                <h6 class="py-2 mb-3 text-center bg-primary rounded text-white"><i class="fa-solid fa-file-signature"></i> Details</h6>
+            </div>
+            <div class="col-lg-6 col-12 mb-3">
+                <label class="fw-bolder ">Subject:</label>
+                <p class="text-body-tertiary">@Model.DocumentAttachment.DocumentAttachment.Subject</p>
+            </div>
+            <div class="col-lg-6 col-12 mb-3">
+                <label class="fw-bolder ">Description:</label>
+                <p class="text-body-tertiary">@Model.DocumentAttachment.DocumentAttachment.Description</p>
+            </div>
+            @if (!string.IsNullOrEmpty(Model.DocumentAttachment.DocumentAttachment.Comment))
+            {
+                <div class="col-lg-6 col-12 mb-3">
+                    <label class="fw-bolder ">Comment:</label>
+                    <p class="text-body-tertiary">@Model.DocumentAttachment.DocumentAttachment.Comment</p>
+                </div>
+            }
+            <div class="col-12 mb-4">
+                <h6 class="py-2 mb-3 rounded bg-primary text-white text-center"><i class="fa-solid fa-paperclip"></i> Attachment</h6>
+                <div class="border-2 border-opacity-50 border-primary border rounded-3 p-2 p-lg-3 row">
+                    <div class="d-flex gap-4 align-items-center col-lg-5 col-12 mb-2 mb-lg-0">
+                        <i class="fa-solid fa-file-contract fs-2 text-primary"></i>
+                        <div class="d-flex flex-column">
+                            <h5>@finalFileName</h5>
+                            <span class="fst-italic">@(Model.DocumentAttachment.DocumentAttachment.UpdatedAt.ToString("dd MMM, yyy hh:mm tt"))(Updated)</span>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-2 col-lg-7 col-12 justify-content-lg-end justify-content-start">
+                     
+                     
+                        @if (Model.DocumentAttachment.DocumentTrackings.OrderByDescending(x => x.Id).FirstOrDefault(x => x.ReviewerId == Model.AccountId)?.ReviewerStatus != ReviewerStatus.ToReceived)
+                        {
+                           
+                            <div class="d-flex align-items-center">
+                            <form enctype="multipart/form-data" id="form-new-docs" asp-page-handler="ChangeDocument" asp-route-prevPage="@Model.PreviousPage" asp-route-pId="@Model.DocumentAttachment.DocumentAttachment.Id">
+                                @Html.AntiForgeryToken()
+                              
+                                    <label for="new-docs" class="btn btn-success">
+                                        <i class="fa-solid fa-repeat"></i>
+                                    </label>
+                                <input asp-for="NewDocuments" id="new-docs" accept="application/zip" class="d-none" />
+                            </form>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <a asp-page-handler="DownloadFile" asp-route-filename="@Model.DocumentAttachment.DocumentAttachment.FileName" class="btn btn-primary"><i class="fa-solid fa-download"></i></a>
+                            </div>
+                            
+                        }
+                        else if (Model.DocumentAttachment.DocumentAttachment.Status == Status.Approved || Model.DocumentAttachment.DocumentAttachment.Status == Status.Disapproved)
+                        {
+                           
+                            <div class="d-flex align-items-center">
+                                <a asp-page-handler="DownloadFile" asp-route-filename="@Model.DocumentAttachment.DocumentAttachment.FileName" class="btn btn-primary"><i class="fa-solid fa-download"></i></a>
+                            </div>
+                           
+                        }
+
+                        
+                        <div class="modal fade" id="view-document">
+                            <div class="modal-dialog modal-xl">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5>View Document</h5>
+                                        <button class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body p-2">
+                                        <div id="pdf-pages-container" class="overflow-y-scroll" style="height: 600px"></div>
+                                       
+                                    </div>
+                                    <div class="modal-footer">
+                                        @if(Model.DocumentAttachment.DocumentAttachment.Status == Status.Pending)
+                                        {
+                                            <button disabled class="btn btn-primary">Download document <i class="fa-solid fa-download"></i></button>
+                                        }
+                                        else
+                                        {
+                                            <a asp-page-handler="DownloadFile" asp-route-filename="@Model.DocumentAttachment.DocumentAttachment.FileName" class="btn btn-primary">Download document <i class="fa-solid fa-download"></i></a>
+                                            
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                       
+                    </div>
+                </div>
+            </div>
+            <div class="col-12">
+                <div class="d-flex justify-content-end gap-2 align-items-center">
+                    <partial name="_MarkAsOnProcessAndDisapproved" model="new MarkOnProcessAndDisapprovedInputModel{PrevPage = Model.PreviousPage,Id=Model.DocumentAttachment.DocumentAttachment.Id.ToString()}" />
+                    @if(Model.DocumentAttachment.DocumentTrackings.OrderByDescending(x => x.Id).FirstOrDefault(x => x.ReviewerId == Model.AccountId)?.ReviewerStatus == ReviewerStatus.ToReceived)
+                    {
+                        <button data-bs-toggle="modal" data-bs-target="#mark-onprocess" class="text-white btn btn-warning">Review now <i class="fa-solid fa-question"></i></button>
+
+                    }
+                    else if (Model.DocumentAttachment.DocumentAttachment.Status == Status.OnProcess)
+                    {
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <button data-bs-toggle="modal" data-bs-target="#disapproved" class="btn btn-danger">Disapproved <i class="fa-solid fa-xmark"></i></button>
+                        }
+                        @if(Model.DocumentAttachment.DocumentAttachment.Prioritization != null )
+                        {
+                            @if (Model.DocumentAttachment.DocumentTrackings.OrderByDescending(x => x.Id).FirstOrDefault(x => x.ReviewerId == Model.AccountId)?.ReviewerStatus == ReviewerStatus.OnReview)
+                            {
+                                <button data-bs-toggle="modal" data-bs-target="#reviewed" class="btn btn-success text-white">Reviewed <i class="fa-solid fa-circle-check"></i></button>
+                                <div class="modal fade" id="reviewed">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5>Message</h5>
+                                                <button class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body px-5">
+                                                <p>
+                                                    Are you sure you want to mark this document as reviewed?
+                                                </p>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button data-bs-dismiss="modal" class="btn btn-light">Cancel</button>
+                                                <a asp-page-handler="Reviewed" asp-route-prevPage="@Model.PreviousPage" asp-route-pId="@Model.DocumentAttachment.DocumentAttachment.Id" class="btn btn-primary">Proceed</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            }
+                            else if (Model.DocumentAttachment.DocumentTrackings.OrderByDescending(x => x.Id).FirstOrDefault(x => x.ReviewerId == Model.AccountId)?.ReviewerStatus == ReviewerStatus.Reviewed)
+                            {
+                               
+                                <a asp-page="./Incoming/ProcedureChecking" asp-route-prevPage="@Model.PreviousPage" asp-route-pId="@Model.DocumentAttachment.DocumentAttachment.Id" class="btn btn-info text-white">Proceed <i class="fa-solid fa-arrow-right"></i></a>
+                            }
+                           
+                        }
+                        else
+                        {
+                           <span class="text-body-tertiary fs-italic">Set prioritization first to proceed</span>
+                        }
+
+                    }
+                    else if(Model.DocumentAttachment.DocumentAttachment.Status == Status.PreparingRelease)
+                    {
+                        <button id="button-print" class="btn btn-primary text-white"><i class="fa fa-print"></i> Print Document Ref#.Code</button>
+                        <a asp-page-handler="Approved" asp-route-pId="@Model.DocumentAttachment.DocumentAttachment.Id.ToString()" class="btn btn-success text-white">Approved</a>
+                    }
+                    else
+                    {
+                        @if(User.IsInRole("Admin") || User.IsInRole("Sender"))
+                        {
+                            @if (!User.IsInRole("Sender"))
+                            {
+                                <button id="button-print" class="btn btn-primary text-white"><i class="fa fa-print"></i> Print Document Ref#.Code</button>
+                            }
+                            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal-@Model.DocumentAttachment.DocumentAttachment.Id">Delete <i class="fa-regular fa-trash-can"></i></button>
+                            <partial name="PartialViews/_DeleteDataModal" model="new DeleteModalViewModel(){Id=Model.DocumentAttachment.DocumentAttachment.Id.ToString(),returnUrl = returnUrlVal}" />
+                        }
+                    }
+                </div>
+            </div>
+           
+        </div>
+    </div>
+</div>
+
+
+<noscript id="print-content">
+    <div class="position-relative mb-5">
+        <img src="~/Logo/@(Model.Logo)" width="80" height="80" class=" position-absolute rounded-circle border border-2 border-opacity-50 border-secondary">
+        <h4 class="m-0 text-center">(CHED) Commision on Higher Education</h4>
+        <h3 class="m-0 fw-bolder text-center">Document Reference Code</h3>
+    </div>
+    <hr  class="mt-3"/>
+    <h3 class="text-center">@(Model.DocumentAttachment.DocumentAttachment.DocumentType == DocumentType.WalkIn ? $"dW{Model.DocumentAttachment.DocumentAttachment.Id.ToString("00000")}" : $"dE{Model.DocumentAttachment.DocumentAttachment.Id.ToString("00000")}")</h3>
+    <hr />
+</noscript>
+@section Scripts{
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.min.js"></script>
+    <script src="~/js/ViewDocument.js" asp-append-version="true"></script>
+    <script>
+        $(function () {
+            $("#button-print").on("click", function () {
+                //start_loader();
+                var head = $('head').clone();
+                var p = $('#outprint').clone();
+                var el = $('<div class="print-wrapper">');
+                var pContent = $($('noscript#print-content').html()).clone();
+                head.find('title').text("Report - Print View");
+                el.append(head);
+                el.append(pContent);
+                var nw = window.open("", "_blank", "width=1010,height=1000,top=50,left=75");
+                nw.document.write(el.html());
+                nw.document.close();
+
+                // Maximize the window before printing
+
+                nw.moveTo(0, 0);
+                nw.resizeTo(screen.width, screen.height);
+
+                setTimeout(() => {
+                    nw.print();
+                    setTimeout(() => {
+                        nw.close();
+                        end_loader();
+                    }, 200);
+                }, 500);
+            });
+        })
+    </script>
+    
+}

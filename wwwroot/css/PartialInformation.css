@@ -1,0 +1,4 @@
+﻿body {
+    background: linear-gradient(to right, rgba(173, 169, 150, .7), rgba(242, 242, 242,.9),rgba(219, 219, 219,.9),rgba(234, 234, 234, 1)), url(../image/CHEDMimaropaBackground.webp) no-repeat;
+    background-size: cover;
+}

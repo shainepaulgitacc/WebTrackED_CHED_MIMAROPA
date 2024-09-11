@@ -1,0 +1,26 @@
+﻿@model string
+<div class="modal fade" id="add-comment-@(Model)">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="d-flex justify-content-end p-3">
+				<i class="fa-solid fa-xmark clickable" data-bs-dismiss="modal"></i>
+			</div>
+			<div class="py-4">
+				<div class="text-center">
+					<img src="~/image/IllustrationComment.svg" width="70" height="70" />
+					<p class="text-secondary mt-3">Type your comment below</p>
+				</div>
+				<form method="post" asp-page-handler="AddComment" asp-route-id="@(Model)">
+					@Html.AntiForgeryToken()
+					<div class="px-5 mb-2">
+						<textarea required name="com" class="form-control mb-3" placeholder="Enter here..."></textarea>
+						<button type="submit" class="w-100 btn btn-primary">Submit</button>
+					</div>
+				</form>
+
+			</div>
+			
+
+		</div>
+	</div>
+</div>

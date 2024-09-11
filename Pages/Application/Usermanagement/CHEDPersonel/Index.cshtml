@@ -1,0 +1,79 @@
+﻿@page
+@model WebTrackED_CHED_MIMAROPA.Pages.Application.Admin.User.CHED_Personel.IndexModel
+@{
+    ViewData["Title"] = "User Reviewer Management";
+    var breadcrump_data = new BreadCrumpViewModel
+            {
+                pageName = "CHED Personel",
+                date = DateTime.Now,
+                breadCrump = new (string, string?, string, bool,int?)[]
+                                                        {
+                ("fa-solid fa-list-check",null,"Reviewer Accounts",true,null)
+                                                }
+            };
+}
+@await Component.InvokeAsync("BreadCrump", breadcrump_data)
+<div class="d-flex justify-content-end mb-2">
+    <button data-bs-toggle="modal" data-bs-target="#add-reviewer-user" class="btn btn-primary"><i class="fa-solid fa-user-plus"></i></button>
+    <partial name="_AddReviewerUser" model="new CHEDPersonelInputModel()" />
+</div>
+<div class="p-2 rounded-3 bg-white shadow ">
+    <div class="overflow-x-scroll remove-scrollbar">
+        <table id="table-data" class="table table-striped table-hover w-100">
+            <thead class="bg-primary-subtle">
+                <tr>
+                    <th>Id</th>
+                    <th>Profile Picture</th>
+                    <th>Full Name</th>
+                    <th>Username</th>
+                    <th>Office</th>
+                    <th>Designation</th>
+                    <th>Status</th>
+                    <th>Role</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody class="table-group-divider">
+                @foreach (var personel in Model.CHEDPersonels)
+                {
+                    <tr>
+                        <td>@personel.CHEDPersonel.Id.ToString("00000")</td>
+                        <td>
+                            <div class="d-flex justify-content-center align-items-center">
+                                <img width="50" height="50" class="rounded-circle" src="~/@(!string.IsNullOrEmpty(personel.Account.ProfileFileName)?$"ProfilePicture/{personel.Account.ProfileFileName}":"image/NoProfile.jfif" )" />
+                            </div>
+                            
+                        </td>
+                        <td>@($"{personel.Account.FirstName} {personel.Account.MiddleName} {personel.Account.LastName} {personel.Account.Suffixes}")</td>
+                        <td>@(personel.Account.UserName)</td>
+                        <td>@(personel.Office != null ? personel.Office.OfficeName : "N/A")</td>
+                        <td>@(personel.Designation != null ? personel.Designation.DesignationName : "N/A")</td>
+                        <td>
+                            <span class="@(personel.Account.Active?"bg-success":"bg-danger") rounded-pill px-3 py-1 text-white">@(personel.Account.Active ? "Active" : "Inactive")</span>
+                        </td>
+                        <td>
+                            <span class="@(personel.Account.TypeOfUser==TypeOfUser.Admin?"bg-primary":personel.Account.TypeOfUser == TypeOfUser.Reviewer?"bg-info":"bg-warning") rounded-pill text-white px-3 py-1">@personel.Account.TypeOfUser</span>
+                        </td>
+                        <td class="text-nowrap">
+                            <a asp-page="./EditReviewerUser" asp-route-Id="@personel.CHEDPersonel.Id" class="btn btn-success rounded-4"><i class="fa-regular fa-pen-to-square"></i></a>
+                            <button data-bs-toggle="modal" data-bs-target="#update-password-@personel.Account.Id" class="btn btn-primary rounded-4"><i class="fa-solid fa-key"></i></button>
+                            <partial name="PartialViews/_UpdatePassword" model="new UpdatePasswordInputModel{UserId = personel.Account.Id}" />
+                            <button class="rounded-4 btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal-@personel.Account.Id"><i class="fa-regular fa-trash-can"></i></button>
+                            <partial name="PartialViews/_DeleteDataModal" model="new DeleteModalViewModel(){Id=personel.Account.Id.ToString(),returnUrl = null}" />
+
+                        </td>
+                    </tr>
+                }
+
+            </tbody>
+        </table>
+    </div>
+</div>
+@section Scripts{
+    <partial name="_ValidationScriptsPartial"/>
+    <script>
+        $(function(){
+            new DataTable('#table-data');
+        })
+    </script>
+}

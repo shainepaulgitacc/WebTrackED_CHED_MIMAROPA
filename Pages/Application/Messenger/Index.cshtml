@@ -1,0 +1,157 @@
+﻿@page
+@model WebTrackED_CHED_MIMAROPA.Pages.Application.Messenger.IndexModel
+@{
+    ViewData["Title"] = "Messenger";
+    var breadcrump_data = new BreadCrumpViewModel
+            {
+                pageName = "Message",
+                date = DateTime.Now,
+                breadCrump = new (string, string?, string, bool, int?)[]
+                {
+                    ("fa-solid fa-message",null,"Chat Page",true,null)
+                }
+            };
+            var messages = Model.MessageRec;
+}
+@await Component.InvokeAsync("BreadCrump", breadcrump_data)
+
+<input type="hidden" value="@Model.RecipientId" id="recipient-id-page"/>
+<div class="row">
+    <div class="col-lg-6 col-12 px-lg-5 px-2">
+        <div class="d-flex flex-column align-items-center justify-content-center mb-4">
+            <div class="w-75 position-relative mb-4">
+                <i class="fa-solid fa-magnifying-glass position-absolute text-secondary" style="top: 10px;left: 7px"></i>
+                <input id="search-input" class="px-4 form-control rounded-0 border-0 bg-transparent border-bottom border-2 border-secondary w-100 text-center" placeholder="Search here" />
+            </div>
+            <div class="w-100 my-2 px-5">
+                <div class="d-flex w-100 scroll-container remove-scrollbar" style="  overflow-x: auto;white-space: nowrap;">
+                    @foreach(var user in Model.Users)
+                    {
+                        <div style="flex: 0 0 auto;width: 100px;margin-right: 1rem;">
+                            <a asp-route-rId="@user.Id" class="clickable flex-column d-flex justify-content-center align-items-center gap-2 text-decoration-none">
+                                <img src ="~/@(!string.IsNullOrEmpty(user.ProfileFileName) ? $"ProfilePicture/{user.ProfileFileName}" : "image/NoProfile.jfif")" width="50" height="50" class="rounded-circle" />
+                                <h6 style="font-size:15px" class="text-secondary text-center user-name fw-light text-wrap">@($"{user.FirstName} {user.MiddleName} {user.LastName} {user.Suffixes}")</h6>
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+           
+            <ul id="user-list" class="list-unstyled w-100 pe-lg-4 pe-2 py-1 overflow-y-scroll" style="height: 400px">
+                @foreach (var recipient in Model.Recipients)
+                {
+                    <li class="user-item border @(recipient.Recipient.Id == Model.RecipientId ? "border-primary border-4 ":"border-secondary") border-opacity-50 d-flex justify-content-between align-items-center p-3 rounded-4 shadow-sm bg-white mb-3">
+                        <a asp-route-rId="@recipient.Recipient.Id" class="d-lg-flex d-none gap-2 clickable text-decoration-none">
+                            <img src="~/@(!string.IsNullOrEmpty(recipient.Recipient.ProfileFileName)?$"ProfilePicture/{recipient.Recipient.ProfileFileName}":"image/NoProfile.jfif")" width="50" height="50" class="rounded-circle" />
+                            <div>
+                                <h6 class="p-0 mb-0 text-dark">@($"{recipient.Recipient.FirstName} {recipient.Recipient.MiddleName} {recipient.Recipient.LastName} {recipient.Recipient.Suffixes}")</h6>
+                                <span class="text-secondary">@recipient.Message.AddedAt.ToString("MM/dd/yyy hh:mm tt")</span>
+                            </div>
+                        </a>
+
+                        <a asp-route-rId="@recipient.Recipient.Id" asp-page="./ChatPage" class=" d-lg-none d-flex gap-2 clickable text-decoration-none">
+                            <img src="~/@(!string.IsNullOrEmpty(recipient.Recipient.ProfileFileName)?$"ProfilePicture/{recipient.Recipient.ProfileFileName}":"image/NoProfile.jfif")" width="50" height="50" class="rounded-circle" />
+                            <div>
+                                <h6 class="p-0 mb-0 text-dark">@($"{recipient.Recipient.FirstName} {recipient.Recipient.MiddleName} {recipient.Recipient.LastName} {recipient.Recipient.Suffixes}")</h6>
+                                <span class="text-secondary">@recipient.Message.AddedAt.ToString("MM/dd/yy hh:mm tt")</span>
+                            </div>
+                        </a>
+                        @if (messages.Any(x => x.Recipient == Model.UserAcc.Id && x.Sender == recipient.Recipient.Id && !x.IsViewed))
+                            {
+                                <span class="p-1 rounded-circle bg-danger"></span>
+                            }
+                    </li>
+                }
+               
+            </ul>
+        </div>
+
+    </div>
+
+    <div class="col-6 d-lg-block d-none">
+        @if(!string.IsNullOrEmpty(Model.RecipientId))
+        {
+            <div class="d-flex justify-content-between align-items-center">
+                <h6 class="m-0 p-0">@($"{Model.Recipient.FirstName} {Model.Recipient.MiddleName} {Model.Recipient.LastName} {Model.Recipient.Suffixes}")</h6>
+                <i class="fa-regular text-secondary fs-4 fa-message"></i>
+            </div>
+           
+          
+            <hr class="p-0 m-0 mt-2 mb-4" />
+           
+            <div id="chat-container" class="overflow-y-scroll pe-2 mb-5" style="height:400px">
+                @if(Model.Messages.Any(x => x.Message.Recipient == Model.RecipientId && x.Message.Sender == Model.UserAcc.Id))
+                {
+                    @foreach (var message in Model.Messages)
+                    {
+                        @if (message.Message.Sender == Model.SenderId && message.Message.Recipient == Model.RecipientId)
+                        {
+                            @if (!message.Message.IsDeleted)
+                            {
+                                <div class="d-flex align-items-center gap-2 justify-content-end  mb-3">
+                                    <input class="message-id" type="hidden" value="@(message.Message.Id.ToString())" />
+                                    <i class="delete-message fa-solid fa-trash-can text-body-tertiary clickable"></i>
+                                    <p class="bg-primary text-white rounded-3 m-0 p-2">@message.Message.MessageContent</p>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="d-flex align-items-center gap-2 justify-content-end  mb-3">
+                                    <i class="bg-light border border-1 border-opacity-25 text-secondary rounded-3 m-0 p-2 fw-light">Deleted Message</i>
+                                </div>
+                               
+                            }
+                           
+                        }
+                        else if (message.Message.Recipient == Model.SenderId && message.Message.Sender == Model.RecipientId)
+                        {
+                            <div class="r-message d-flex">
+                                <div class="d-flex flex-column align-items-center" style="width:20%;">
+                                   <img src="~/@(!string.IsNullOrEmpty(message.Sender.ProfileFileName)?$"ProfilePicture/{message.Sender.ProfileFileName}":"image/NoProfile.jfif" )" width="40" height="40" class="rounded-circle" />
+                                    <p style="font-size: 12px">@(message.Message.AddedAt.Date == DateTime.Now.Date ? message.Message.AddedAt.ToString("hh:mm tt") : message.Message.AddedAt.ToString("dd/MM/yyyy hh:mm tt"))</p>
+                                </div>
+                                <div style="width: 80%">
+                                    @if (!message.Message.IsDeleted)
+                                    {
+                                        <input class="r-message-id" value="@(message.Message.Id.ToString())" type="hidden"/>
+                                        <p class="message-content bg-secondary-subtle rounded-3 p-2 d-inline-block">@message.Message.MessageContent</p>
+                                    }
+                                    else
+                                    {
+                                        <p class="bg-light border border-1 border-opacity-25 text-secondary rounded-3 p-2 d-inline-block fw-light">Deleted Message</p>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    }
+                }
+                else
+                {
+                    <div id="no-record-message" class="h-100 d-flex align-items-center justify-content-center">
+                        <h2 class="text-body-secondary">No chat record</h2>
+                    </div>
+                }
+               
+            </div>
+            <div class=" d-flex justify-content-center">
+                <div class="position-relative w-100">
+                    <i class="fa-regular fa-keyboard position-absolute text-secondary fs-4" style="top: 15px;left: 15px"></i>
+                    <input id="recipient-input" value="@Model.RecipientId" type="hidden" />
+                    <input id="sender-input" value="@Model.SenderId" type="hidden" />
+                    <input id="message-content-input"  class="form-control w-100 py-3 px-5" />
+                    <button id="send-button" type="button" class="disabled border-0 bg-transparent p-0 m-0 fa-regular fa-paper-plane fs-4 text-primary position-absolute" style="right: 15px; top: 15px"></button>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="h-100 d-flex align-items-center justify-content-center">
+                <h2 class="text-body-secondary">Start chat systems</h2>
+            </div>
+           
+        }
+    </div>
+</div>
+@section Scripts{
+    <script src="~/js/Messenger.js" asp-append-version="true"></script>
+}

@@ -1,0 +1,106 @@
+﻿@page
+@model WebTrackED_CHED_MIMAROPA.Pages.Application.SettingsManagement.IndexModel
+<div class="pt-3">
+	<div class="bg-white shadow rounded-3 py-4 px-3 px-lg-5">
+		<div class="d-flex align-items-center justify-content-between">
+			<h5 class="fw-bolder"><i class="fa-solid fa-gears"></i> Settings </h5>
+			<button id="submitButton" class="btn btn-primary">
+				<span class="button-text">Save Changes</span>
+				<span class="d-none spinner-grow spinner-grow-sm loading-spinner"></span>
+				<span class="d-none loading-text">Loading...</span>
+			</button>
+		</div>
+		<hr />
+		<div class="d-flex gap-2">
+			<img src="~/Logo/@(Model.SettingsInput.LogoFileName)" width="80" height="80" class="rounded-circle" />
+			<div class="d-flex align-items-end">
+				<form id="change-logo-form" enctype="multipart/form-data" method="post" asp-page-handler="Changelogo" asp-route-Id="@Model.SettingsInput.Id">
+					@Html.AntiForgeryToken()
+					<div>
+						<label for="logo-file" class="text-nowrap text-body-secondary">
+							Change logo picture
+							<i class="fa-solid fa-pen text-success clickable"></i> 
+						</label>
+						<input id="logo-file" asp-for="ChangeLogoInput.LogoFile	" class="d-none" accept="image/*" />
+					</div>
+				</form>
+			</div>
+			
+		</div>
+		<hr />
+		<form id="settings-form" method="post">
+			@Html.AntiForgeryToken()
+			<input type="hidden" asp-for="SettingsInput.Id"/>
+			<input type="hidden" asp-for="SettingsInput.AddedAt" />
+			<input type="hidden" asp-for="SettingsInput.LogoFileName" />
+			<div class="position-relative mb-4">
+				<h5>Notification Settings</h5>
+				<div class="bg-primary position-absolute " style="width: 40px; padding: 2px"></div>
+			</div>
+			<ul class="list-unstyle p-0">
+				<li class="d-flex justify-content-between align-items-center mb-3 w-100">
+					<div>
+						<h6 class="fw-bold">Document Notification</h6>
+						<p class="fw-light">Notify when all transaction of document including receiving,reviewing,approving and disapproving</p>
+					</div>
+					<div class="form-check form-switch">
+						<input asp-for="SettingsInput.DocumentNotif" class="form-check-input" type="checkbox">
+					</div>
+				</li>
+				<li class="d-flex justify-content-between align-items-center mb-3">
+					<div>
+						<h6 class="fw-bold">New Registered User Notification</h6>
+						<p class="fw-light">Notify when the new user is registered</p>
+					</div>
+					<div class="form-check form-switch">
+						<input asp-for="SettingsInput.RegisteredUserNotif" class="form-check-input" type="checkbox">
+					</div>
+				</li>
+			</ul>
+			<div class="position-relative mb-4">
+				<h5>Registration Settings</h5>
+				<div class="bg-primary position-absolute " style="width: 40px; padding: 2px"></div>
+			</div>
+			<div class="row mb-3">
+				<div class="col-lg-6 col-md-6 col-12 px-2">
+					<label class="fw-bold">Password Required Length</label>
+					<input asp-for="SettingsInput.PasswordRequiredLength" class="form-control" type="number" placeholder="Enter here..." />
+					<span class="text-danger" asp-validation-for="SettingsInput.PasswordRequiredLength"></span>
+				</div>
+			</div>
+			<div class="row mb-3">
+				<div class="col-lg-6 col-md-6 col-12 px-2">
+					<label class="fw-bold">Email Domain Name</label>
+					<input asp-for="SettingsInput.EmailDomain" class="form-control" placeholder="Enter here..." />
+					<span class="text-danger" asp-validation-for="SettingsInput.EmailDomain"></span>
+				</div>
+			</div>
+			<ul class="list-unstyle p-0">
+				<li class="d-flex justify-content-between align-items-center mb-3">
+					<div>
+						<h6 class="fw-bold">Turn On Registration</h6>
+						<p class="fw-light">The registration feature will be available if it is turned on; otherwise, it will not be available.</p>
+					</div>
+					<div class="form-check form-switch">
+						<input asp-for="SettingsInput.EnableRegistration" class="form-check-input" type="checkbox">
+					</div>
+				</li>
+
+			</ul>
+		</form>
+	</div>
+</div>
+@section Scripts{
+	<partial name="_ValidationScriptsPartial"></partial>
+	<script>
+		$(function () {
+			$("#logo-file").on("change", function () {
+				$("#change-logo-form").submit();
+			});
+
+			$("#submitButton").on("click", function() {
+				$("#settings-form").submit();
+			});
+		});
+	</script>
+}

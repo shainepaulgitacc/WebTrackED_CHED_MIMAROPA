@@ -1,0 +1,18 @@
+﻿@{
+    var validationResult = TempData["validation-message"] as string;
+}
+
+@if (!string.IsNullOrEmpty(validationResult))
+{
+    var isSuccessfull = validationResult.Contains("Successfully");
+    <div id="alert" class="alert d-flex justify-content-center align-items-center gap-3 p-3 rounded-3 @(isSuccessfull? "bg-success-subtle":"bg-danger-subtle") shadow position-fixed z-2">
+        <i class="text-white fa-solid fa-check @(isSuccessfull? "fa-check bg-success p-2":"fa-exclamation px-3 py-2 bg-danger")  rounded-circle "></i>
+        <div>
+            <h6 class="fw-bold p-0 m-0">@(isSuccessfull?"Successfull":"Error")</h6>
+            <span class="text-secondary">@validationResult</span>
+        </div>
+        <div class="ms-3">
+            <i id="alert-close" class="fa-solid fa-xmark remove-scrollbar"></i>
+        </div>
+    </div>
+}

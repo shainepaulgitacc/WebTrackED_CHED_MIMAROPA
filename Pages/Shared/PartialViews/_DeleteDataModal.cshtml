@@ -1,0 +1,24 @@
+﻿@model DeleteModalViewModel
+<div class="modal fade" id="deleteModal-@Model.Id">
+    <div class="modal-dialog">
+        <div class="modal-content py-4">
+            <div class="text-center">
+                <img src="~/image/deleteModal.svg" width="60" height="60" />
+                <h4 class="fw-bolder mt-3">Delete Message</h4>
+                <input type="hidden" name="Id">
+                <p class="text-secondary mt-3">Are you sure you want to delete this?</p>
+            </div>
+            <div class="border-0 gap-2 mt-3 d-flex justify-content-center">
+                @if (Model.returnUrl != null)
+                {
+                    <a asp-page-handler="Delete" asp-route-Id="@Model.Id" asp-route-returnUrl="@Model.returnUrl" class="btn btn-info rounded-circle text-white"><i class="fa-solid fa-check-double"></i></a>
+                }
+                else
+                {
+                    <a asp-page-handler="Delete" asp-route-Id="@Model.Id" class="btn btn-info rounded-circle text-white"><i class="fa-solid fa-check-double"></i></a>
+                }
+                <button type="button" class="btn btn-danger rounded-circle" data-bs-dismiss="modal"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+        </div>
+    </div>
+</div>

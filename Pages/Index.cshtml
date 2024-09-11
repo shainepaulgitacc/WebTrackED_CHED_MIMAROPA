@@ -1,0 +1,20 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+    var breadcrump_data = new BreadCrumpViewModel
+    {
+        pageName = "Dashboard",
+        date = DateTime.Now,
+        breadCrump = new (string, string?, string, bool,int?)[]
+        {
+            ("",null,"Home",false,null),
+            ("",null,"Sample",true,null),
+        }
+    };
+}
+@await Component.InvokeAsync("BreadCrump",breadcrump_data)
+<div class="text-center">
+    <h1 class="display-4 "><a asp-area="Identity" asp-page="/Account/PartialInformation">Direct to</a></h1>
+    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+</div>

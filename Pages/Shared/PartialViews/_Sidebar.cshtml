@@ -1,0 +1,277 @@
+﻿@inject SignInManager<AppIdentityUser> _signInManager
+@inject UserManager<AppIdentityUser> _userManager
+@inject IBaseRepository<Message> _messageRepo;
+@{
+
+    var user = await _userManager.FindByNameAsync(User.Identity.Name);
+    var messages = await _messageRepo.GetAll();
+    var messF = messages.Where(x => x.Recipient == user?.Id).OrderByDescending(x => x.Id).ToList();
+
+
+    var menus = new SidebarViewModel[]
+    {
+        new SidebarViewModel
+        {
+            menuName="Dashboard",
+            icon="fa-solid fa-gauge",
+            link = "/Application/Dashboard/Index"
+           
+        },                                                                                                                                                                                                        
+        new SidebarViewModel
+        {
+            menuName="Management",
+            icon="fa-solid fa-list-check",
+            submenus= new(string,string)[]
+            {
+                ("Category","/Application/Management/CategoryManagement/Index"),
+                ("Sub Category","/Application/Management/SubCategoryManagement/Index"),
+                ("Office","/Application/Management/OfficeManagement/Index"),
+                ("Designation","/Application/Management/DesignationManagement/Index")
+            }
+        },
+        new SidebarViewModel 
+        { 
+            menuName="Document", 
+            icon="fa-solid fa-file", 
+            submenus = new (string, string)[]
+            {
+                 ("Compose","/Application/Document/Compose/Index"),
+                 ("Pending","/Application/Document/Pending/Index"),
+                 ("Incoming","/Application/Document/Incoming/Index"),
+                 ("Outgoing","/Application/Document/Outgoing/Index"),
+                 ("Onprocess","/Application/Document/Onprocess/Index"),
+                 ("Completed","/Application/Document/Ended/Index"),
+              
+            }
+        },
+
+        new SidebarViewModel { menuName="Message", icon="fa-solid fa-message",link="/Application/Messenger/Index" },
+        new SidebarViewModel
+        {
+            menuName="User Management",
+            icon="fa-solid fa-users",
+            submenus= new(string,string)[]{("CHED Personel","/Application/Usermanagement/CHEDPersonel/Index"),("Sender","/Application/Usermanagement/SenderManagement/Index")}
+        },
+        new SidebarViewModel { menuName="Report", icon="fa-solid fa-chart-simple",link="/Application/Report/Index" },
+        new SidebarViewModel { menuName="Settings", icon="fa-solid fa-gear",link="/Application/SettingsManagement/Index" },
+        new SidebarViewModel { menuName="Profile", icon="fa-solid fa-user",link="/Application/Profiles/Index" }
+    };
+}
+
+<div class="bg-white border-end overflow-y-scroll remove-scrollbar  z-1 position-fixed left-0 bottom-0 pt-5" id="sidebar">
+    <div class="px-4 pt-5" style="margin-bottom: 100px">
+        <div class="d-block d-lg-none d-md-none d-sm-none mb-4">
+            <span class="text-nowrap text-uppercase text-secondary fw-bolder mb-4 d-block">Notification</span>
+            <a asp-page="/Application/NotificationManagement/Index" class="text-nowrap menu text-secondary menus d-block text-decoration-none rounded-3 p-2 mb-2 d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                    <div style="width: 30px; height: 30px;" class="rounded-2 bg-white shadow d-flex align-items-center justify-content-center">
+                        <i class="menu-icon color-muted fa-regular fa-bell fs-5"></i>
+                    </div>
+                    <span class="ms-2">Notification</span>
+                </div>
+            </a>
+        </div>
+        <span class="text-nowrap text-uppercase text-secondary fw-bolder mb-4 d-block">Available Menus</span>
+        @if (_signInManager.IsSignedIn(User))
+        {
+            @foreach (var menu in menus)
+            {
+                <div>
+                    @if (User.IsInRole("Admin"))
+                    {
+                        @if (menu.submenus != null)
+                        {
+                            <a class="text-nowrap menu text-secondary menus d-block text-decoration-none rounded-3 p-2 mb-2 d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    <div style="width: 30px; height: 30px;" class="rounded-2 bg-white shadow d-flex align-items-center justify-content-center">
+                                        <i class="menu-icon color-muted @menu.icon fs-5"></i>
+                                    </div>
+                                    <span class="ms-2">@menu.menuName</span>
+                                </div>
+                                <i class="dropdown-icon fa-solid fa-chevron-right"></i>
+                            </a>
+                            <div class="submenus ms-4 border-start border-secondary border-opacity-25 border-3 ps-3 d-flex flex-column gap-3">
+                                @foreach (var submenu in menu.submenus)
+                                {
+                                    if(submenu.Item1 != "Pending" && submenu.Item1 != "Onprocess")
+                                    {
+                                        <a asp-page="@submenu.Item2" class="text-nowrap d-block text-secondary text-decoration-none">@submenu.Item1</a>
+                                    }
+                                   
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            @if(menu.menuName == "Message")
+                            {
+                                <div id="message-menu" class="position-relative">
+                                    @if (messF.Where(x => !x.IsViewed).Count() > 0)
+                                    {
+                                        <span class="fw-bolder text-white bg-danger py-1 px-2 rounded-pill position-absolute" style="top: -1px; right: -2px;">@(messF.Where(x => !x.IsViewed).Count() > 10 ? $"{messF.Where(x => !x.IsViewed).Count()}+" : messF.Where(x => !x.IsViewed).Count())</span>
+                                    }
+                                    <a asp-page="@menu.link" class="text-nowrap menu text-secondary menus d-block text-decoration-none rounded-3 p-2 mb-2 d-flex justify-content-between align-items-center">
+                                        <div class="d-flex align-items-center">
+                                            <div style="width: 30px; height: 30px;" class="rounded-2 bg-white shadow d-flex align-items-center justify-content-center">
+                                                <i class="menu-icon color-muted @menu.icon fs-5"></i>
+                                            </div>
+                                            <span class="ms-2">@menu.menuName</span>
+                                        </div>
+                                    </a>
+
+                                </div>
+
+                            }
+                            else
+                            {
+                                <a asp-page="@menu.link" class="text-nowrap menu text-secondary menus d-block text-decoration-none rounded-3 p-2 mb-2 d-flex justify-content-between align-items-center">
+                                    <div class="d-flex align-items-center">
+                                        <div style="width: 30px; height: 30px;" class="rounded-2 bg-white shadow d-flex align-items-center justify-content-center">
+                                            <i class="menu-icon color-muted @menu.icon fs-5"></i>
+                                        </div>
+                                        <span class="ms-2">@menu.menuName</span>
+                                    </div>
+                                </a>
+                            }
+                            
+                        }
+                    }
+                    else if(User.IsInRole("Reviewer"))
+                    {
+                        @if (menu.menuName != "Management" &&
+                             menu.menuName != "Settings" &&
+                             menu.menuName != "User Management" &&
+                             menu.menuName != "Report")
+                        {
+                            @if (menu.submenus != null)
+                            {
+                                <a class="text-nowrap menu text-secondary menus d-block text-decoration-none rounded-3 p-2 mb-2 d-flex justify-content-between align-items-center">
+                                    <div class="d-flex align-items-center">
+                                        <div style="width: 30px; height: 30px;" class="rounded-2 bg-white shadow d-flex align-items-center justify-content-center">
+                                            <i class="menu-icon color-muted @menu.icon fs-5"></i>
+                                        </div>
+                                        <span class="ms-2">@menu.menuName</span>
+                                    </div>
+                                    <i class="dropdown-icon fa-solid fa-chevron-right"></i>
+                                </a>
+                                <div class="submenus ms-4 border-start border-secondary border-opacity-25 border-3 ps-3 d-flex flex-column gap-3">
+                                    @foreach (var submenu in menu.submenus)
+                                    {
+                                        if (submenu.Item1 != "Pending"&&submenu.Item1 != "Onprocess" && submenu.Item1 != "Compose")
+                                        {
+                                            <a asp-page="@submenu.Item2" class="text-nowrap d-block text-secondary text-decoration-none">@submenu.Item1</a>
+                                        }
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                @if (menu.menuName == "Message")
+                                {
+                                    <div id="message-menu" class="position-relative">
+                                        @if (messF.Where(x => !x.IsViewed).Count() > 0)
+                                        {
+                                            <span class="fw-bolder text-white bg-danger py-1 px-2 rounded-pill position-absolute" style="top: -1px; right: -2px;">@(messF.Where(x => !x.IsViewed).Count() > 10 ? $"{messF.Where(x => !x.IsViewed).Count()}+" : messF.Where(x => !x.IsViewed).Count())</span>
+                                        }
+                                        <a asp-page="@menu.link" class="text-nowrap menu text-secondary menus d-block text-decoration-none rounded-3 p-2 mb-2 d-flex justify-content-between align-items-center">
+                                            <div class="d-flex align-items-center">
+                                                <div style="width: 30px; height: 30px;" class="rounded-2 bg-white shadow d-flex align-items-center justify-content-center">
+                                                    <i class="menu-icon color-muted @menu.icon fs-5"></i>
+                                                </div>
+                                                <span class="ms-2">@menu.menuName</span>
+                                            </div>
+                                        </a>
+
+                                    </div>
+
+                                }
+                                else
+                                {
+                                    <a asp-page="@menu.link" class="text-nowrap menu text-secondary menus d-block text-decoration-none rounded-3 p-2 mb-2 d-flex justify-content-between align-items-center">
+                                        <div class="d-flex align-items-center">
+                                            <div style="width: 30px; height: 30px;" class="rounded-2 bg-white shadow d-flex align-items-center justify-content-center">
+                                                <i class="menu-icon color-muted @menu.icon fs-5"></i>
+                                            </div>
+                                            <span class="ms-2">@menu.menuName</span>
+                                        </div>
+                                    </a>
+                                }
+                            }
+                        }
+
+                    }
+                    else if(User.IsInRole("Sender"))
+                    {
+                        @if (menu.menuName != "Management" &&
+                       menu.menuName != "Settings" &&
+                       menu.menuName != "User Management" &&
+                       menu.menuName != "Report")
+                        {
+                            @if (menu.submenus != null)
+                            {
+                                <a class="text-nowrap menu text-secondary menus d-block text-decoration-none rounded-3 p-2 mb-2 d-flex justify-content-between align-items-center">
+                                    <div class="d-flex align-items-center">
+                                        <div style="width: 30px; height: 30px;" class="rounded-2 bg-white shadow d-flex align-items-center justify-content-center">
+                                            <i class="menu-icon color-muted @menu.icon fs-5"></i>
+                                        </div>
+                                        <span class="ms-2">@menu.menuName</span>
+                                    </div>
+                                    <i class="dropdown-icon fa-solid fa-chevron-right"></i>
+                                </a>
+                                <div class="submenus ms-4 border-start border-secondary border-opacity-25 border-3 ps-3 d-flex flex-column gap-3">
+                                    @foreach (var submenu in menu.submenus)
+                                    {
+                                        if (submenu.Item1 != "Incoming"&& submenu.Item1 != "Outgoing")
+                                        {
+                                            <a asp-page="@submenu.Item2" class="text-nowrap d-block text-secondary text-decoration-none">@submenu.Item1</a>
+                                        }                                        
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                @if (menu.menuName == "Message")
+                                {
+                                    <div id="message-menu" class="position-relative">
+                                        @if (messF.Where(x => !x.IsViewed).Count() > 0)
+                                        {
+                                            <span class="fw-bolder text-white bg-danger py-1 px-2 rounded-pill position-absolute" style="top: -1px; right: -2px;">@(messF.Where(x => !x.IsViewed).Count() > 10 ? $"{messF.Where(x => !x.IsViewed).Count()}+" : messF.Where(x => !x.IsViewed).Count())</span>
+                                        }
+                                        <a asp-page="@menu.link" class="text-nowrap menu text-secondary menus d-block text-decoration-none rounded-3 p-2 mb-2 d-flex justify-content-between align-items-center">
+                                            <div class="d-flex align-items-center">
+                                                <div style="width: 30px; height: 30px;" class="rounded-2 bg-white shadow d-flex align-items-center justify-content-center">
+                                                    <i class="menu-icon color-muted @menu.icon fs-5"></i>
+                                                </div>
+                                                <span class="ms-2">@menu.menuName</span>
+                                            </div>
+                                        </a>
+
+                                    </div>
+
+                                }
+                                else
+                                {
+                                    <a asp-page="@menu.link" class="text-nowrap menu text-secondary menus d-block text-decoration-none rounded-3 p-2 mb-2 d-flex justify-content-between align-items-center">
+                                        <div class="d-flex align-items-center">
+                                            <div style="width: 30px; height: 30px;" class="rounded-2 bg-white shadow d-flex align-items-center justify-content-center">
+                                                <i class="menu-icon color-muted @menu.icon fs-5"></i>
+                                            </div>
+                                            <span class="ms-2">@menu.menuName</span>
+                                        </div>
+                                    </a>
+                                }
+                            }
+                        }
+
+                    }
+                    
+                </div>
+            }
+        }
+        else
+        {
+           <h5>Your not signed in</h5>
+        }
+
+    </div>
+</div>

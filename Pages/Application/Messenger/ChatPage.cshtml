@@ -1,0 +1,104 @@
+﻿@page
+@model WebTrackED_CHED_MIMAROPA.Pages.Application.Messenger.ChatPageModel
+@{
+    ViewData["Title"] = "Messenger";
+    var breadcrump_data = new BreadCrumpViewModel
+            {
+                pageName = "Message",
+                date = DateTime.Now,
+                breadCrump = new (string, string?, string, bool, int?)[]
+                        {
+                    ("fa-solid fa-arrow-left","./Index","Back",false,null)
+
+                        }
+            };
+}
+@await Component.InvokeAsync("BreadCrump", breadcrump_data)
+<input type="hidden" value="@Model.RecipientId" id="recipient-id-page" />
+<div class="row">
+    <div class="col-12">
+        @if (!string.IsNullOrEmpty(Model.RecipientId))
+        {
+            <h6 class="m-0 p-0">@($"{Model.Recipient.FirstName} {Model.Recipient.MiddleName} {Model.Recipient.LastName} {Model.Recipient.Suffixes}")</h6>
+            <span class="text-secondary">Active now</span>
+            <hr class="p-0 m-0 mt-2 mb-4" />
+
+            <div id="chat-container" class="overflow-y-scroll pe-2 mb-5" style="height:400px">
+                @if (Model.Messages.Any(x => x.Message.Recipient == Model.RecipientId && x.Message.Sender == Model.UserAcc.Id))
+                {
+                    @foreach (var message in Model.Messages)
+                    {
+                        @if (message.Message.Sender == Model.SenderId && message.Message.Recipient == Model.RecipientId)
+                        { 
+                            @if (!message.Message.IsDeleted)
+                            {
+                                <div class="d-flex align-items-center gap-2 justify-content-end  mb-3">
+                                    <input class="message-id" type="hidden" value="@(message.Message.Id.ToString())" />
+                                    <i class="delete-message fa-solid fa-trash-can text-body-tertiary clickable"></i>
+                                    <p class="bg-primary text-white rounded-3 m-0 p-2">@message.Message.MessageContent</p>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="d-flex align-items-center gap-2 justify-content-end  mb-3">
+                                    <i class="bg-light border border-1 border-opacity-25 text-secondary rounded-3 m-0 p-2 fw-light">Deleted Message</i>
+                                </div>
+
+                            }
+                        }
+                        else if (message.Message.Recipient == Model.SenderId && message.Message.Sender == Model.RecipientId)
+                        {
+                            <div class="r-message d-flex">
+                                <div class="d-flex flex-column align-items-center" style="width:20%;">
+                                    <img src="~/@(!string.IsNullOrEmpty(message.Sender.ProfileFileName)?$"ProfilePicture/{message.Sender.ProfileFileName}":"image/NoProfile.jfif" )" width="40" height="40" class="rounded-circle" />
+                                    <p style="font-size: 12px">@(message.Message.AddedAt.Date == DateTime.Now.Date ? message.Message.AddedAt.ToString("hh:mm tt") : message.Message.AddedAt.ToString("dd/MM/yyyy hh:mm tt"))</p>
+                                </div>
+                                <div style="width: 80%">
+                                    
+                                    @if (!message.Message.IsDeleted)
+                                    {
+                                        <input class="r-message-id" value="@(message.Message.Id.ToString())" type="hidden" />
+                                        <p class="message-content bg-secondary-subtle rounded-3 p-2 d-inline-block">@message.Message.MessageContent</p>
+                                    }
+                                    else
+                                    {
+                                        <p class="bg-light border border-1 border-opacity-25 text-secondary rounded-3 p-2 d-inline-block fw-light">Deleted Message</p>
+                                    }
+                                </div>
+
+
+                            </div>
+                        }
+                    }
+                }
+                else
+                {
+                    <div id="no-record-message" class="h-100 d-flex align-items-center justify-content-center">
+                        <h2 class="text-body-secondary">No chat record</h2>
+                    </div>
+                }
+
+            </div>
+            <div class=" d-flex justify-content-center">
+                <div class="position-relative w-100">
+                    <i class="fa-regular fa-keyboard position-absolute text-secondary fs-4" style="top: 15px;left: 15px"></i>
+                    <input id="recipient-input" value="@Model.RecipientId" type="hidden" />
+                    <input id="sender-input" value="@Model.SenderId" type="hidden" />
+                    <input id="message-content-input" class="form-control w-100 py-3 px-5" />
+                    <button id="send-button" type="button" class="disabled border-0 bg-transparent p-0 m-0 fa-regular fa-paper-plane fs-4 text-primary position-absolute" style="right: 15px; top: 15px"></button>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="h-100 d-flex align-items-center justify-content-center">
+                <h2 class="text-body-secondary">Start chat systems</h2>
+            </div>
+
+        }
+    </div>
+</div>
+@section Scripts{
+    <script src="~/js/Messenger.js" asp-append-version="true"></script>
+   
+}

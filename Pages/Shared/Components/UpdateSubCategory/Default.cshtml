@@ -1,0 +1,33 @@
+﻿@model SubCategoryInputModel
+@inject IBaseRepository<Category> _categRepo
+@{
+    var categories = await _categRepo.GetAll();
+}
+<div class="modal fade" id="update-subcategory-@(Model.Id)">
+    <div class="modal-dialog">
+        <form method="post" asp-page-handler="Update">
+            @Html.AntiForgeryToken()
+            <input asp-for="Id" type="hidden" />
+            <input asp-for="AddedAt" type="hidden" />
+            <div class="modal-content">
+                <div class="modal-header bg-info-subtle">
+                    <h6><i class="fa-solid fa-pen"></i> Update Category</h6>
+                    <i data-bs-dismiss="modal" class="clickable fa-solid fa-xmark fs-5"></i>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label asp-for="SubCategoryName" class="fw-bolder mb-2"></label><span class="fw-bolder text-danger">*</span>
+                        <input asp-for="SubCategoryName" class="form-control" placeholder="Enter here.."/>
+                        <span asp-validation-for="SubCategoryName" class="text-danger"></span>
+                    </div>
+                   
+                </div>
+                <div class="modal-footer">
+                    <button type="reset" class="btn btn-light">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Update <i class="fa-solid fa-pen"></i></button>
+                </div>
+            </div>
+        </form>
+
+    </div>
+</div>

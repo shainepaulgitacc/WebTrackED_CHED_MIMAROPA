@@ -1,0 +1,685 @@
+﻿@page
+@model WebTrackED_CHED_MIMAROPA.Pages.Application.Profiles.IndexModel
+@{
+	ViewData["Title"] = "Profile";
+	var breadcrump_data = new BreadCrumpViewModel
+			{
+				pageName = "Profile",
+				date = DateTime.Now,
+				breadCrump = new (string, string?, string, bool, int?)[]
+								{
+					("fa-solid fa-list-check",null,"View profile",true,null)
+
+								}
+			};
+}
+@await Component.InvokeAsync("BreadCrump", breadcrump_data)
+<div class="bg-white py-lg-5 px-lg-4 p-3 rounded-3 shadow">
+	@if (!string.IsNullOrEmpty(Model.AccId))
+	{
+		<div class="row">
+			<div class="col-lg-5 col-12">
+				<div class="d-flex  gap-4 pe-5 overflow-x-scroll remove-scrollbar">
+					<div class="d-flex flex-column align-items-center gap-3">
+						<img width="100" height="100"  src="~/@(!string.IsNullOrEmpty(Model.SenderUser.User.ProfileFileName)?$"ProfilePicture/{Model.SenderUser.User.ProfileFileName}":"image/NoProfile.jfif")" class="border border-primary border-opacity-75 border-3 rounded-3" />
+					</div>
+					<div class="d-flex flex-column gap-1">
+						<span class="fw-bolder">@($"{Model.SenderUser.User.FirstName} {Model.SenderUser.User.MiddleName} {Model.SenderUser.User.LastName} {Model.SenderUser.User.Suffixes}")</span>
+						<span class="text-body-secondary">@Model.SenderUser.User.Email</span>
+						<span class="text-body-secondary mb-3">@Model.SenderUser.User.PhoneNumber</span>
+					</div>
+				</div>
+				<hr class="d-lg-none d-block" />
+			</div>
+			<div class="col-lg-7 col-12">
+				<div class="position-relative px-3">
+					<span class="z-0 position-absolute bg-secondary-subtle d-lg-inline d-none" style="padding: 0 1px;  left: -1px; height: 100%"></span>
+					<h5>Information</h5>
+					<ul class="nav nav-pills mb-3 flex-nowrap  overflow-x-scroll remove-scrollbar align-items-center" id="pills-tab" role="tablist">
+						<li class="nav-item" role="presentation">
+							<button class="nav-link active" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#personal-informations" type="button" role="tab" aria-controls="pills-home" aria-selected="true">Personal Informations</button>
+						</li>
+						<li class="nav-item" role="presentation">
+							<button class="nav-link" id="pills-profile-tab" data-bs-toggle="pill" data-bs-target="#employment-details" type="button" role="tab" aria-controls="pills-profile" aria-selected="false">Employment Details</button>
+						</li>
+						<li class="nav-item" role="presentation">
+							<button class="nav-link" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#other-informations" type="button" role="tab" aria-controls="pills-contact" aria-selected="false">Other Relevant Informations</button>
+						</li>
+
+					</ul>
+
+					<div class="tab-content" id="pills-tabContent">
+						<div class="tab-pane fade show active container  overflow-y-scroll remove-scrollbar" id="personal-informations" role="tabpanel" aria-labelledby="pills-home-tab" tabindex="0">
+							<div class="row">
+								<div class="col-12 col-lg-6">
+									<div class="d-flex gap-2 mb-3">
+										<div>
+											<i class="rounded-circle bg-secondary-subtle text-primary fa-solid fa-user p-3"></i>
+										</div>
+										<div>
+											<h6 class="mb-0 p-0">@($"{Model.SenderUser.User.FirstName} {Model.SenderUser.User.MiddleName} {Model.SenderUser.User.LastName} {Model.SenderUser.User.Suffixes}")</h6>
+											<span class="text-secondary fs-italic">Fullname</span>
+										</div>
+									</div>
+								</div>
+								<div class="col-lg-6 col-12">
+									<div class="d-flex gap-2 mb-3">
+										<div>
+											<i class="rounded-circle bg-secondary-subtle text-primary fa-solid fa-person-half-dress p-3"></i>
+										</div>
+										<div>
+											<h6 class="mb-0 p-0">@Model.SenderUser.User.Sex</h6>
+											<span class="text-secondary fs-italic">Sex</span>
+										</div>
+									</div>
+								</div>
+								<div class="col-lg-6 col-12">
+									<div class="d-flex gap-2 mb-3">
+										<div>
+											<i class="rounded-circle bg-secondary-subtle text-primary fa-solid fa-cake-candles p-3"></i>
+										</div>
+										<div>
+											<h6 class="mb-0 p-0">@(Model.SenderUser.User.DateOfBirth?.ToString("MM/dd/yyy") ?? "None")</h6>
+											<span class="text-secondary fs-italic">Date Of Birth</span>
+										</div>
+									</div>
+								</div>
+								<div class="col-lg-6 col-12">
+									<div class="d-flex gap-2 mb-3">
+										<div>
+											<i class="rounded-circle bg-secondary-subtle text-primary fa-solid fa-location-dot p-3"></i>
+										</div>
+										<div>
+											<h6 class="mb-0 p-0">@(Model.SenderUser.User.Address ?? "None")</h6>
+											<span class="text-secondary fs-italic">Complete Address</span>
+										</div>
+									</div>
+								</div>
+								<div class="col-6 col-lg-6 col-12">
+									<div class="d-flex gap-2 mb-3">
+										<div>
+											<i class="rounded-circle bg-secondary-subtle text-primary fa-solid fa-ring p-3"></i>
+										</div>
+										<div>
+											<h6 class="mb-0 p-0">@(Model.SenderUser.User.MaritalStatus.ToString() ?? "None")</h6>
+											<span class="text-secondary fs-italic">Marital Status</span>
+										</div>
+									</div>
+								</div>
+								<div class="col-6 col-lg-6 col-12">
+									<div class="d-flex gap-2 mb-3">
+										<div>
+											<i class="rounded-circle bg-secondary-subtle text-primary fa-solid fa-phone p-3"></i>
+										</div>
+										<div>
+											<h6 class="mb-0 p-0">@(Model.SenderUser.User.PhoneNumber ?? "None")</h6>
+											<span class="text-secondary fs-italic">Phone Number</span>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="tab-pane fade" id="employment-details" role="tabpanel" aria-labelledby="pills-profile-tab" tabindex="0">
+							<div class="row">
+								<div class="col-12 col-lg-6">
+									<div class="d-flex gap-2 mb-3">
+										<div>
+											<i class="rounded-circle bg-secondary-subtle text-primary fa-solid fa-person-walking-luggage p-3"></i>
+
+										</div>
+										<div>
+											<h6 class="mb-0 p-0">@(Model.SenderUser.Sender.Designation ?? "None")</h6>
+											<span class="text-secondary fs-italic">Designation</span>
+										</div>
+									</div>
+								</div>
+								<div class="col-lg-6 col-12">
+									<div class="d-flex gap-2 mb-3">
+										<div>
+											<i class="rounded-circle bg-secondary-subtle text-primary fa-solid fa-building-user p-3"></i>
+										</div>
+										<div>
+											<h6 class="mb-0 p-0">@(Model.SenderUser.Sender.Department ?? "None")</h6>
+											<span class="text-secondary fs-italic">Department</span>
+										</div>
+									</div>
+								</div>
+								<div class="col-lg-6 col-12">
+									<div class="d-flex gap-2 mb-3">
+										<div>
+											<i class="rounded-circle bg-secondary-subtle text-primary fa-regular fa-calendar-days p-3"></i>
+
+										</div>
+										<div>
+											<h6 class="mb-0 p-0">@(Model.SenderUser.Sender.DateOfHire?.ToString("MM/dd/yyy") ?? "None")</h6>
+											<span class="text-secondary fs-italic">Date Of Hire</span>
+										</div>
+									</div>
+								</div>
+								<div class="col-lg-6 col-12">
+									<div class="d-flex gap-2 mb-3">
+										<div>
+											<i class="rounded-circle bg-secondary-subtle text-primary fa-solid fa-user-clock p-3"></i>
+										</div>
+										<div>
+											<h6 class="mb-0 p-0">@(Model.SenderUser.Sender.EmploymentStatus.ToString() ?? "None")</h6>
+											<span class="text-secondary fs-italic">Employment Status</span>
+										</div>
+									</div>
+								</div>
+								<div class="col-6 col-lg-6 col-12">
+									<div class="d-flex gap-2 mb-3">
+										<div>
+											<i class="rounded-circle bg-secondary-subtle text-primary fa-solid fa-building p-3"></i>
+
+										</div>
+										<div>
+											<h6 class="mb-0 p-0">@(Model.SenderUser.Sender.WorkLocationOffice ?? "None")</h6>
+											<span class="text-secondary fs-italic">Work Location/Office</span>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="tab-pane fade" id="other-informations" role="tabpanel" aria-labelledby="pills-contact-tab" tabindex="0">
+							<div class="row">
+								<div class="col-12 col-lg-6">
+									<div class="d-flex gap-2 mb-3">
+										<div>
+											<i class="rounded-circle bg-secondary-subtle text-primary fa-solid fa-file-signature p-3"></i>
+
+										</div>
+										<div>
+											<h6 class="mb-0 p-0">@(Model.SenderUser.Sender.ProjectAssignment ?? "None")</h6>
+											<span class="text-secondary fs-italic">Projects and Assignments</span>
+										</div>
+									</div>
+								</div>
+								<div class="col-lg-6 col-12">
+									<div class="d-flex gap-2 mb-3">
+										<div>
+											<i class="rounded-circle bg-secondary-subtle text-primary fa-solid fa-head-side-virus p-3"></i>
+
+										</div>
+										<div>
+											<h6 class="mb-0 p-0">@(Model.SenderUser.Sender.SkillCompetencies ?? "None")</h6>
+											<span class="text-secondary fs-italic">Skills and Compentencies</span>
+										</div>
+									</div>
+								</div>
+								<div class="col-lg-6 col-12">
+									<div class="d-flex gap-2 mb-3">
+										<div>
+											<i class="rounded-circle bg-secondary-subtle text-primary fa-solid fa-award p-3"></i>
+
+										</div>
+										<div>
+											<h6 class="mb-0 p-0">@(Model.SenderUser.Sender.AchievementsAwards ?? "None")</h6>
+											<span class="text-secondary fs-italic">Acheivements and Awards</span>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+
+					</div>
+				</div>
+
+			</div>
+		</div>
+	}
+	else if (User.IsInRole("Sender"))
+	{
+		<div class="row">
+			<div class="col-lg-5 col-12">
+				<div class="d-flex  gap-4 pe-5 overflow-x-scroll remove-scrollbar">
+					<div class="d-flex flex-column align-items-center gap-3">
+
+						<img width="100" height="100" src="~/@(!string.IsNullOrEmpty(Model.SenderUser.User.ProfileFileName)?$"ProfilePicture/{Model.SenderUser.User.ProfileFileName}":"image/NoProfile.jfif")" class="border border-primary border-opacity-75 border-3 rounded-3" />
+
+						<form id="change-profile-form" method="post" enctype="multipart/form-data" asp-page-handler="ChangeProfilePicture" asp-route-userId="@Model.SenderUser.User.Id">
+							@Html.AntiForgeryToken()
+							<div>
+								<label for="img-file" class="text-nowrap text-body-secondary">
+									<i class="fa-solid fa-pen text-primary fs-4 clickable"></i> Change Profile
+								</label>
+								<input id="img-file" asp-for="ChangeProfileInput.ProfileFile" accept="image/*" style="display:none;" />
+							</div>
+						</form>
+					</div>
+					<div class="d-flex flex-column gap-1">
+						<span class="fw-bolder">@($"{Model.SenderUser.User.FirstName} {Model.SenderUser.User.MiddleName} {Model.SenderUser.User.LastName} {Model.SenderUser.User.Suffixes}")</span>
+						<span class="text-body-secondary">@Model.SenderUser.User.Email</span>
+						<span class="text-body-secondary mb-3">@Model.SenderUser.User.PhoneNumber</span>
+						<button data-bs-toggle="modal" data-bs-target="#update-password-@Model.SenderUser.User.Id" class="btn btn-primary btn-sm"><i class="fa-solid fa-pen"></i> Update password</button>
+						<partial name="PartialViews/_UpdatePassword" model="new UpdatePasswordInputModel{UserId = Model.SenderUser.User.Id}" />
+						<button data-bs-toggle="modal" data-bs-target="#deleteModal-@Model.SenderUser.User.Id" class="btn btn-danger btn-sm"><i class="fa-solid fa-trash-can"></i> Delete account</button>
+						<partial name="PartialViews/_DeleteDataModal" model="new DeleteModalViewModel(){Id=Model.SenderUser.User.Id,returnUrl = null}" />
+					</div>
+				</div>
+				<hr class="d-lg-none d-block" />
+			</div>
+			<div class="col-lg-7 col-12">
+				<div class="position-relative px-3">
+					<span class="z-0 position-absolute bg-secondary-subtle d-lg-inline d-none" style="padding: 0 1px;  left: -1px; height: 100%"></span>
+					<div class="d-flex justify-content-between align-items-center">
+						<h5>Information</h5>
+						<a asp-page="./UpdateProfile" class="text-success text-decoration-none"><i class="fa-solid fa-pen"></i> <span class="d-none d-lg-inline">Update   information</span></a>
+					</div>
+					<ul class="nav nav-pills mb-3 flex-nowrap  overflow-x-scroll remove-scrollbar align-items-center" id="pills-tab" role="tablist">
+						<li class="nav-item" role="presentation">
+							<button class="nav-link active" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#personal-informations" type="button" role="tab" aria-controls="pills-home" aria-selected="true">Personal Informations</button>
+						</li>
+						<li class="nav-item" role="presentation">
+							<button class="nav-link" id="pills-profile-tab" data-bs-toggle="pill" data-bs-target="#employment-details" type="button" role="tab" aria-controls="pills-profile" aria-selected="false">Employment Details</button>
+						</li>
+						<li class="nav-item" role="presentation">
+							<button class="nav-link" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#other-informations" type="button" role="tab" aria-controls="pills-contact" aria-selected="false">Other Relevant Informations</button>
+						</li>
+
+					</ul>
+
+					<div class="tab-content" id="pills-tabContent">
+						<div class="tab-pane fade show active container  overflow-y-scroll remove-scrollbar" id="personal-informations" role="tabpanel" aria-labelledby="pills-home-tab" tabindex="0">
+							<div class="row">
+								<div class="col-12 col-lg-6">
+									<div class="d-flex gap-2 mb-3">
+										<div>
+											<i class="rounded-circle bg-secondary-subtle text-primary fa-solid fa-user p-3"></i>
+										</div>
+										<div>
+											<h6 class="mb-0 p-0">@($"{Model.SenderUser.User.FirstName} {Model.SenderUser.User.MiddleName} {Model.SenderUser.User.LastName} {Model.SenderUser.User.Suffixes}")</h6>
+											<span class="text-secondary fs-italic">Fullname</span>
+										</div>
+									</div>
+								</div>
+								<div class="col-lg-6 col-12">
+									<div class="d-flex gap-2 mb-3">
+										<div>
+											<i class="rounded-circle bg-secondary-subtle text-primary fa-solid fa-person-half-dress p-3"></i>
+										</div>
+										<div>
+											<h6 class="mb-0 p-0">@Model.SenderUser.User.Sex</h6>
+											<span class="text-secondary fs-italic">Sex</span>
+										</div>
+									</div>
+								</div>
+								<div class="col-lg-6 col-12">
+									<div class="d-flex gap-2 mb-3">
+										<div>
+											<i class="rounded-circle bg-secondary-subtle text-primary fa-solid fa-cake-candles p-3"></i>
+										</div>
+										<div>
+											<h6 class="mb-0 p-0">@(Model.SenderUser.User.DateOfBirth?.ToString("MM/dd/yyy") ?? "None")</h6>
+											<span class="text-secondary fs-italic">Date Of Birth</span>
+										</div>
+									</div>
+								</div>
+								<div class="col-lg-6 col-12">
+									<div class="d-flex gap-2 mb-3">
+										<div>
+											<i class="rounded-circle bg-secondary-subtle text-primary fa-solid fa-location-dot p-3"></i>
+										</div>
+										<div>
+											<h6 class="mb-0 p-0">@(Model.SenderUser.User.Address ?? "None")</h6>
+											<span class="text-secondary fs-italic">Complete Address</span>
+										</div>
+									</div>
+								</div>
+								<div class="col-6 col-lg-6 col-12">
+									<div class="d-flex gap-2 mb-3">
+										<div>
+											<i class="rounded-circle bg-secondary-subtle text-primary fa-solid fa-ring p-3"></i>
+										</div>
+										<div>
+											<h6 class="mb-0 p-0">@(Model.SenderUser.User.MaritalStatus.ToString() ?? "None")</h6>
+											<span class="text-secondary fs-italic">Marital Status</span>
+										</div>
+									</div>
+								</div>
+								<div class="col-6 col-lg-6 col-12">
+									<div class="d-flex gap-2 mb-3">
+										<div>
+											<i class="rounded-circle bg-secondary-subtle text-primary fa-solid fa-phone p-3"></i>
+										</div>
+										<div>
+											<h6 class="mb-0 p-0">@(Model.SenderUser.User.PhoneNumber ?? "None")</h6>
+											<span class="text-secondary fs-italic">Phone Number</span>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="tab-pane fade" id="employment-details" role="tabpanel" aria-labelledby="pills-profile-tab" tabindex="0">
+							<div class="row">
+								<div class="col-12 col-lg-6">
+									<div class="d-flex gap-2 mb-3">
+										<div>
+											<i class="rounded-circle bg-secondary-subtle text-primary fa-solid fa-person-walking-luggage p-3"></i>
+
+										</div>
+										<div>
+											<h6 class="mb-0 p-0">@(Model.SenderUser.Sender.Designation ?? "None")</h6>
+											<span class="text-secondary fs-italic">Designation</span>
+										</div>
+									</div>
+								</div>
+								<div class="col-lg-6 col-12">
+									<div class="d-flex gap-2 mb-3">
+										<div>
+											<i class="rounded-circle bg-secondary-subtle text-primary fa-solid fa-building-user p-3"></i>
+										</div>
+										<div>
+											<h6 class="mb-0 p-0">@(Model.SenderUser.Sender.Department ?? "None")</h6>
+											<span class="text-secondary fs-italic">Department</span>
+										</div>
+									</div>
+								</div>
+								<div class="col-lg-6 col-12">
+									<div class="d-flex gap-2 mb-3">
+										<div>
+											<i class="rounded-circle bg-secondary-subtle text-primary fa-regular fa-calendar-days p-3"></i>
+
+										</div>
+										<div>
+											<h6 class="mb-0 p-0">@(Model.SenderUser.Sender.DateOfHire?.ToString("MM/dd/yyy") ?? "None")</h6>
+											<span class="text-secondary fs-italic">Date Of Hire</span>
+										</div>
+									</div>
+								</div>
+								<div class="col-lg-6 col-12">
+									<div class="d-flex gap-2 mb-3">
+										<div>
+											<i class="rounded-circle bg-secondary-subtle text-primary fa-solid fa-user-clock p-3"></i>
+										</div>
+										<div>
+											<h6 class="mb-0 p-0">@(Model.SenderUser.Sender.EmploymentStatus.ToString() ?? "None")</h6>
+											<span class="text-secondary fs-italic">Employment Status</span>
+										</div>
+									</div>
+								</div>
+								<div class="col-6 col-lg-6 col-12">
+									<div class="d-flex gap-2 mb-3">
+										<div>
+											<i class="rounded-circle bg-secondary-subtle text-primary fa-solid fa-building p-3"></i>
+
+										</div>
+										<div>
+											<h6 class="mb-0 p-0">@(Model.SenderUser.Sender.WorkLocationOffice ?? "None")</h6>
+											<span class="text-secondary fs-italic">Work Location/Office</span>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="tab-pane fade" id="other-informations" role="tabpanel" aria-labelledby="pills-contact-tab" tabindex="0">
+							<div class="row">
+								<div class="col-12 col-lg-6">
+									<div class="d-flex gap-2 mb-3">
+										<div>
+											<i class="rounded-circle bg-secondary-subtle text-primary fa-solid fa-file-signature p-3"></i>
+
+										</div>
+										<div>
+											<h6 class="mb-0 p-0">@(Model.SenderUser.Sender.ProjectAssignment ?? "None")</h6>
+											<span class="text-secondary fs-italic">Projects and Assignments</span>
+										</div>
+									</div>
+								</div>
+								<div class="col-lg-6 col-12">
+									<div class="d-flex gap-2 mb-3">
+										<div>
+											<i class="rounded-circle bg-secondary-subtle text-primary fa-solid fa-head-side-virus p-3"></i>
+
+										</div>
+										<div>
+											<h6 class="mb-0 p-0">@(Model.SenderUser.Sender.SkillCompetencies ?? "None")</h6>
+											<span class="text-secondary fs-italic">Skills and Compentencies</span>
+										</div>
+									</div>
+								</div>
+								<div class="col-lg-6 col-12">
+									<div class="d-flex gap-2 mb-3">
+										<div>
+											<i class="rounded-circle bg-secondary-subtle text-primary fa-solid fa-award p-3"></i>
+
+										</div>
+										<div>
+											<h6 class="mb-0 p-0">@(Model.SenderUser.Sender.AchievementsAwards ?? "None")</h6>
+											<span class="text-secondary fs-italic">Acheivements and Awards</span>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+
+					</div>
+				</div>
+
+			</div>
+		</div>
+	}
+	else
+	{
+		<div class="row">
+			<div class="col-lg-5 col-12">
+				<div class="d-flex  gap-4 pe-5 overflow-x-scroll remove-scrollbar">
+					<div class="d-flex flex-column align-items-center gap-3">
+						<img width="100" height="100" src="~/@(!string.IsNullOrEmpty(Model.CHEDPUser.Account.ProfileFileName)?$"ProfilePicture/{Model.CHEDPUser.Account.ProfileFileName}":"image/NoProfile.jfif")" class="border border-primary border-opacity-75 border-3 rounded-3" />
+
+						<form id="change-profile-form" enctype="multipart/form-data" method="post" asp-page-handler="ChangeProfilePicture" asp-route-userId="@Model.CHEDPUser.Account.Id">
+							@Html.AntiForgeryToken()
+							<div>
+								<label for="img-file" class="text-nowrap text-body-secondary">
+									<i class="fa-solid fa-pen text-primary fs-4 clickable"></i> Change Profile
+								</label>
+								<input id="img-file" asp-for="ChangeProfileInput.ProfileFile" class="d-none" accept="image/*" />
+							</div>
+						</form>
+
+
+
+					</div>
+					<div class="d-flex flex-column gap-1">
+						<span class="fw-bolder">@($"{Model.CHEDPUser.Account.FirstName} {Model.CHEDPUser.Account.MiddleName} {Model.CHEDPUser.Account.LastName} {Model.CHEDPUser.Account.Suffixes}")</span>
+						<span class="text-body-secondary">@Model.CHEDPUser.Account.Email</span>
+						<span class="text-body-secondary mb-3">@Model.CHEDPUser.Account.PhoneNumber</span>
+
+						<button data-bs-toggle="modal" data-bs-target="#update-password-@Model.CHEDPUser.Account.Id" class="btn btn-primary btn-sm"><i class="fa-solid fa-pen"></i> Update password</button>
+						<partial name="PartialViews/_UpdatePassword" model="new UpdatePasswordInputModel{UserId = Model.CHEDPUser.Account.Id}" />
+						<button @(Model.Accounts.Where(x => x.TypeOfUser == TypeOfUser.Admin).Count() == 1 && User.IsInRole("Admin") ? "disabled" : "") data-bs-toggle="modal" data-bs-target="#deleteModal-@Model.CHEDPUser.Account.Id" class="btn btn-danger btn-sm"><i class="fa-solid fa-trash-can"></i> Delete account</button>
+						<partial name="PartialViews/_DeleteDataModal" model="new DeleteModalViewModel(){Id=Model.CHEDPUser.Account.Id,returnUrl = null}" />
+
+					</div>
+
+				</div>
+				<hr class="d-lg-none d-block" />
+			</div>
+			<div class="col-lg-7 col-12">
+				<div class="position-relative px-3">
+					<span class="z-0 position-absolute bg-secondary-subtle d-lg-inline d-none" style="padding: 0 1px;  left: -1px; height: 100%"></span>
+					<div class="d-flex justify-content-between align-items-center">
+						<h5>Information</h5>
+
+						<a asp-page="./UpdateProfile" class="text-success text-decoration-none"><i class="fa-solid fa-pen"></i> <span class="d-none d-lg-inline">Update   information</span></a>
+
+					</div>
+					<ul class="nav nav-pills mb-3 flex-nowrap  overflow-x-scroll remove-scrollbar align-items-center" id="pills-tab" role="tablist">
+						<li class="nav-item" role="presentation">
+							<button class="nav-link active" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#personal-informations" type="button" role="tab" aria-controls="pills-home" aria-selected="true">Personal Informations</button>
+						</li>
+						<li class="nav-item" role="presentation">
+							<button class="nav-link" id="pills-profile-tab" data-bs-toggle="pill" data-bs-target="#account" type="button" role="tab" aria-controls="pills-profile" aria-selected="false">Account</button>
+						</li>
+						<li class="nav-item" role="presentation">
+							<button class="nav-link" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#personal-contacts" type="button" role="tab" aria-controls="pills-contact" aria-selected="false">Personal Contacts</button>
+						</li>
+						<li class="nav-item" role="presentation">
+							<button class="nav-link" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#about-work" type="button" role="tab" aria-controls="pills-contact" aria-selected="false">About Work</button>
+						</li>
+					</ul>
+
+					<div class="tab-content" id="pills-tabContent">
+						<div class="tab-pane fade show active container  overflow-y-scroll remove-scrollbar" id="personal-informations" role="tabpanel" aria-labelledby="pills-home-tab" tabindex="0">
+							<div class="row">
+								<div class="col-12 col-lg-6">
+									<div class="d-flex gap-2 mb-3">
+										<div>
+											<i class="rounded-circle bg-secondary-subtle text-primary fa-solid fa-user p-3"></i>
+										</div>
+										<div>
+											<h6 class="mb-0 p-0">@($"{Model.CHEDPUser.Account.FirstName} {Model.CHEDPUser.Account.MiddleName} {Model.CHEDPUser.Account.LastName} {Model.CHEDPUser.Account.Suffixes}")</h6>
+											<span class="text-secondary fs-italic">Fullname</span>
+										</div>
+									</div>
+								</div>
+								<div class="col-lg-6 col-12">
+									<div class="d-flex gap-2 mb-3">
+										<div>
+											<i class="rounded-circle bg-secondary-subtle text-primary fa-solid fa-person-half-dress p-3"></i>
+										</div>
+										<div>
+											<h6 class="mb-0 p-0">@Model.CHEDPUser.Account.Sex</h6>
+											<span class="text-secondary fs-italic">Sex</span>
+										</div>
+									</div>
+								</div>
+								<div class="col-lg-6 col-12">
+									<div class="d-flex gap-2 mb-3">
+										<div>
+											<i class="rounded-circle bg-secondary-subtle text-primary fa-solid fa-cake-candles p-3"></i>
+										</div>
+										<div>
+											<h6 class="mb-0 p-0">@(Model.CHEDPUser.Account.DateOfBirth?.ToString("MM/dd/yyy") ?? "None")</h6>
+											<span class="text-secondary fs-italic">Date Of Birth</span>
+										</div>
+									</div>
+								</div>
+
+								<div class="col-6 col-lg-6 col-12">
+									<div class="d-flex gap-2 mb-3">
+										<div>
+											<i class="rounded-circle bg-secondary-subtle text-primary fa-solid fa-ring p-3"></i>
+										</div>
+										<div>
+											<h6 class="mb-0 p-0">@(Model.CHEDPUser.Account.MaritalStatus.ToString() ?? "None")</h6>
+											<span class="text-secondary fs-italic">Marital Status</span>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="tab-pane fade show container  overflow-y-scroll remove-scrollbar" id="account" role="tabpanel" aria-labelledby="pills-home-tab" tabindex="0">
+							<div class="row">
+								<div class="col-6 col-lg-6 col-12">
+									<div class="d-flex gap-2 mb-3">
+										<div>
+											<i class="rounded-circle bg-secondary-subtle text-primary fa-solid fa-user p-3"></i>
+										</div>
+										<div>
+											<h6 class="mb-0 p-0">@(Model.CHEDPUser.Account.UserName ?? "None")</h6>
+											<span class="text-secondary fs-italic">Username</span>
+										</div>
+									</div>
+								</div>
+								<div class="col-6 col-lg-6 col-12">
+									<div class="d-flex gap-2 mb-3">
+										<div>
+											<i class="rounded-circle bg-secondary-subtle text-primary fa-solid fa-user p-3"></i>
+										</div>
+										<div>
+											<h6 class="mb-0 p-0">@(Model.CHEDPUser.Account.TypeOfUser.ToString() ?? "None")</h6>
+											<span class="text-secondary fs-italic">Type Of User</span>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="tab-pane fade show  container  overflow-y-scroll remove-scrollbar" id="personal-contacts" role="tabpanel" aria-labelledby="pills-home-tab" tabindex="0">
+							<div class="row">
+								<div class="col-6 col-lg-6 col-12">
+									<div class="d-flex gap-2 mb-3">
+										<div>
+											<i class="rounded-circle bg-secondary-subtle text-primary fa-solid fa-phone p-3"></i>
+										</div>
+										<div>
+											<h6 class="mb-0 p-0">@(Model.CHEDPUser.Account.PhoneNumber ?? "None")</h6>
+											<span class="text-secondary fs-italic">Phone Number</span>
+										</div>
+									</div>
+								</div>
+								<div class="col-6 col-lg-6 col-12">
+									<div class="d-flex gap-2 mb-3">
+										<div>
+											<i class="rounded-circle bg-secondary-subtle text-primary fa-solid fa-envelope p-3"></i>
+										</div>
+										<div>
+											<h6 class="mb-0 p-0">@(Model.CHEDPUser.Account.Email ?? "None")</h6>
+											<span class="text-secondary fs-italic">Email</span>
+										</div>
+									</div>
+								</div>
+								<div class="col-lg-6 col-12">
+									<div class="d-flex gap-2 mb-3">
+										<div>
+											<i class="rounded-circle bg-secondary-subtle text-primary fa-solid fa-location-dot p-3"></i>
+										</div>
+										<div>
+											<h6 class="mb-0 p-0">@(Model.CHEDPUser.Account.Address ?? "None")</h6>
+											<span class="text-secondary fs-italic">Complete Address</span>
+										</div>
+									</div>
+								</div>
+
+
+							</div>
+						</div>
+
+						<div class="tab-pane fade show container  overflow-y-scroll remove-scrollbar" id="about-work" role="tabpanel" aria-labelledby="pills-home-tab" tabindex="0">
+							<div class="row">
+								<div class="col-6 col-lg-6 col-12">
+									<div class="d-flex gap-2 mb-3">
+										<div>
+											<i class="rounded-circle bg-secondary-subtle text-primary fa-solid fa-person-walking-luggage p-3"></i>
+										</div>
+										<div>
+											<h6 class="mb-0 p-0">@(Model.CHEDPUser.Designation != null ? Model.CHEDPUser.Designation.DesignationName : "None")</h6>
+											<span class="text-secondary fs-italic">Designation</span>
+										</div>
+									</div>
+								</div>
+								<div class="col-6 col-lg-6 col-12">
+									<div class="d-flex gap-2 mb-3">
+										<div>
+											<i class="rounded-circle bg-secondary-subtle text-primary fa-solid fa-building p-3"></i>
+										</div>
+										<div>
+											<h6 class="mb-0 p-0">@(Model.CHEDPUser.Office != null ? Model.CHEDPUser.Office.OfficeName : "None")</h6>
+											<span class="text-secondary fs-italic">Office</span>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+
+					</div>
+				</div>
+
+			</div>
+		</div>
+	}
+
+</div>
+@section Scripts {
+	<partial name="_ValidationScriptsPartial" />
+	<script>
+		$(function () {
+			$("#img-file").on("change", function () {
+				$("#change-profile-form").submit();
+			})
+		})
+	</script>
+}
+
+
+

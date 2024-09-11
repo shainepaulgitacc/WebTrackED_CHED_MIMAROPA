@@ -1,0 +1,69 @@
+﻿@page
+@model WebTrackED_CHED_MIMAROPA.Pages.Application.Usermanagement.SenderManagement.IndexModel
+@{
+    ViewData["Title"] = "Sender Management";
+    var breadcrump_data = new BreadCrumpViewModel
+            {
+                pageName = "Sender",
+                date = DateTime.Now,
+                breadCrump = new (string, string?, string, bool, int?)[]
+                                                                {
+                ("fa-solid fa-list-check",null,"Sender Accounts",true,null)
+                                                        }
+            };
+}
+@await Component.InvokeAsync("BreadCrump", breadcrump_data)
+@*
+    <div class="d-flex justify-content-end mb-2">
+    <button data-bs-toggle="modal" data-bs-target="#add-sender-user" class="btn btn-primary"><i class="fa-solid fa-user-plus"></i></button>
+    <partial name="_AddSenderUser" model="new SenderInputModel()" />
+</div>
+*@
+
+<div class="p-2 rounded-3 bg-white shadow ">
+    <div class="overflow-x-scroll remove-scrollbar">
+        <table id="table-data" class="table table-striped table-hover" style="width:100%">
+            <thead class="bg-primary-subtle">
+                <tr>
+                    <th>Id</th>
+                    <th>Profile Picture</th>
+                    <th>Full Name</th>
+                    <th>Username</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody class="table-group-divider">
+                @foreach (var sender in Model.Senders)
+                {
+                    <tr>
+                        <td>@sender.Sender.Id.ToString("00000")</td>
+                        <td class="d-flex justify-content-center align-items-center">
+                            <img width="50" height="50" class="rounded-circle" src="~/@(!string.IsNullOrEmpty(sender.User.ProfileFileName)?$"ProfilePicture/{sender.User.ProfileFileName}":"image/NoProfile.jfif" )" />
+                        </td>
+                        <td>@($"{sender.User.FirstName} {sender.User.MiddleName} {sender.User.LastName} {sender.User.Suffixes}")</td>
+                        <td>@(sender.User.UserName)</td>
+                        <td>
+                            <span class="@(sender.User.Active?"bg-success":"bg-danger") rounded-pill px-3 py-1 text-white">@(sender.User.Active ? "Active" : "Inactive")</span>
+                        </td>
+                        <td class="text-nowrap">
+                            <button class="btn @(sender.User.Active?"btn-danger":"btn-success") rounded-4" data-bs-toggle="modal" data-bs-target="#user-activation-@(sender.User.Id)"><i class="fa-solid text-white @(sender.User.Active?"fa-user-slash":"fa-user-check")"></i></button>
+                            <partial name="PartialViews/_UserActivation" model="@sender.User.Id" />  
+                            <a asp-page="/Application/Profiles/Index" asp-route-accId="@sender.Sender.IdentityUserId" class="btn btn-warning text-white rounded-4"><i class="fa-solid fa-eye"></i></a>
+                            <button class="rounded-4 btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal-@sender.User.Id"><i class="fa-regular fa-trash-can"></i></button>
+                            <partial name="PartialViews/_DeleteDataModal" model="new DeleteModalViewModel(){Id=sender.User.Id.ToString(),returnUrl = null}" />
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(function () {
+            new DataTable('#table-data');
+        })
+    </script>
+}

@@ -1,0 +1,117 @@
+﻿@page
+@using WebTrackED_CHED_MIMAROPA.Model.ViewModel.RequestModel
+@model WebTrackED_CHED_MIMAROPA.Pages.Application.NotificationManagement.IndexModel
+@{
+	ViewData["Title"] = "Notification Management";
+	var breadcrump_data = new BreadCrumpViewModel
+	{
+		pageName = "Notification",
+		date = DateTime.Now,
+		breadCrump = new (string, string?, string, bool, int?)[]
+												{
+		("fa-solid fa-list-check",null,"Notification List",true,null)
+									}
+	};
+}
+@await Component.InvokeAsync("BreadCrump", breadcrump_data)
+<div class="container">
+	<div class="row ">
+		<vc:notification-overview s="@(false)"/>
+		<div class="col-12 bg-white rounded-3 shadow p-3">
+			<div class="row">
+				<div class="col-12 col-lg-4 mb-lg-0 mb-2 d-flex align-items-center">
+					<h6 class="m-0 p-0 fw-bolder">Notification List</h6>
+				</div>
+				<div class="col-12 col-lg-8 d-flex align-items-center justify-content-lg-end">
+					<form method="get">
+						<div class="row">
+							<div class="col-12 col-lg-4 mb-lg-0 mb-2">
+								<label>Date From</label>
+								<input value="@Model.From?.ToString("yyyy-MM-dd")" name="fNotif_From" type="date" class="form-control form-control-sm" />
+							</div>
+							<div class="col-12 col-lg-4 mb-lg-0 mb-2">
+								<label>Date To</label>
+								<input value="@Model.To?.ToString("yyyy-MM-dd")" name="fNotif_To" type="date" class="form-control form-control-sm" />
+							</div>
+							<div class="col-12 col-lg-4 d-flex align-items-end gap-2">
+								<button type="submit" class="btn btn-success btn-flat btn-sm">Filter</button>
+								<a asp-page-handler="GetAll" class="btn btn-primary btn-flat btn-sm">Get All</a>
+							
+								
+							</div>
+						</div>
+					</form>
+				</div>
+				<div class="col-12">
+					<hr />
+				</div>
+				<div class="col-12 px-2">
+					<div class="overflow-x-scroll remove-scrollbar px-2">
+						<table id="table-data" class="table table-striped table-hover w-100">
+							<thead>
+								<tr>
+									<th>Title</th>
+									<th>Description</th>
+									<th>Date</th>
+									<th>Available Actions</th>
+								</tr>
+							</thead>
+							<tbody class="table-group-divider">
+								@foreach (var notification in Model.Notifications)
+								{
+									<tr>
+										<td>@notification.Title</td>
+										<td>
+											<span class="fw-light">@(notification.IsViewed == false ? $"{notification.Description.Substring(0, 5)}.." : notification.Description)</span>
+											@if (!notification.IsViewed)
+											{
+												<a asp-page-handler="Action" asp-route-t="@(NotifActionType.View)" asp-route-Id="@notification.Id.ToString()" asp-route-To="@Model.To?.ToString("yyyy-MM-dd")" asp-route-From="@Model.From?.ToString("yyyy-MM-dd")" class="fw-dark clickable text-decoration-none text-dark"> Read now</a>
+											}
+											@if (!string.IsNullOrEmpty(notification.RedirectLink) && notification.IsViewed)
+											{
+												<a asp-page="@notification.RedirectLink">Go to page</a>
+											}
+										</td>
+										<td>@notification.AddedAt.ToString("MM/dd/yyy")</td>
+										<td class="text-secondary gap-3">
+											@if (!notification.IsViewed)
+											{
+												<a asp-page-handler="Action" asp-route-t="@(NotifActionType.View)" asp-route-Id="@notification.Id.ToString()" asp-route-To="@Model.To?.ToString("yyyy-MM-dd")" asp-route-From="@Model.From?.ToString("yyyy-MM-dd")" class="text-decoration-none text-secondary">
+													<i class="fa-solid fa-eye"></i>
+												</a>
+											}
+											<a asp-page-handler="Action" asp-route-t="@(NotifActionType.Delete)" asp-route-Id="@notification.Id.ToString()" asp-route-To="@Model.To?.ToString("yyyy-MM-dd")" asp-route-From="@Model.From?.ToString("yyyy-MM-dd")" class="text-decoration-none text-secondary">
+												<i class="fa-solid fa-trash-can"></i>
+											</a>
+											@if (notification.IsViewed)
+											{
+												<a asp-page-handler="Action" asp-route-t="@(NotifActionType.Archived)" asp-route-Id="@notification.Id.ToString()" asp-route-To="@Model.To?.ToString("yyyy-MM-dd")" asp-route-From="@Model.From?.ToString("yyyy-MM-dd")" class="text-decoration-none text-secondary">
+													<i class="fa-solid fa-inbox"></i>
+												</a>
+											}
+										</td>
+									</tr>
+								}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+	</div>
+</div>
+@section Scripts {
+	<script>
+		$(function () {
+			$('#table-data').DataTable({
+				"order": [[2, "desc"]] // Order by the 6th column (index 5) in descending order
+			});
+			connection.on('receiveNotification', function (title, description, notifType, date) {
+				$("body").append(`<h5 class="fw-bolder bg-warning d-inline px-3 py-2 rounded-2 position-fixed" style="top: 70px;left: 50%;">Reload the page...</h5>`);
+			});
+
+		})
+	</script>
+}
+

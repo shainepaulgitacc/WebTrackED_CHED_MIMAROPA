@@ -1,0 +1,21 @@
+﻿@model string
+@inject IBaseRepository<AppIdentityUser> _userRepo;
+@{
+    var user = await _userRepo.GetOne(Model);
+    var IsActive = user.Active;
+}
+<div class="modal fade" id="user-activation-@(Model)">
+    <div class="modal-dialog">
+        <div class="modal-content py-4">
+            <div class="text-center">
+                <h2 class="mt-3">@(IsActive ? "Deactivate User":"Activate User")</h2>
+                <input type="hidden" name="Id">
+                <p class="text-secondary mt-3">Are you sure you want to @(IsActive?"deactivate":"activate") this user?</p>
+            </div>
+            <div class="border-0 gap-2 mt-3 d-flex justify-content-center">
+                <button type="button" class="btn btn-danger rounded-circle" data-bs-dismiss="modal"><i class="fa-solid fa-xmark"></i></button>
+                <a asp-page-handler="Activation" asp-route-accId="@Model" asp-route-isActive="@IsActive" class="btn btn-info rounded-circle text-white"><i class="fa-solid fa-check-double"></i></a>   
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,202 @@
+﻿@page
+@model WebTrackED_CHED_MIMAROPA.Pages.Application.Dashboard.IndexModel
+@{
+    ViewData["Title"] = "Dashboard";
+    var breadcrump_data = new BreadCrumpViewModel
+    {
+        pageName = "Dashboard",
+        date = DateTime.Now,
+        breadCrump = new (string, string?, string, bool, int?)[]
+                                                        {
+        ("fa-solid fa-chart-simple",null,"Overview",true,null)
+                                                }
+    };
+}
+@await Component.InvokeAsync("BreadCrump", breadcrump_data)
+<div class="row">
+    <div class="col-12 col-lg-3 col-md-6 col-sm-6 mb-4">
+        <div class="dash-box bg-white d-flex align-items-center justify-content-between p-4 rounded-3 shadow hover-effect">
+            <div>
+                <h2 class="fw-bolder text-primary">@Model.CountChedPersonel.ToString("00")</h2>
+                <span class="text-body-tertiary">Ched Personnels</span>
+            </div>
+            <i class="fa-solid fa-users-line fs-1 text-secondary"></i>
+        </div>
+    </div>
+     @if (!User.IsInRole("Sender"))
+    {
+        <div class="col-12 col-lg-3 col-md-6 col-sm-6 mb-4">
+            <div class="dash-box bg-white d-flex align-items-center justify-content-between p-4 rounded-3 shadow hover-effect">
+            <div>
+                <h2 class="fw-bolder text-primary">@Model.CountRSender.ToString("00")</h2>
+                <span class="text-body-tertiary">Registered Clients</span>
+            </div>
+            <i class="fs-1 fa-solid fa-users text-secondary"></i>
+        </div>
+    </div>
+    }
+    <div class="col-12 col-lg-3 col-md-6 col-sm-6 mb-4">
+        <div class="dash-box bg-white d-flex align-items-center justify-content-between p-4 rounded-3 shadow hover-effect">
+            <div>
+                <h2 class="fw-bolder text-primary">@Model.CountAllDocs.ToString("00")</h2>
+                <span class="text-body-tertiary">All Documents</span>
+            </div>
+            <i class="fa-solid fa-file-waveform fs-1 text-secondary"></i>
+        </div>
+    </div>
+    @if (!User.IsInRole("Sender"))
+    {
+        <div class="col-12 col-lg-3 col-md-6 col-sm-6 mb-4">
+            <div class="dash-box bg-white d-flex align-items-center justify-content-between p-4 rounded-3 shadow hover-effect">
+                <div>
+                    <h2 class="fw-bolder text-primary">@Model.CountIncomingDocs.ToString("00")</h2>
+                    <span class="text-body-tertiary">Incoming</span>
+                </div>
+                <i class="fa-solid fa-file-import  text-secondary fs-1"></i>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="col-12 col-lg-3 col-md-6 col-sm-6 mb-4">
+            <div class="dash-box bg-white d-flex align-items-center justify-content-between p-4 rounded-3 shadow hover-effect">
+                <div>
+                    <h2 class="fw-bolder text-primary">@Model.CountPendingDocs.ToString("00")</h2>
+                    <span class="text-body-tertiary">Pending</span>
+                </div>
+                <i class="fa-solid fa-file-import  text-secondary fs-1"></i>
+            </div>
+        </div>
+        <div class="col-12 col-lg-3 col-md-6 col-sm-6 mb-4">
+            <div class="dash-box bg-white d-flex align-items-center justify-content-between p-4 rounded-3 shadow hover-effect">
+                <div>
+                    <h2 class="fw-bolder text-primary">@Model.CountOnProcessDocs.ToString("00")</h2>
+                    <span class="text-body-tertiary">On Process</span>
+                </div>
+             
+                <i class="fa-solid fa-file-signature text-secondary fs-1"></i>
+            </div>
+        </div>
+    }
+    <div class="col-12 col-lg-5 mb-4">
+        <div class="bg-white p-2 rounded-3 shadow d-flex align-items-center justify-content-center" style="height: 300px">
+            <canvas id="myChart"></canvas>
+        </div>
+    </div>
+    <div class="col-12 col-lg-7 mb-4">
+        <div class="shadow bg-white rounded-2 p-2 bg-white overflow-x-scroll remove-scrollbar" style="height: 300px">
+            <div class="h-100" style="width: 600px">
+                <canvas class="w-100 h-100" id="myChart2"></canvas>
+            </div>
+
+        </div>
+    </div>
+    <div class="col-12 col-lg-7 mb-4">
+        <div class="bg-white p-2 rounded-3 shadow " id="recents"> 
+            <div class="d-flex align-items-center justify-content-between p-3 mb-2">
+                <h5 class="fw-bolder text-primary">Recent Completed Documents</h5>
+                <a asp-page="/Application/Document/Ended/Index" class="btn btn-primary"><span class="d-none d-lg-inline d-md-inline d-sm-inline">View All</span><i class="d-inline d-lg-none d-md-none-d-sm-none fa-solid fa-arrow-right"></i></a>
+            </div>
+            <div class="overflow-x-scroll remove-scrollbar">
+                <table class="table @(Model.RecentDocuments.Count() > 0 ?"table-striped table-hover":"")">
+                    <thead>
+                        <tr>
+                            <th class="fw-bolder">Document Ref#.Code</th>
+                            <th class="fw-bolder">Details</th>
+                            <th class="fw-bolder">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.RecentDocuments.Count() > 0)
+                        {
+                            @foreach (var document in Model.RecentDocuments)
+                            {
+                                <tr>
+                                    <td>@(document.DocumentAttachment.DocumentType == DocumentType.WalkIn ? $"dW{document.DocumentAttachment.Id.ToString("00000")}" : $"dE{document.DocumentAttachment.Id.ToString("00000")}")</td>
+
+                                    <td>
+                                        <span class="fw-bolder">@document.Category.CategoryName - @(document.SubCategory.SubCategoryName.Length > 20 ? $"{document.SubCategory.SubCategoryName.Substring(0, 20)}.." : document.SubCategory.SubCategoryName)<span class="fw-lighter">@(document.DocumentAttachment.Description?.Length > 20 ? $"{document.DocumentAttachment.Description.Substring(0, 20)}.." : document.DocumentAttachment.Description)</span></span>
+                                    </td>
+                                    <td><span class="text-white @(document.DocumentTracking.ReviewerStatus == ReviewerStatus.Approved?"bg-success":"bg-danger") px-2 py-1 rounded-pill">@document.DocumentTracking.ReviewerStatus</span></td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="3" class="border-0">
+                                    <div class="d-flex justify-content-center pt-4">
+                                        <img src="~/image/EmptyIllustration.svg" width="100" height="100" />
+                                    </div>
+                                </td>
+
+                            </tr>
+
+                        }
+
+                    </tbody>
+                </table>
+            </div>
+           
+        </div>
+    </div>
+    <div class="col-12 col-lg-5 mb-4">
+        <div class="bg-white p-2 rounded-3 shadow" id="recents">
+            @if (!User.IsInRole("Sender"))
+            {
+                <div class="d-flex align-items-center justify-content-between p-3 mb-2">
+                    <h5 class="fw-bolder text-primary">Recent Clients</h5>
+                    <i class="fa-solid fa-users fs-5 text-primary"></i>
+                </div>
+                @if(Model.RecentSenders.Count() > 0)
+                {
+                    <div class="overflow-x-scroll remove-scrollbar">
+                        <table class="table table-stripped table-hover">
+                            <thead>
+                                <tr>
+                                    <th class="fw-bolder">Sender</th>
+                                    <th class="fw-bolder">From</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var sender in Model.RecentSenders)
+                                {
+                                    <tr>
+                                        <td>@($"{sender.FirstName} {sender.MiddleName} {sender.LastName} {sender.Suffixes}")</td>
+                                        <td>
+                                            @sender.Address
+                                        </td>
+                                    </tr>
+                                }
+
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <h6 class="text-center text-opacity-75 text-secondary">No Record</h6>
+                }
+               
+               
+            }
+            else
+            {
+                <div class="d-flex flex-column align-items-center px-3 justify-content-center h-100">
+                    <a asp-page="/Application/Document/Compose/Index" class="text-docoration-none d-flex flex-column align-items-center clickable mb-2">
+                        <i class="fa-solid fa-file-circle-plus fs-1"></i>
+                        <span class="fw-bolder fs-5">Compose Document Now</span>
+                    </a>
+                    <p class="text-center fst-italic text-body-tertiary">Please take note that this note are for the people that has no note not the music note but the note for this note(No raw)</p>
+                </div>
+            }
+           
+        </div>
+    </div>
+</div> 
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="~/js/DashboardOverview.js" asp-append-version="true"></script>
+    
+}
+

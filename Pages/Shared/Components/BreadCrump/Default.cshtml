@@ -1,0 +1,37 @@
+﻿@model BreadCrumpViewModel
+<div class="row mt-4 mb-5 px-3">
+    <div class="col-lg-8 col-md-8 col-12">
+        <h4>@Model.pageName</h4>
+        <nav style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='%236c757d'/%3E%3C/svg%3E&#34;);" aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                @foreach (var link in Model.breadCrump)
+                {
+                    @if (!link.Item4)
+                    {
+                        @if (link.Item5 == null)
+                        {
+                            <li class="breadcrumb-item"><a asp-page="@link.Item2"><i class="@link.Item1"></i> @link.Item3</a></li>
+                        }
+                        else
+                        {
+                            <li class="breadcrumb-item"><a asp-route-pId="@link.Item5" asp-page="@link.Item2"><i class="@link.Item1"></i> @link.Item3</a></li>
+                        }
+
+                    }
+                    else
+                    {
+                        <li class="breadcrumb-item active" aria-current="page"><i class="@link.Item1"></i> @link.Item3</li>
+                    }
+                }
+            </ol>
+        </nav>
+    </div>
+    <div class="col-lg-4 col-md-4 col-12">
+         <h6 id="realtime-date" class="text-body-secondary fw-light fst-italic text-lg-end text-md-end text-start">
+            Date Today
+    </h6>
+    </div>
+    
+</div>
+
+

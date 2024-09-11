@@ -1,0 +1,78 @@
+﻿@inject UserManager<AppIdentityUser> _userManager
+@inject IBaseRepository<Settings> _settingsRepo
+@inject IBaseRepository<Notification> _notifRepo;
+@inject IBaseRepository<Message> _messageRepo;
+@{
+	var user = await _userManager.FindByNameAsync(User.Identity.Name);
+	var settings = await _settingsRepo.GetAll();
+	var updatedSettings = settings.OrderByDescending(x => x.Id).First();
+
+	var notifications = await _notifRepo.GetAll();
+	var filtered = notifications.Where(x => x.Recepient == user?.Id && !x.IsArchived).OrderByDescending(x => x.Id).ToList();
+
+	var messages = await _messageRepo.GetAll();
+	var messF = messages.Where(x => x.Recipient == user?.Id).OrderByDescending(x => x.Id).ToList();
+}
+<div class="bg-white position-fixed w-100 z-2 shadow-sm d-flex justify-content-between px-lg-4 px-md-4 px-2 py-2 align-items-center">
+	<div class="d-flex align-items-center">
+		<a class="d-flex align-items-center gap-3 text-decoration-none">
+			<img src="~/Logo/@(updatedSettings.LogoFileName)" class="rounded-circle" width="50" height="50" />
+			<span class="fw-bolder text-dark fs-5">WebTrack<span class="text-primary">ED</span></span>
+		</a>
+		<button id="menu-toggle" class="ms-lg-5 ms-md-5 ms-3 p-0 bg-transparent border-0"><i class="fa-solid fa-bars fs-6 text-secondary"></i></button>
+	</div>
+	<div class="d-flex gap-4 align-items-center ">
+		<div class="d-none d-lg-flex d-md-flex gap-lg-4 gap-md-4 0">
+			<div class="dropdown">
+				<div id="notif-icon" data-bs-toggle="dropdown" class="position-relative">
+					@if (notifications.Where(x => x.Recepient == user?.Id && !x.IsViewed).Count() > 0)
+					{
+						<span class="p-1 rounded-circle bg-danger position-absolute" style="top: -2px; right: -5px"></span>
+					}
+					<i class="fa-regular fa-bell fs-5 text-secondary clickable"></i>
+				</div>
+				<ul id="notif-list" class="dropdown-menu overflow-y-scroll remove-scrollbar p-0 border-0 shadow" style="width: 350px; height: 400px;">
+					<li class="p-3 align-items-center bg-primary text-white d-flex gap-2">
+						<i class="fa-regular fa-bell"></i>
+						<h6 class="p-0 m-0">Notification Center</h6>
+					</li>
+					@if (filtered.Count() > 0)
+					{
+						@foreach (var notification in filtered)
+						{
+							<li class="dropdown-item d-flex gap-3 align-items-center p-3 border-bottom border-opacity-75">
+								<div class="@(notification.NotificationType == NotificationType.Document? "bg-warning":"bg-info") rounded-circle d-flex align-items-center justify-content-center p-3 text-white">
+									<i class="fa-solid @(notification.NotificationType == NotificationType.Document? "fa-file":"fa-user")"></i>
+								</div>
+								<div>
+									<span class="d-block text-body-tertiary">@notification.AddedAt.ToString("MMMM dd,yyy") </span>
+
+									<h6>@(notification.Description.Length > 30 ? $"{notification.Description.Substring(0, 30)}..." : notification.Description)</h6>
+								</div>
+							</li>
+						}
+						<li class="dropdown-item text-center p-3">
+							<a asp-page="/Application/NotificationManagement/Index" class="text-decoration-none text-body-tertiary clickable">View notification in detail</a>
+						</li>
+					}
+					else
+					{
+						<li class="text-center p-3">
+							<span class="text-body-tertiary">No notifications available</span>
+						</li>
+					}
+
+				</ul>
+			</div>
+		</div>
+		<div class="bg-secondary-subtle d-none d-lg-block d-md-block" style="height: 30px;padding-left: 1px;"></div>
+		<div class="dropdown">
+			<img src="~/@(!string.IsNullOrEmpty(user.ProfileFileName)?$"ProfilePicture/{user.ProfileFileName}":"image/NoProfile.jfif" )" class="clickable rounded-circle" data-bs-toggle="dropdown" width="50" height="50" />
+			<ul class="dropdown-menu">
+				<li><a class="dropdown-item d-flex gap-3 align-items-center" asp-page="/Application/Profiles/Index"><i class="fa-regular fa-user"></i><span>Profile</span></a></li>
+				<li><button data-bs-toggle="modal" data-bs-target="#logout" class="dropdown-item d-flex gap-3 align-items-center"><i class="fa-solid fa-arrow-right-to-bracket"></i></i><span>Logout</span></button></li>
+			</ul>
+		</div>
+	</div>
+</div>
+

@@ -1,0 +1,141 @@
+﻿@page
+@model WebTrackED_CHED_MIMAROPA.Pages.Application.Document.Compose.IndexModel
+@{
+	ViewData["Title"] = "Compose Document";
+	var breadcrump_data = new BreadCrumpViewModel
+			{
+				pageName = "Compose Document",
+				date = DateTime.Now,
+				breadCrump = new (string, string?, string, bool, int?)[]
+																{
+				("fa-solid fa-file-signature",null,"Compose",true,null)
+														}
+			};
+}
+@if (Model.RecordsOfficeId != null)
+{
+	@await Component.InvokeAsync("BreadCrump", breadcrump_data)
+	<div class="rounded-2 overflow-hidden bg-white shadow">
+
+		<h5 class="py-2 text-white   text-center bg-primary"><i class="fa-solid fa-file-signature"></i> Please fill out the form.</h5>
+        <div class="container px-lg-5 px-3 pt-2 pb-5">
+            <form method="post" enctype="multipart/form-data" id="uploadForm">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="InputModel.SenderId" />
+                <input type="hidden" asp-for="InputModel.DocumentType" />
+                @if (User.IsInRole("Sender"))
+                {
+                    <input type="hidden" asp-for="InputModel.ReviewersId" value="@Model.RecordsOfficeId" />
+                }
+
+                <div class="row">
+                    <div class="col-12 col-lg-6">
+                        <div class="mb-3">
+                            <label asp-for="InputModel.CategoryId" class="mb-2 fw-bolder"></label><span class="text-danger fw-bolder">*</span>
+                            <select asp-for="InputModel.CategoryId" asp-items="@Model.Categories.Select(x => new SelectListItem(x.CategoryName, x.Id.ToString()))" class="form-select">
+                                <option selected hidden disabled value="">Select..</option>
+                            </select>
+                            <span class="text-danger" asp-validation-for="InputModel.CategoryId"></span>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-6">
+                        <div class="mb-3">
+                            <label asp-for="InputModel.SubCategoryId" class="mb-2 fw-bolder"></label><span class="text-danger fw-bolder">*</span>
+                            <select asp-for="InputModel.SubCategoryId" asp-items="@Model.SubCategories.Select(x => new SelectListItem(x.SubCategoryName, x.Id.ToString()))" class="form-select">
+                                <option selected hidden disabled value="">Select..</option>
+                            </select>
+                            <span class="text-danger" asp-validation-for="InputModel.SubCategoryId"></span>
+                        </div>
+                    </div>
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <div class="col-12 col-lg-6">
+                            <div class="mb-3">
+                                <label asp-for="InputModel.ReviewersId" class="mb-2 fw-bolder">Reviewer</label><span class="text-danger fw-bolder">*</span>
+                                <select multiple asp-for="InputModel.ReviewersId" asp-items="@Model.Reviewers.Select(x => new SelectListItem($"{x.Account.FirstName} {x.Account.MiddleName} {x.Account.LastName} {x.Account.Suffixes}({x.Office.OfficeName})", x.Account.Id))" class="form-select">
+                                    <option selected hidden disabled value="">Select..</option>
+                                </select>
+                                <span class="text-danger" asp-validation-for="InputModel.ReviewersId"></span>
+                            </div>
+                        </div>
+                        <div class="col-12 col-lg-6">
+                            <div class="mb-3">
+                                <label asp-for="InputModel.Prioritization" class="mb-2 fw-bolder"></label><span class="text-danger fw-bolder">*</span>
+                                <select required asp-for="InputModel.Prioritization" asp-items="@Html.GetEnumSelectList<Prioritization>()" class="form-select">
+                                    <option selected hidden disabled value="">Select...</option>
+                                </select>
+                                <span class="text-danger" asp-validation-for="InputModel.Prioritization"></span>
+                            </div>
+                        </div>
+                    }
+
+                    <div class="col-12 col-lg-6">
+                        <div class="mb-3">
+                            <label asp-for="InputModel.Subject" class="mb-2 fw-bolder"></label>
+                            <textarea asp-for="InputModel.Subject" class="form-control" placeholder="Enter here.."></textarea>
+                            <span class="text-danger" asp-validation-for="InputModel.Subject"></span>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-6">
+                        <div class="mb-3">
+                            <label asp-for="InputModel.Description" class="mb-2 fw-bolder"></label>
+                            <textarea asp-for="InputModel.Description" class="form-control" placeholder="Enter here.."></textarea>
+                            <span class="text-danger" asp-validation-for="InputModel.Description"></span>
+                        </div>
+                    </div>
+                    <div class="col-12 pt-3">
+                        <h6 class="py-2 rounded-3 bg-info-subtle text-center mb-4"><i class="fa-solid fa-paperclip"></i> Add Attachment</h6>
+                    </div>
+                    <div class="col-12">
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-12 col-lg-7 mb-3">
+                                    <h5 class="">Upload File</h5>
+                                    <p class="text-secondary fst-italic">
+                                        Please select and upload the desired document. This document will be made available for download by the designated user. Only ZIP files are accepted. Please ensure that your file adheres to the following requirements:
+                                    </p>
+                                    <ul class="text-secondary fst-italic">
+                                        <li>File format: ZIP</li>
+                                        <li>Maximum file size: 100 MB</li>
+                                    </ul>
+                                    <p class="text-secondary fst-italic">
+                                        Files exceeding the maximum size limit will not be accepted. Ensure your file is correctly formatted and compressed before uploading.
+                                    </p>
+                                </div>
+                                <div class="col-lg-5 col-12 mb-3">
+                                    <div id="drag-area" class="d-flex flex-column bg-light align-items-center justify-content-center border-3 rounded-2 border-secondary border-opacity-75" style="border: dashed; height: 200px">
+                                        <i class="fa-solid fa-cloud-arrow-down mb-3 fs-3 text-secondary"></i>
+                                        <label for="docs-file" class="fw-bolder clickable">Click to upload<span class="text-normal"> or drag and drop</span></label>
+                                        <input required id="docs-file" asp-for="InputModel.File" class="d-none" type="file" accept="application/zip" />
+                                        <span class="mt-2 fst-italic" id="filename"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="d-flex justify-content-end align-items-center gap-2">
+                            <button id="cancel" type="reset" class="btn btn-outline-primary">Cancel</button>
+                            <button type="submit" id="submitButton" class="btn btn-primary" disabled>
+                                <span class="button-text">Submit</span>
+                                <span class="d-none spinner-grow spinner-grow-sm loading-spinner"></span>
+                                <span class="d-none loading-text">Loading...</span>
+                                <i class="fa-regular fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+	</div>
+}
+else
+{
+	<h5 class="text-body-tertiary fst-italic">Error: Unable to Compose Document</h5>
+	<p>We apologize, but it appears there is no account for the records office at this time. Please create an account or contact support for assistance.</p>
+}
+@section Scripts {
+	<partial name="_ValidationScriptsPartial" />
+	<script src="~/js/Compose.js" asp-append-version="true"></script>
+}

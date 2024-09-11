@@ -1,0 +1,85 @@
+﻿@page
+@model WebTrackED_CHED_MIMAROPA.Pages.Application.Document.OutGoing.IndexModel
+@{
+    ViewData["Title"] = "OutGoing Document";
+    string prevPage = "./OutGoing/Index";
+    string Id = "Id ko";
+    var breadcrump_data = new BreadCrumpViewModel
+            {
+                pageName = "Outgoing Document",
+                date = DateTime.Now,
+                breadCrump = new (string, string?, string, bool,int?)[]
+                                                        {
+                ("fa-solid fa-list-check",null,"Document List",true,null)
+                                                }
+            };
+
+}
+@await Component.InvokeAsync("BreadCrump", breadcrump_data)
+<div class="p-3 rounded-3 bg-white shadow ">
+    <div class="overflow-x-scroll px-1 remove-scrollbar">
+        <table id="table-data" class="table table-striped table-hover remove-scrollbar  w-100">
+            <thead class="bg-primary-subtle">
+                <tr>
+                    <th>Document Ref#.Code</th>
+                    <th>Document Type</th>
+                   
+                    <th>Details</th>
+                    <th>Status</th>
+                    <th>Prioritization</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody class="table-group-divider">
+                @foreach (var docAttachment in Model.DocsAttachments)
+                {
+                    <tr>
+                        <td>
+                            <div class=" text-primary align-items-center d-flex gap-2 justify-content-center">
+                                <i class="fa-solid fa-file-signature"></i>
+                                <span>@(docAttachment.DocumentAttachment.DocumentType == DocumentType.WalkIn ? $"dW{docAttachment.DocumentAttachment.Id.ToString("00000")}" : $"dE{docAttachment.DocumentAttachment.Id.ToString("00000")}")</span>
+                            </div>
+                        </td>
+                        <td>@(docAttachment.DocumentAttachment.DocumentType == DocumentType.WalkIn ? "Walk In" : "Electronic")</td>
+                        <td>
+                            <span class="text-primary">@docAttachment.DocumentAttachment.Category.CategoryName</span>
+                            <span class="fw-bold"> - @docAttachment.DocumentAttachment.SubCategory.SubCategoryName</span>
+                            <span class="fw-light">@(docAttachment.DocumentAttachment.Description?.Length > 20 ? $"{docAttachment.DocumentAttachment.Description.Substring(0, 20)}..." : docAttachment.DocumentAttachment.Description)</span>
+                        </td>
+                        <td>
+                            <span class="fw-bolder text-nowrap px-3 text-white  px-3 py-1 rounded-pill @(docAttachment.DocumentAttachment.Status == Status.Pending ?"bg-info":docAttachment.DocumentAttachment.Status==Status.OnProcess?"bg-primary":docAttachment.DocumentAttachment.Status == Status.PreparingRelease ? "bg-warning":docAttachment.DocumentAttachment.Status == Status.Approved?"bg-success":"bg-danger") ">@(docAttachment.DocumentAttachment.Status == Status.PreparingRelease ? "Ready for Release" : docAttachment.DocumentAttachment.Status)</span>
+                        </td>
+                        <td>
+                            @if (docAttachment.DocumentAttachment.Prioritization != null)
+                            {
+                                <span class="fw-bolder @(docAttachment.DocumentAttachment.Prioritization == Prioritization.Urgent ?"text-danger":"text-success") ">@docAttachment.DocumentAttachment.Prioritization</span>
+                            }
+                            else
+                            {
+                                <span class="text-secondary fs-italic">Not Set</span>
+                            }
+                        </td>
+                        <td>
+                            <span class="fs-italic text-body-tertiary">@docAttachment.DocumentTracking.UpdatedAt.ToString("MM/dd/yyy hh:mm tt")</span>
+                        </td>
+                        <td class="text-center">
+                            <a asp-page="/Application/Document/DocumentTracking" asp-route-prevPage="@prevPage" asp-route-pId="@docAttachment.DocumentAttachment.Id" class="rounded-4 btn btn-info text-white"><i class="fa-solid fa-chart-bar"></i></a>
+                        </td>
+                    </tr>
+                }
+
+
+            </tbody>
+        </table>
+    </div>
+</div>
+@section Scripts {
+    <script>
+        $(function () {
+            $('#table-data').DataTable({
+                "order": [[5, "desc"]] // Order by the 6th column (index 5) in descending order
+            });
+        })
+    </script>
+}

@@ -1,0 +1,229 @@
+﻿@page
+@model WebTrackED_CHED_MIMAROPA.Pages.Application.Report.IndexModel
+@{
+    ViewData["Title"] = "Report";
+    var breadcrump_data = new BreadCrumpViewModel
+    {
+        pageName = "Reports",
+        date = DateTime.Now,
+        breadCrump = new (string, string?, string, bool, int?)[]
+                        {
+            ("fa-solid fa-list-check",null,"Report data",true,null)
+
+        }
+    };
+ }
+@await Component.InvokeAsync("BreadCrump", breadcrump_data)
+<div class="container">
+    <div class="row">
+        <form method="get">
+            @Html.AntiForgeryToken()
+            <div class="row">
+                <div class="col-12 col-lg-4 col-md-6">
+                    <div class="mb-3">
+                        <label class="mb-2 fw-bolder">Status</label>
+                        <select required name="s" class="form-select">
+                            @foreach (var status in Enum.GetValues(typeof(Status)))
+                            {
+                                    @if (Model.Records.Status != null)
+                                    {
+                                        @if ((int)Model.Records.Status == (int)status)
+                                        {
+                                            <option selected value="@((int)status)">@status</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@((int)status)">@status</option>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <option selected value="" hidden disabled>select..</option>
+                                        <option value="@((int)status)">@status</option>
+                                    }
+                            }
+                        </select>
+
+                    </div>
+                </div>
+                <div class="col-12 col-lg-4 col-md-6">
+                    <div class="mb-3">
+                        <label class="mb-2 fw-bolder">Sub Category</label>
+                        <select required name="sC" class="form-select">
+                            @foreach (var sc in Model.SubCategories)
+                            {
+                                if (Model.Records.Status != null)
+                                {
+                                    if (Model.Records.SubCategory == sc.Id)
+                                    {
+                                        <option selected value="@sc.Id">@sc.SubCategoryName</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@sc.Id">@sc.SubCategoryName</option>
+                                    }
+                                }
+                                else
+                                {
+                                    <option selected value="" hidden disabled>select..</option>
+                                    <option value="@sc.Id">@sc.SubCategoryName</option>
+                                }
+                            }
+                        </select>
+                        
+
+                    </div>
+                </div>
+                <div class="col-12 col-lg-4 col-md-6">
+                    <div class="mb-3">
+                        <label class="mb-2 fw-bolder">Prioritization</label>
+                        <select required name="p" class="form-select">
+                            
+                                @foreach (var p in Enum.GetValues(typeof(Prioritization)))
+                                {
+                                    @if (Model.Records.Prioritization != null)
+                                    {
+                                        @if ((int)p == (int)Model.Records.Prioritization)
+                                        {
+                                             <option selected value="@((int)p)">@p</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@((int)p)">@p</option>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <option selected value="" hidden disabled>select..</option>
+                                        <option value="@((int)p)">@p</option>
+                                    }
+                                
+                                }
+                               
+                            </select>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="d-flex gap-2 mb-5">
+                        <button type="submit" id="submitButton" class="btn btn-primary">
+                            <i class="fa-solid fa-filter"></i>
+                            <span class="button-text d-none d-lg-inline d-md-inline">Filter</span>
+                            <span class="d-none spinner-grow spinner-grow-sm loading-spinner"></span>
+                            <span class="d-none loading-text">Loading...</span>
+                        </button>
+                        <button id="button-excel" type="button" class="btn btn-info text-white"><i class="fa-solid fa-file-excel"></i> <span class="d-none d-lg-inline d-md-inline">Excel</span> </button>
+                       
+                        <button id="button-print" type="button" class="btn btn-light btn-flat border"><i class="fa fa-print"></i> <span class="d-none d-lg-inline d-md-inline">Print</span></button>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="col-12">
+            <div class="d-flex justify-content-end mb-2">
+                <button data-bs-target="#refresh" data-bs-toggle="modal" class="btn btn-primary rounded-3">Refresh 
+                    <i class="fa-solid fa-arrows-rotate"></i>
+                </button>
+                <partial name="_Refresh"/>
+            </div>
+            <div class="p-2 rounded-3 bg-white shadow ">
+                <div class="overflow-x-scroll remove-scrollbar">
+                    <div class="p-2">
+                        <table id="table-data" class="table table-striped table-hover w-100">
+                            <thead class="bg-primary-subtle">
+                                <tr>
+                                    <th>Id</th>
+                                    <th>Sender</th>
+                                    <th>Description</th>
+                                    <th>Classification</th>
+                                    <th>Sub Category</th>
+                                    <th>Prioritization</th>
+                                    <th>Status</th>
+                                    <th>Last Transaction</th>
+                                   
+                                </tr>
+                            </thead>
+                            <tbody class="table-group-divider">
+                                @foreach (var record in Model.Records.Records)
+                                {
+                                    <tr>
+                                        <td>
+                                            <div class=" text-primary align-items-center d-flex gap-2 justify-content-center">
+                                                <i class="fa-solid fa-file-signature"></i>
+                                                <span>@(record.DocumentAttachment.DocumentType == DocumentType.WalkIn ? $"dW{record.DocumentAttachment.Id.ToString("00000")}" : $"dE{record.DocumentAttachment.Id.ToString("00000")}")</span>
+                                            </div>
+                                        </td>
+                                        <td>@($"{record.SenderAccount.FirstName} {record.SenderAccount.MiddleName} {record.SenderAccount.LastName} {record.SenderAccount.Suffixes}")</td>
+                                        <td>@record.DocumentAttachment.Description</td>
+                                        <td>@record.Category.CategoryName</td>
+                                        <td>@record.SubCategory.SubCategoryName</td>
+                                        <td>@record.DocumentAttachment.Prioritization</td>
+                                        <td>@record.DocumentAttachment.Status</td>
+                                        <td>@record.DocumentTracking.AddedAt.ToString("MMM/dd/yyy hh:mm tt")</td>
+                                        
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<noscript id="print-content">
+    <div class="position-relative">
+        <img src="~/Logo/@(Model.Logo)" width="80" height="80" class=" position-absolute rounded-circle border border-2 border-opacity-50 border-secondary">
+        <h4 class="m-0 text-center">(CHED) Commision on Higher Education</h4>
+        <h3 class="m-0 fw-bolder text-center">Document Report</h3>
+    </div>
+    <hr>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Sender</th>
+                <th>Description</th>
+                <th>Classification</th>
+                <th>Sub Category</th>
+                <th>Prioritization</th>
+                <th>Status</th>
+                <th>Last Transaction In</th>
+            </tr>
+        </thead>
+        <tbody class="table-group-divider">
+            @foreach (var record in Model.Records.Records)
+            {
+                <tr>
+                    <td>
+                        @(record.DocumentAttachment.DocumentType == DocumentType.WalkIn ? $"dW{record.DocumentAttachment.Id.ToString("00000")}" : $"dE{record.DocumentAttachment.Id.ToString("00000")}")
+                    </td>
+                    <td>@($"{record.SenderAccount.FirstName} {record.SenderAccount.MiddleName} {record.SenderAccount.LastName} {record.SenderAccount.Suffixes}")</td>
+                    <td>@record.DocumentAttachment.Description</td>
+                    <td>@record.Category.CategoryName</td>
+                    <td>@record.SubCategory.SubCategoryName</td>
+                    <td>@record.DocumentAttachment.Prioritization</td>
+                    <td>@record.DocumentAttachment.Status</td>
+                    <td>@record.DocumentTracking.AddedAt.ToString("MMMM dd, yyyy hh:mm tt")</td>
+                   
+                </tr>
+            }
+        </tbody>
+    </table>
+    <hr />
+</noscript>
+@section Scripts{
+    <script src="~/lib/TableExport/tableExcel.js" asp-append-version="true"></script>
+    <script src="~/lib/TableExport/html2pdf.bundle.min.js" asp-append-version="true"></script>
+    <script src="~/js/Report.js" asp-append-version="true"></script>
+    <script>
+        $(function () {
+            $('#table-data').DataTable({
+                "order": [[7, "desc"]] // Order by the 6th column (index 5) in descending order
+            });
+        })
+    </script>
+}
+
+
+
+

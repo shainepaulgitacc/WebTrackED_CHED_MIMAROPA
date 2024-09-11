@@ -1,0 +1,171 @@
+﻿@model SenderInputModel
+<div class="modal fade" id="add-sender-user">
+	<div class="modal-dialog modal-lg">
+		<form method="post" enctype="multipart/form-data">
+			@Html.AntiForgeryToken()
+			<input value="@TypeOfUser.Sender" asp-for="TypeOfUser" type="hidden" />
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5><i class="fa-solid fa-user-plus"></i> Add New Sender Account</h5>
+					<button class="btn-close" type="button" data-bs-dismiss="modal"></button>
+				</div>
+				<div class="modal-body">
+					<div class="container">
+						<div class="row">
+							<div class="col-12 col-lg-6">
+								<div class="mb-3">
+									<label asp-for="Username" class="fw-bolder mb-2"></label><span class="text-danger">*</span>
+									<input asp-for="Username" required class="form-control" placeholder="Enter here.." />
+									<span class="text-danger" asp-validation-for="Username"></span>
+								</div>
+							</div>
+							<div class="col-12 col-lg-6">
+								<div class="mb-3">
+									<label asp-for="Password" class="fw-bolder mb-2"></label><span class="text-danger">*</span>
+									<input asp-for="Password" required class="form-control" placeholder="Enter here.." />
+									<span class="text-danger" asp-validation-for="Password"></span>
+								</div>
+							</div>
+							<div class="col-12 col-lg-6">
+								<div class="mb-3">
+									<label asp-for="ConfirmPassword" class="fw-bolder mb-2"></label><span class="text-danger">*</span>
+									<input asp-for="ConfirmPassword" required class="form-control" placeholder="Enter here.." />
+									<span class="text-danger" asp-validation-for="ConfirmPassword"></span>
+								</div>
+							</div>
+							<div class="col-12 col-lg-6">
+								<div class="mb-3">
+									<label asp-for="Email" class="fw-bolder mb-2"></label><span class="text-danger">*</span>
+									<input asp-for="Email" required class="form-control" placeholder="Enter here.." />
+									<span class="text-danger" asp-validation-for="Email"></span>
+								</div>
+							</div>
+							<div class="col-12 col-lg-6">
+								<div class="mb-3">
+									<label asp-for="FirstName" class="fw-bolder mb-2"></label><span class="text-danger">*</span>
+									<input asp-for="FirstName" required class="form-control" placeholder="Enter here.." />
+									<span class="text-danger" asp-validation-for="FirstName"></span>
+								</div>
+							</div>
+							<div class="col-12 col-lg-6">
+								<div class="mb-3">
+									<label asp-for="MiddleName" class="fw-bolder mb-2"></label>
+									<input asp-for="MiddleName" class="form-control" placeholder="Enter here.." />
+									<span class="text-danger" asp-validation-for="MiddleName"></span>
+								</div>
+							</div>
+							<div class="col-12 col-lg-6">
+								<div class="mb-3">
+									<label asp-for="LastName" class="fw-bolder mb-2"></label>
+									<input asp-for="LastName" class="form-control" placeholder="Enter here.." />
+									<span class="text-danger" asp-validation-for="LastName"></span>
+								</div>
+							</div>
+							<div class="col-12 col-lg-6">
+								<div class="mb-3">
+									<label asp-for="Suffixes" class="fw-bolder mb-2"></label>
+									<input asp-for="Suffixes" class="form-control" placeholder="Enter here.." />
+
+									<span class="text-danger" asp-validation-for="Suffixes"></span>
+								</div>
+							</div>
+							<div class="col-12 col-lg-6">
+								<div class="mb-3">
+									<label asp-for="Sex" class="fw-bolder mb-2"></label><span class="text-danger">*</span>
+									<select class="form-select" asp-items="@Html.GetEnumSelectList<Sex>()" asp-for="Sex">
+										<option selected value="@(null)" hidden>Select...</option>
+									</select>
+									<span class="text-danger" asp-validation-for="Sex"></span>
+								</div>
+							</div>
+							<div class="col-4col-12 col-lg-6">
+								<div class="mb-3">
+									<label asp-for="DateOfBirth" class="fw-bolder mb-2"></label>
+									<input asp-for="DateOfBirth" type="date" class="form-control" placeholder="Enter here.." />
+									<span class="text-danger" asp-validation-for="DateOfBirth"></span>
+								</div>
+							</div>
+							<div class="col-4col-12 col-lg-6">
+								<div class="mb-3">
+									<label asp-for="MaritalStatus" class="fw-bolder mb-2"></label><span class="text-danger">*</span>
+									<select class="form-select" asp-items="@Html.GetEnumSelectList<MaritalStatus>()" asp-for="MaritalStatus">
+										<option selected value="@(null)" hidden>Select...</option>
+									</select>
+									<span class="text-danger" asp-validation-for="MaritalStatus"></span>
+								</div>
+							</div>
+							<div class="col-12 col-lg-6">
+								<div class="mb-3">
+									<label asp-for="PhoneNumber" class="fw-bolder mb-2"></label>
+									<input asp-for="PhoneNumber" type="number" class="form-control" placeholder="Enter here.." />
+									<span class="text-danger" asp-validation-for="PhoneNumber"></span>
+								</div>
+							</div>
+							<div class="col-12">
+								<div class="mb-3">
+									<label asp-for="Address" class="fw-bolder mb-2"></label><span class="text-danger">*</span>
+									<input asp-for="Address" class="form-control" placeholder="Enter here.." />
+									<span class="text-danger" asp-validation-for="Address"></span>
+								</div>
+							</div>
+							<div class="col-12">
+								<div class="mb-3">
+									<label asp-for="ProfileFile" class="fw-bolder mb-2"></label>
+									<input asp-for="ProfileFile" class="form-control" accept="image/*" placeholder="Enter here.." />
+									<span class="text-danger" asp-validation-for="ProfileFile"></span>
+								</div>
+							</div>
+
+							<div class="col-12">
+								<h6 class="bg-info-subtle rounded-2 py-2 text-center">Employment Details</h6>
+							</div>
+
+							<div class="col-12 col-lg-6">
+								<div class="mb-3">
+									<label asp-for="Designation" class="fw-bolder mb-2"></label>
+									<input asp-for="Designation" class="form-control" placeholder="Enter here.." />
+									<span class="text-danger" asp-validation-for="Designation"></span>
+								</div>
+							</div>
+							<div class="col-12 col-lg-6">
+								<div class="mb-3">
+									<label asp-for="Department" class="fw-bolder mb-2"></label>
+									<input asp-for="Department" class="form-control" placeholder="Enter here.." />
+									<span class="text-danger" asp-validation-for="Department"></span>
+								</div>
+							</div>
+							<div class="col-12 col-lg-6">
+								<div class="mb-3">
+									<label asp-for="DateOfHire" class="fw-bolder mb-2"></label>
+									<input asp-for="DateOfHire" type="date" class="form-control" placeholder="Enter here.." />
+									<span class="text-danger" asp-validation-for="DateOfHire"></span>
+								</div>
+							</div>
+							<div class="col-12 col-lg-6">
+								<div class="mb-3">
+									<label asp-for="EmploymentStatus" class="fw-bolder mb-2"></label>
+
+									<select class="form-select" asp-items="@Html.GetEnumSelectList<EmploymentStatus>()" asp-for="EmploymentStatus">
+										<option selected value="@(null)" hidden>Select...</option>
+									</select>
+									<span class="text-danger" asp-validation-for="EmploymentStatus"></span>
+								</div>
+							</div>
+							<div class="col-12 col-lg-6">
+								<div class="mb-3">
+									<label asp-for="WorkLocationOffice" class="fw-bolder mb-2"></label>
+									<input asp-for="WorkLocationOffice" class="form-control" placeholder="Enter here.." />
+									<span class="text-danger" asp-validation-for="WorkLocationOffice"></span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="reset" class="btn btn-light">Clear</button>
+					<button type="submit" class="btn btn-primary">Submit <i class="fa-solid fa-plus"></i></button>
+				</div>
+			</div>
+		</form>
+	</div>
+</div>

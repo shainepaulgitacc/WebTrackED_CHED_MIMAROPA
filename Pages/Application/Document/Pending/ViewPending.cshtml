@@ -1,0 +1,106 @@
+﻿@page
+@model WebTrackED_CHED_MIMAROPA.Pages.Application.Document.Pending.ViewPendingModel
+@{
+    ViewData["Title"] = "View Pending Document";
+    var breadcrump_data = new BreadCrumpViewModel
+            {
+                pageName = "Pending Document",
+                date = DateTime.Now,
+                breadCrump = new (string, string?, string, bool, int?)[]
+                                                                {
+                ("fa-solid fa-list-check","./Index","Document List",false,null),
+                ("fa-solid fa-eye",null,"View Docs",true,null)
+                                                        }
+            };
+    string returnUrlVal = "/Application/Document/Pending/Index";
+
+}
+@await Component.InvokeAsync("BreadCrump", breadcrump_data)
+<div class="rounded-2 overflow-hidden bg-white shadow">
+    <h5 class="py-2 text-white   text-center bg-primary">Document Ref#.Code: <span class="fw-bolder">@Model.DocumentAttachment.DocumentAttachment.Id.ToString("00000")
+    </span></h5>
+    <div class="container px-5 pt-2 pb-5">
+       
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <span class="py-1 text-white px-4 rounded-3 bg-warning">Pending</span>
+            </div>
+            <div class="d-flex flex-column align-items-end">
+                <span class="text-secondary">Successfully submitted at: @Model.DocumentAttachment.DocumentAttachment.AddedAt.ToString("MMMM dd, yyy hh:mm tt")</span>
+            </div>
+        </div>
+        <h6 class="py-2 rounded-2 bg-info mb-3 text-center"><i class="fa-solid fa-file-waveform"></i> Details</h6>
+        <form method="post" enctype="multipart/form-data" id="uploadForm" asp-page-handler="UpdateDocs">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="InputModel.SenderId" />
+            <input type="hidden" asp-for="InputModel.Id"/>
+            <input type="hidden" asp-for="InputModel.AddedAt"/>
+            <input type="hidden" asp-for="InputModel.ReviewersId"/>
+            <input type="hidden" asp-for="InputModel.DocumentType">
+            <div class="row">
+                <div class="col-12 col-lg-6">
+                    <div class="mb-3">
+                        <label asp-for="InputModel.CategoryId" class="mb-2 fw-bolder"></label><span class="text-danger fw-bolder">*</span>
+                        <select asp-for="InputModel.CategoryId" asp-items="@Model.Categories.Select(x => new SelectListItem(x.CategoryName,x.Id.ToString()))" class="form-select">
+                            <option selected hidden disabled value="">Select..</option>
+                        </select>
+                        <span class="text-danger" asp-validation-for="InputModel.CategoryId"></span>
+                    </div>
+                </div>
+                <div class="col-12 col-lg-6">
+                    <div class="mb-3">
+                        <label asp-for="InputModel.SubCategoryId" class="mb-2 fw-bolder"></label><span class="text-danger fw-bolder">*</span>
+                        <select asp-for="InputModel.SubCategoryId" asp-items="@Model.SubCategories.Select(x => new SelectListItem(x.SubCategoryName,x.Id.ToString()))" class="form-select">
+                            <option selected hidden disabled value="">Select..</option>
+                        </select>
+                        <span class="text-danger" asp-validation-for="InputModel.SubCategoryId"></span>
+                    </div>
+                </div>
+                <div class="col-12 col-lg-6">
+                    <div class="mb-3">
+                        <label asp-for="InputModel.Subject" class="mb-2 fw-bolder"></label>
+                        <textarea asp-for="InputModel.Subject" class="form-control" placeholder="Enter here.."></textarea>
+                        <span class="text-danger" asp-validation-for="InputModel.Subject"></span>
+                    </div>
+                </div>
+                <div class="col-12 col-lg-6">
+                    <div class="mb-3">
+                        <label asp-for="InputModel.Description" class="mb-2 fw-bolder"></label>
+                        <textarea asp-for="InputModel.Description" class="form-control" placeholder="Enter here.."></textarea>
+                        <span class="text-danger" asp-validation-for="InputModel.Description"></span>
+                    </div>
+                </div>
+              
+                <div class="col-12 col-lg-6">
+                    <div class="mb-3">
+                        <label asp-for="InputModel.File" class="mb-2 fw-bolder"><i class="fa-solid fa-repeat"></i> Change document</label>
+                        <input asp-for="InputModel.File" id="docs-file" class="form-control" />
+                        <span class="text-danger" asp-validation-for="InputModel.File"></span>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="d-flex justify-content-end align-items-center gap-2">
+                        <button type="reset" class="btn btn-outline-primary">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Edit <i class="fa-solid fa-pen"></i></button>
+                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal-@Model.DocumentAttachment.DocumentAttachment.Id">Delete <i class="fa-regular fa-trash-can"></i></button>
+                        <partial name="PartialViews/_DeleteDataModal" model="new DeleteModalViewModel(){Id=Model.DocumentAttachment.DocumentAttachment.Id.ToString(),returnUrl = returnUrlVal}" />
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+@section Scripts {
+    
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $('#uploadForm').on('submit', function (event) {
+            var fileInput = $('#docs-file')[0];
+            var file = fileInput.files[0];
+            if (file && file.size > 104857600) { // 50 MB in bytes
+                alert('The file size must be less than or equal to 100 MB.');
+                event.preventDefault(); // Prevent the form from submitting
+            }
+        });
+    </script>
+}
