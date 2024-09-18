@@ -1,10 +1,28 @@
 ﻿@model CHEDPersonelInputModel
 @inject IBaseRepository<Office> officeRepo
 @inject IBaseRepository<Designation> desigRepo
+@inject IBaseRepository<CHEDPersonel> chedPersonelRepo
 @{
 	var offices = await officeRepo.GetAll();
+	var chedPersonels = await chedPersonelRepo.GetAll();
+
+	var grouped = offices
+	.GroupJoin(chedPersonels,
+	o => o.Id,
+	c => c.OfficeId,
+	(o, c) => new
+	{
+		Office = o,
+		ChedPersonel = c
+
+	})
+	.Select(x => new
+	{
+		Office = x.Office,
+		CHEDPersonel = x.ChedPersonel.FirstOrDefault()
+	})
+	.ToList();
 	var designations = await desigRepo.GetAll();
-	var firstOffice = offices.Min(x => x.Id);
 }
 <div class="modal fade" id="add-reviewer-user">
 	<div class="modal-dialog modal-lg">
@@ -111,7 +129,7 @@
 							<div class="col-12 col-lg-6 col-md-6">
 								<div class="mb-3">
 									<label asp-for="OfficeId" class="fw-bolder mb-2"></label><span class="text-danger">*</span>
-									<select required class="form-select" asp-for="OfficeId" asp-items="@offices.Where(x => x.Id != firstOffice).ToList().Select(x => new SelectListItem(x.OfficeName,x.Id.ToString()))">
+									<select required class="form-select" asp-for="OfficeId" asp-items="@grouped.Where(x => x.CHEDPersonel == null).Select(x => new SelectListItem(x.Office.OfficeName,x.Office.Id.ToString()))">
 										<option hidden selected value="">Select...</option>
 									</select>
 									<span class="text-danger" asp-validation-for="OfficeId"></span>

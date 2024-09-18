@@ -168,10 +168,9 @@ namespace WebTrackED_CHED_MIMAROPA.Areas.Identity.Pages.Account
 
 						if (_userManager.Options.SignIn.RequireConfirmedAccount)
 						{
-							//return RedirectToPage("RegisterConfirmation", new { email = Input.Email, returnUrl = returnUrl });
-							TempData["validation-message"] = "Successfully send to email";
+							//return RedirectToPage("RegisterConfirmation", new { email = Input.Email, returnUrl = returnUrl }
 							TempData["done-form-pass"] = true;
-							return RedirectToPage();
+							return RedirectToPage("./EmailConfirmed");
 						}
 						else
 						{

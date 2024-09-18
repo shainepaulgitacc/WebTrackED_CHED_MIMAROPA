@@ -78,9 +78,7 @@ namespace WebTrackED_CHED_MIMAROPA.Areas.Identity.Pages.Account
                     Input.Email,
                     "Reset Password",
                     $"Please reset your password by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
-                TempData["validation-message"] = "Successfully send to email";
-                TempData["done-form-pass"] = true;
-                return RedirectToPage();
+                return RedirectToPage("./EmailConfirmed");
             }
             TempData["done-form-pass"] = true;
             return Page();

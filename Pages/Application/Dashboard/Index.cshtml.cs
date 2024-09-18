@@ -57,7 +57,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Dashboard
         public async Task OnGetAsync()
         {
             var chedPersonels = await _chedPRepo.GetAll();
-            CountChedPersonel = chedPersonels.Count();
+            CountChedPersonel = chedPersonels.Count() - 1;
             var Senders = await _senderRepo.GetAll();
             CountRSender = Senders.Count();
             var docsAttachments = await _docsAttachRepo.DocumentAttachments();

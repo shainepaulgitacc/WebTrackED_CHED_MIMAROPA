@@ -177,7 +177,6 @@ namespace WebTrackED_CHED_MIMAROPA.Areas.Identity.Pages.Account
 
             var recordOffices = await _officeRepo.GetAll();
 			var converted = _mapper.Map<CHEDPersonel>(ReviewerInput);
-            converted.OfficeId = recordOffices.First().Id;   
 			await _chedPRepo.Add(converted);
 
 			var user = await _userManager.FindByIdAsync(ReviewerInput.IdentityUserId);

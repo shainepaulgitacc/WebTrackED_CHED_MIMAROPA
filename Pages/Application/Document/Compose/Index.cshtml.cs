@@ -93,13 +93,12 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.Compose
         {
             var reviewers = await _chedRepo.CHEDPersonelRecords();
             var offices = await _officeRepo.GetAll();
-            
-
-            var recordsOfficeId= reviewers.FirstOrDefault(x => x.Office != null && x.Office.Id == offices.Min(x => x.Id))?.Account.Id;
+            var recordsOfficeId= reviewers.FirstOrDefault(x => x.Office != null && x.Office.OfficeName.Contains("Records Office"))?.Account.Id;
             var categories = await _categRepo.GetAll();
             var subcategories = await _scategRepo.GetAll();
             RecordsOfficeId = recordsOfficeId;
             var senderUser = await _userManager.FindByNameAsync(User.Identity?.Name);
+
             Sender = senderUser;
 
 
@@ -109,7 +108,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.Compose
                 DocumentType = User.IsInRole("Admin")?DocumentType.WalkIn:DocumentType.OnlineSubmission
 			};
 
-            Reviewers = reviewers.Where(x => x.Account.Id != senderUser.Id).ToList();
+            Reviewers = reviewers.Where(x => x.Account.Id != senderUser.Id && x.Office != null).ToList();
             Categories = categories.ToList();
             SubCategories = subcategories.ToList();
         }
@@ -157,11 +156,6 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.Compose
                     _notifHub.Clients.User(user.IdentityUserId).ReceiveNotification(notification.Title, notification.Description.Length > 30 ? $"{notification.Description.Substring(0, 30)}..." : notification.Description, notification.NotificationType.ToString(), notification.AddedAt.ToString("MMMM dd, yyy"), notification.RedirectLink);
                 }
             }
-           
-
-            
-			
-
 
             var procedures = await _procedureRepo.GetAll();
 

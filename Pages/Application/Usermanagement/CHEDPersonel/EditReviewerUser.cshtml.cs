@@ -65,17 +65,27 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Admin.Usermanagement.Review
                 FirstName = personel.Account.FirstName,
                 MiddleName = personel.Account.MiddleName,
                 LastName = personel.Account.LastName,
-                Suffixes = personel.Account.Suffixes,
+                Suffixes = personel.Account.Suffixes
+                
+                ,
                 OfficeId = personel.Office != null ? personel.Office.Id : null,
-                DesignationId = personel.Designation != null ? personel.Designation.Id : null,    
+                DesignationId = personel.Designation != null ? personel.Designation.Id : null,  
+                
+                
                 PhoneNumber = personel.Account.PhoneNumber,
                 Active = personel.Account.Active,
+                
                 Address = personel.Account.Address, 
-                DateOfBirth = (DateTime)personel.Account.DateOfBirth,
+                
+                
+                DateOfBirth = personel.Account.DateOfBirth,
+                
+                
                 Sex = (Sex)personel.Account.Sex,
                 TypeOfUser = personel.Account.TypeOfUser,
                 Password = personel.Account.PasswordHash,
                 ConfirmPassword = personel.Account.PasswordHash
+                
             };
 
             Offices = await _officeRepo.GetAll();
