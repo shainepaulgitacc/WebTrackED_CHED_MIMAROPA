@@ -55,6 +55,7 @@ builder.Services.Configure<SecurityStampValidatorOptions>(options =>
 	options.ValidationInterval = TimeSpan.FromSeconds(1); 
 });
 builder.Services.AddRazorPages();
+
 var app = builder.Build();
 
 
