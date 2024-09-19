@@ -42,8 +42,9 @@
         var fileInput = $('#docs-file')[0];
         var file = fileInput.files[0];
         var size = file.size;
-        if (file && file.size > 104857600) { 
+        if (file && file.size > 52428800) { 
             alert('The file size must be less than or equal to 50 MB.');
+            event.preventDefault();
         } else {
             $('#uploadForm').submit();
         }

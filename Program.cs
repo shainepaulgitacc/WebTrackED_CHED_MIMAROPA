@@ -35,7 +35,7 @@ builder.Services.AddScoped<EmailSender>();
 builder.Services.AddSignalR();
 builder.Services.Configure<FormOptions>(options =>
 {
-    options.MultipartBodyLengthLimit = 104857600; // 100 MB
+    options.MultipartBodyLengthLimit = 52428800;
 });
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();

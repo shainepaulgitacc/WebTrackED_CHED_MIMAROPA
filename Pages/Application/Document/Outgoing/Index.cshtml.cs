@@ -46,9 +46,14 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.OutGoing
             var getRoles = await _userManager.GetRolesAsync(account);
 
             var filterRecords = docsAttachments.OrderByDescending(x => x.DocumentTracking.Id).ToList();
-            DocsAttachments = filterRecords
+            DocsAttachments = docsAttachments
+                .Where(x => x.DocumentAttachment.DocumentTrackings.OrderByDescending(x => x.AddedAt).First().ReviewerId != account.Id && !x.DocumentAttachment.DocumentTrackings.Any(x => x.ReviewerStatus == ReviewerStatus.Approved || x.ReviewerStatus == ReviewerStatus.Disapproved))
+                .ToList();
+                
+                /*filterRecords
                .Where(s => s.DocumentAttachment.DocumentType == DocumentType.WalkIn && getRoles.Any(x => x == "Admin") && (int)s.DocumentTrackings.OrderByDescending(x => x.Id).First().ReviewerStatus < 4 || s.DocumentTrackings.OrderByDescending(x => x.Id).FirstOrDefault(x => x.ReviewerId == account.Id)?.ReviewerStatus == ReviewerStatus.Reviewed && (int)s.DocumentAttachment.Status < 3 || s.DocumentTrackings.OrderByDescending(x => x.Id).FirstOrDefault(x => x.ReviewerId == account.Id)?.ReviewerStatus == ReviewerStatus.Passed && (int)s.DocumentAttachment.Status < 3)
                .ToList();
+                */
 
         }
     }
