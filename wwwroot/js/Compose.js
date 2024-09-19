@@ -38,14 +38,16 @@
             alert('Please drop a PDF file.');
         }
     });
-
-    $('#uploadForm').on('submit', function (event) {
+    $('#submitButton').on('click', function (event) {
         var fileInput = $('#docs-file')[0];
         var file = fileInput.files[0];
-        if (file && file.size > 104857600) { // 50 MB in bytes
-            alert('The file size must be less than or equal to 100 MB.');
-            event.preventDefault(); // Prevent the form from submitting
+        var size = file.size;
+        if (file && file.size > 104857600) { 
+            alert('The file size must be less than or equal to 50 MB.');
+        } else {
+            $('#uploadForm').submit();
         }
     });
+
 
 });

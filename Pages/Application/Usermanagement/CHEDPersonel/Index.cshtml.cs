@@ -57,7 +57,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Admin.User.CHED_Personel
         {
             var personels = await _cpRepo.CHEDPersonelRecords();
             var account = await _userManager.FindByNameAsync(User.Identity?.Name);
-            CHEDPersonels = personels.Where(x => x.Account.Id != account?.Id).ToList();
+            CHEDPersonels = personels.Where(x => x.Account.Id != account?.Id && x.Office != null).ToList();
           
         }
         public async Task<IActionResult> OnPostAsync(CHEDPersonelInputModel InputModel)
