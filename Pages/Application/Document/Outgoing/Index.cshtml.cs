@@ -15,14 +15,15 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.OutGoing
 	public class IndexModel : PageModel
     {
         private readonly IDocumentAttachmentRepository _docRepo;
-        private readonly IBaseRepository<CHEDPersonel> _reviewerRepo;
+       
         private readonly UserManager<AppIdentityUser> _userManager;
         private readonly IDocumentTrackingRepository _trackingRepository;
         private readonly IBaseRepository<AppIdentityUser> _userRepo;
+        private readonly ICHEDPersonelRepository _reviewerRepo;
         private readonly IMapper _mapper;
         public IndexModel(
             IDocumentAttachmentRepository docRepo,
-            IBaseRepository<CHEDPersonel> reviewerRepo,
+            ICHEDPersonelRepository reviewerRepo,
             UserManager<AppIdentityUser> userManager,
             IDocumentTrackingRepository trackingRepository,
             IBaseRepository<AppIdentityUser> userRepo,
@@ -44,10 +45,13 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.OutGoing
             var docTrackings = await _trackingRepository.GetAll();
             var account = await _userManager.FindByNameAsync(User?.Identity?.Name);
             var getRoles = await _userManager.GetRolesAsync(account);
+            var reviewers = await _reviewerRepo.CHEDPersonelRecords();
+
+            var officeName = reviewers.FirstOrDefault(x => x.Account.Id == account.Id && x.Office != null).Office.OfficeName;
 
             var filterRecords = docsAttachments.OrderByDescending(x => x.DocumentTracking.Id).ToList();
             DocsAttachments = docsAttachments
-                .Where(x => x.DocumentAttachment.DocumentTrackings.OrderByDescending(x => x.AddedAt).First().ReviewerId != account.Id && !x.DocumentAttachment.DocumentTrackings.Any(x => x.ReviewerStatus == ReviewerStatus.Approved || x.ReviewerStatus == ReviewerStatus.Disapproved) && x.DocumentAttachment.DocumentTrackings.Any(x => x.ReviewerId == account.Id))
+                .Where(x => x.DocumentAttachment.DocumentTrackings.OrderByDescending(x => x.AddedAt).First().ReviewerId != account.Id && !x.DocumentAttachment.DocumentTrackings.Any(x => x.ReviewerStatus == ReviewerStatus.Approved || x.ReviewerStatus == ReviewerStatus.Disapproved) && (x.DocumentAttachment.DocumentTrackings.Any(x => x.ReviewerId == account.Id) || officeName.Contains("Records Office") ))
                 .ToList();
                 
                 /*filterRecords
