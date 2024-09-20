@@ -50,10 +50,6 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Dashboard
         public int CountOnProcessDocs { get; set; }
         public List<DocumentAttachmentViewModel> RecentDocuments { get; set; }
         public List<AppIdentityUser> RecentSenders { get; set; }
-
-       
-
-        
         public async Task OnGetAsync()
         {
             var chedPersonels = await _chedPRepo.GetAll();
@@ -78,7 +74,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Dashboard
                    .OrderByDescending(x => x.DocumentAttachment.UpdatedAt)
                    .Take(5)
                    .ToList();
-                CountOnProcessDocs = fDocsAttachments.Where(x => x.SenderAccount.UserName == User.Identity?.Name && x.DocumentAttachment.Status == Status.OnProcess).Count();
+                CountOnProcessDocs = fDocsAttachments.Where(x => x.SenderAccount.UserName == User.Identity?.Name && x.DocumentAttachment.Status == Status.OnProcess || x.DocumentAttachment.Status == Status.PreparingRelease).Count();
                 CountPendingDocs = fDocsAttachments.Where(x => x.SenderAccount.UserName == User.Identity?.Name && x.DocumentAttachment.Status == Status.Pending).Count();
             }
 

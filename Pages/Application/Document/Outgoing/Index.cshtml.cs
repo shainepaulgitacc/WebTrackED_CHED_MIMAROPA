@@ -47,7 +47,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.OutGoing
 
             var filterRecords = docsAttachments.OrderByDescending(x => x.DocumentTracking.Id).ToList();
             DocsAttachments = docsAttachments
-                .Where(x => x.DocumentAttachment.DocumentTrackings.OrderByDescending(x => x.AddedAt).First().ReviewerId != account.Id && !x.DocumentAttachment.DocumentTrackings.Any(x => x.ReviewerStatus == ReviewerStatus.Approved || x.ReviewerStatus == ReviewerStatus.Disapproved))
+                .Where(x => x.DocumentAttachment.DocumentTrackings.OrderByDescending(x => x.AddedAt).First().ReviewerId != account.Id && !x.DocumentAttachment.DocumentTrackings.Any(x => x.ReviewerStatus == ReviewerStatus.Approved || x.ReviewerStatus == ReviewerStatus.Disapproved) && x.DocumentAttachment.DocumentTrackings.Any(x => x.ReviewerId == account.Id))
                 .ToList();
                 
                 /*filterRecords

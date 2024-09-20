@@ -84,8 +84,6 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document
             var getRoles = await _userManager.GetRolesAsync(user);
             if (docAttachment == null)
                 return BadRequest($"Unknown document");
-            else if (docAttachment.DocumentTracking.ReviewerId != user.Id)
-                return BadRequest("Can't access this page");
             else if (docAttachment.DocumentAttachment.Status == Status.PreparingRelease && !getRoles.Any(x => x == "Admin"))
                 return BadRequest("You can't access this page it is only available to the record");
 			DocumentAttachment = docAttachment;

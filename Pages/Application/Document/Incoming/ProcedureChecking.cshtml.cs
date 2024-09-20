@@ -340,7 +340,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.Incoming
             var docsProcedures = await _docsProcedRepo.GetAll();
             var filteredDocProced = docsProcedures.Where(x => x.DocumentAttachmentId == docattachment.Id).ToList();
             var reviewers = await _chedPRepo.CHEDPersonelRecords();
-            var reviewer = reviewers.FirstOrDefault(x => x.Office.OfficeName.Contains("Records Office")).Account;
+            var reviewer = reviewers.FirstOrDefault(x => x.Office != null && x.Office.OfficeName.Contains("Records Office"))?.Account;
 
             foreach(var result in filteredDocProced)
             {

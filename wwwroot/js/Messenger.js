@@ -65,17 +65,19 @@
                         minute: '2-digit'
                     }).toLowerCase();
 
+                    let recipientProfile = e.recipientProfile != null ? `/ProfilePicture/${e.recipientProfile}`:'/image/NoProfile.jfif';
+
                     var listRecipients =
                 `<li class="${currentRecipientPage} user-item border border-opacity-50 d-flex justify-content-between align-items-center p-3 rounded-4 shadow-sm bg-white mb-3">
                     <a href="/Application/Messenger/Index?rId=${e.recipientId}" class="d-lg-flex d-none gap-2 clickable text-decoration-none">
-                        <img src="/ProfilePicture/${e.recipientProfile}" width="50" height="50" class="rounded-circle" />
+                        <img src="${recipientProfile}" width="50" height="50" class="rounded-circle" />
                         <div>
                             <h6 class="p-0 mb-0 text-dark">${e.recipientFullName}</h6>
                             <span class="text-secondary">${formattedDate} ${formattedTime}</span>
                         </div>
                     </a>
                      <a href="/Application/Messenger/ChatPage?rId=${e.recipientId}" class="d-lg-none d-flex gap-2 clickable text-decoration-none">
-                            <img src="/ProfilePicture/${e.recipientProfile}" width="50" height="50" class="rounded-circle" />
+                            <img src="${recipientProfile}" width="50" height="50" class="rounded-circle" />
                             <div>
                                 <h6 class="p-0 mb-0 text-dark">${e.recipientFullName}</h6>
                                 <span class="text-secondary">${formattedDate} ${formattedTime}</span>
@@ -153,24 +155,26 @@
                         minute: '2-digit'
                     }).toLowerCase();
 
+                    let recipientProfile = e.recipientProfile != null ? `/ProfilePicture/${e.recipientProfile}` : '/image/NoProfile.jfif';
+
                     var listRecipients =
-                     `<li class="${currentRecipientPage} user-item border border-opacity-50 d-flex justify-content-between align-items-center p-3 rounded-4 shadow-sm bg-white mb-3">
-                         <a href="/Application/Messenger/Index?rId=${e.recipientId}" class="d-lg-flex d-none gap-2 clickable text-decoration-none">
-                            <img src="/ProfilePicture/${e.recipientProfile}" width="50" height="50" class="rounded-circle" />
+                        `<li class="${currentRecipientPage} user-item border border-opacity-50 d-flex justify-content-between align-items-center p-3 rounded-4 shadow-sm bg-white mb-3">
+                    <a href="/Application/Messenger/Index?rId=${e.recipientId}" class="d-lg-flex d-none gap-2 clickable text-decoration-none">
+                        <img src="${recipientProfile}" width="50" height="50" class="rounded-circle" />
+                        <div>
+                            <h6 class="p-0 mb-0 text-dark">${e.recipientFullName}</h6>
+                            <span class="text-secondary">${formattedDate} ${formattedTime}</span>
+                        </div>
+                    </a>
+                     <a href="/Application/Messenger/ChatPage?rId=${e.recipientId}" class="d-lg-none d-flex gap-2 clickable text-decoration-none">
+                            <img src="${recipientProfile}" width="50" height="50" class="rounded-circle" />
                             <div>
                                 <h6 class="p-0 mb-0 text-dark">${e.recipientFullName}</h6>
                                 <span class="text-secondary">${formattedDate} ${formattedTime}</span>
                             </div>
                         </a>
-                        <a href="/Application/Messenger/ChatPage?rId=${e.recipientId}" class="d-lg-none d-flex gap-2 clickable text-decoration-none">
-                            <img src="/ProfilePicture/${e.recipientProfile}" width="50" height="50" class="rounded-circle" />
-                            <div>
-                                <h6 class="p-0 mb-0 text-dark">${e.recipientFullName}</h6>
-                                <span class="text-secondary">${formattedDate} ${formattedTime}</span>
-                            </div>
-                        </a>
-                        ${hasUnviewedBadge}
-                    </li>`;
+                    ${hasUnviewedBadge}
+                </li>`;
 
                     // Append the generated list item to the container
                     $("#user-list").append(listRecipients);

@@ -121,14 +121,18 @@
                         {
                            
                             <div class="d-flex align-items-center">
-                            <form enctype="multipart/form-data" id="form-new-docs" asp-page-handler="ChangeDocument" asp-route-prevPage="@Model.PreviousPage" asp-route-pId="@Model.DocumentAttachment.DocumentAttachment.Id">
-                                @Html.AntiForgeryToken()
+                                @if (!Model.DocumentAttachment.DocumentAttachment.DocumentTrackings.Any(x => x.ReviewerStatus == ReviewerStatus.Approved || x.ReviewerStatus == ReviewerStatus.Disapproved))
+                                {
+                                    <form enctype="multipart/form-data" id="form-new-docs" asp-page-handler="ChangeDocument" asp-route-prevPage="@Model.PreviousPage" asp-route-pId="@Model.DocumentAttachment.DocumentAttachment.Id">
+                                        @Html.AntiForgeryToken()
+
+                                        <label for="new-docs" class="btn btn-success">
+                                            <i class="fa-solid fa-repeat"></i>
+                                        </label>
+                                        <input asp-for="NewDocuments" id="new-docs" accept="application/zip" class="d-none" />
+                                    </form>
+                                }
                               
-                                    <label for="new-docs" class="btn btn-success">
-                                        <i class="fa-solid fa-repeat"></i>
-                                    </label>
-                                <input asp-for="NewDocuments" id="new-docs" accept="application/zip" class="d-none" />
-                            </form>
                             </div>
                             <div class="d-flex align-items-center">
                                 <a asp-page-handler="DownloadFile" asp-route-filename="@Model.DocumentAttachment.DocumentAttachment.FileName" class="btn btn-primary"><i class="fa-solid fa-download"></i></a>

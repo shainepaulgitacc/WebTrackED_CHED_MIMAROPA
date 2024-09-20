@@ -15,6 +15,9 @@
 	
 }
 @await Component.InvokeAsync("BreadCrump", breadcrump_data)
+<div class="d-flex justify-content-end">
+	<a asp-page="./WalkInDocument" class="btn btn-primary mb-2">Walk in document <i class="fa-solid fa-person-walking"></i></a>
+</div>
 <div class="p-3 rounded-3 bg-white shadow ">
 	<div class="overflow-x-scroll px-1 remove-scrollbar">
 		<table id="table-data" class="table table-striped table-hover remove-scrollbar w-100">
