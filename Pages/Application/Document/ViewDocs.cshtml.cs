@@ -30,6 +30,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document
 		private readonly IHubContext<NotificationHub, INotificationHub> _notifHub;
 		private readonly IBaseRepository<Notification> _notificationRepo;
 		private readonly IBaseRepository<Settings> _settingsRepo;
+        private readonly QRCode_Generator _qrGenerator;
 		private readonly IMapper _mapper;
 		public ViewDocsModel(
 			IDocumentAttachmentRepository docRepo,
@@ -43,6 +44,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document
 			IHubContext<NotificationHub, INotificationHub> notifHub,
 			IBaseRepository<Notification> notificationRepo,
             IBaseRepository<Settings> settingsRepo,
+            QRCode_Generator qrGenerator,
 
 
             IMapper mapper)
@@ -57,6 +59,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document
 			_notifHub = notifHub;
 			_notificationRepo = notificationRepo;
 			_mapper = mapper;
+            _qrGenerator = qrGenerator;
 			_settingsRepo = settingsRepo;
 		}
 		public string PreviousPage { get; set; }
@@ -120,11 +123,11 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document
              })
              .Any(x => x.ReviewerStatus != ReviewerStatus.Reviewed || x.ReviewerStatus == ReviewerStatus.Passed);
 
+            var refCode = docAttachment.DocumentAttachment.DocumentType == DocumentType.WalkIn ? $"dW{pId.ToString("00000")}" : $"dE{pId.ToString("00000")}";
 
-
-            
-
-
+            var qrCode = _qrGenerator.GenerateCode(refCode);
+            string imagebase64 = $"data:image/png;base64,{Convert.ToBase64String(qrCode)}";
+            ViewData["qr-code"] = imagebase64;
             return Page();
 
 

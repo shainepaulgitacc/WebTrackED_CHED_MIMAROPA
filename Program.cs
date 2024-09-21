@@ -32,6 +32,7 @@ builder.Services.AddScoped<IMessageRepository, MessageRepository>();
 builder.Services.AddScoped<ISenderRepository, SenderRepository>();
 builder.Services.AddScoped<FileUploader>();
 builder.Services.AddScoped<EmailSender>();
+builder.Services.AddScoped<QRCode_Generator>();
 builder.Services.AddSignalR();
 builder.Services.Configure<FormOptions>(options =>
 {

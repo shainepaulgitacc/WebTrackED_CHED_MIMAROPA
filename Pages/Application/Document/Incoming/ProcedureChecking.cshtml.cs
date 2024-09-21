@@ -34,6 +34,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.Incoming
         private readonly IBaseRepository<Notification> _notificationRepo;
         private readonly IBaseRepository<Settings> _settingsRepo;
         private readonly IMapper _mapper;
+        private readonly IBaseRepository<Office> _officeRepo;
         public ProcedureCheckingModel(
             IBaseRepository<DocumentProcedure> docsProcedRepo,
             IBaseRepository<DocumentTracking> docsTrackRepo,
@@ -45,6 +46,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.Incoming
             IBaseRepository<Notification> notificationRepo,
             IBaseRepository<Settings> settingsRepo,
             IBaseRepository<AppIdentityUser> revAccRepo,
+            IBaseRepository<Office> officeRepo,
 
         IMapper mapper)
 
@@ -60,6 +62,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.Incoming
             _notificationRepo = notificationRepo;
             _settingsRepo = settingsRepo;
             _revAccRepo = revAccRepo;
+            _officeRepo = officeRepo;
         }
         public List<DocumentProcedure> documentProcedures { get; set; }
         public List<CHEDPersonelListViewModel> ChedPersonels { get; set; }
@@ -84,6 +87,9 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.Incoming
             PreviousPage = prevPage;
             var docProcedures = await _docsProcedRepo.GetAll();
             var chedPersonels = await _chedPRepo.CHEDPersonelRecords();
+
+            var chedP = await _chedPRepo.GetAll();
+            var offices = await _officeRepo.GetAll();
 
             var docsTrackings = await _docsTrackRepo.GetAll();
             var docAttachments = await _documentAttachmentRepository.GetAll();
@@ -144,13 +150,33 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.Incoming
                    Reviewer = r,
                    DocumentTracking = d
                })
-
+               .Join(chedP,
+               r => r.Reviewer.Id,
+               c => c.IdentityUserId,
+               (r,c) => new
+               {
+                   Reviewer = r.Reviewer,
+                   DocumentTracking = r.DocumentTracking,
+                   ChedPersonel = c
+               })
+               .GroupJoin(offices,
+               c => c.ChedPersonel.OfficeId,
+               o => o.Id,
+               (c,o) => new
+               {
+                   Reviewer = c.Reviewer,
+                   DocumentTracking = c.DocumentTracking,
+                   ChedPersonel = c.ChedPersonel,
+                   Office = o.FirstOrDefault()
+               })
                .Select(result => new
                {
                    Reviewer = result.Reviewer,
-                   DocumentTracking = result.DocumentTracking.FirstOrDefault()
+                   DocumentTracking = result.DocumentTracking.FirstOrDefault(),
+                   ChedPersonel = result.ChedPersonel,
+                   Office = result.Office
                })
-               .Where(x => x.DocumentTracking == null && x.Reviewer.TypeOfUser != TypeOfUser.Admin || x.DocumentTracking?.ReviewerId != account.Id && x.Reviewer.TypeOfUser != TypeOfUser.Admin)
+               .Where(x => x.DocumentTracking == null && !(x.Office == null || (x.Office!= null && x.Office.OfficeName.Contains("Records Office"))) || x.DocumentTracking?.ReviewerId != account.Id && !(x.Office == null || (x.Office != null && x.Office.OfficeName.Contains("Records Office"))))
                .GroupBy(res => res.Reviewer.Id)
                .Select(result => new CHEDList
                {

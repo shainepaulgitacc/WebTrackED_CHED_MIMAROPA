@@ -41,6 +41,7 @@
                  ("Outgoing","/Application/Document/Outgoing/Index"),
                  ("Onprocess","/Application/Document/Onprocess/Index"),
                  ("Completed","/Application/Document/Ended/Index"),
+                 ("WalkIn","/Application/Document/WalkIn/Index")
               
             }
         },
@@ -93,7 +94,7 @@
                             <div class="submenus ms-4 border-start border-secondary border-opacity-25 border-3 ps-3 d-flex flex-column gap-3">
                                 @foreach (var submenu in menu.submenus)
                                 {
-                                    if(submenu.Item1 != "Pending" && submenu.Item1 != "Onprocess")
+                                    if(submenu.Item1 != "Pending" && submenu.Item1 != "Onprocess" && submenu.Item1 != "WalkIn")
                                     {
                                         <a asp-page="@submenu.Item2" class="text-nowrap d-block text-secondary text-decoration-none">@submenu.Item1</a>
                                     }
@@ -157,7 +158,7 @@
                                 <div class="submenus ms-4 border-start border-secondary border-opacity-25 border-3 ps-3 d-flex flex-column gap-3">
                                     @foreach (var submenu in menu.submenus)
                                     {
-                                        if (submenu.Item1 != "Pending"&&submenu.Item1 != "Onprocess" && submenu.Item1 != "Compose")
+                                        if (submenu.Item1 != "Pending" && submenu.Item1 != "Onprocess" && submenu.Item1 != "Compose" && submenu.Item1 != "WalkIn")
                                         {
                                             <a asp-page="@submenu.Item2" class="text-nowrap d-block text-secondary text-decoration-none">@submenu.Item1</a>
                                         }
