@@ -28,8 +28,12 @@
                     @foreach(var user in Model.Users)
                     {
                         <div style="flex: 0 0 auto;width: 100px;margin-right: 1rem;">
-                            <a asp-route-rId="@user.Id" class="clickable flex-column d-flex justify-content-center align-items-center gap-2 text-decoration-none">
+                            <a asp-route-rId="@user.Id" class="d-none clickable flex-column d-lg-flex justify-content-center align-items-center gap-2 text-decoration-none">
                                 <img src ="~/@(!string.IsNullOrEmpty(user.ProfileFileName) ? $"ProfilePicture/{user.ProfileFileName}" : "image/NoProfile.jfif")" width="50" height="50" class="rounded-circle" />
+                                <h6 style="font-size:15px" class="text-secondary text-center user-name fw-light text-wrap">@($"{user.FirstName} {user.MiddleName} {user.LastName} {user.Suffixes}")</h6>
+                            </a>
+                            <a asp-route-rId="@user.Id" asp-page="./ChatPage" class="clickable d-lg-none flex-column d-flex justify-content-center align-items-center gap-2 text-decoration-none">
+                                <img src="~/@(!string.IsNullOrEmpty(user.ProfileFileName) ? $"ProfilePicture/{user.ProfileFileName}" : "image/NoProfile.jfif")" width="50" height="50" class="rounded-circle" />
                                 <h6 style="font-size:15px" class="text-secondary text-center user-name fw-light text-wrap">@($"{user.FirstName} {user.MiddleName} {user.LastName} {user.Suffixes}")</h6>
                             </a>
                         </div>
