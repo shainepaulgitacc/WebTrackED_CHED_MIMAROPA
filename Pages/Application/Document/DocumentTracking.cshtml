@@ -57,15 +57,13 @@
         <h6 class="text-body-tertiary text-center">No procedure</h6>
     }
 *@
-
-</div>
 <div class="row">
     <div class="col-12">
         <div class="rounded-3  mb-4 d-flex justify-content-center">
             <div class="d-flex justify-content-between position-relative" style="width: 500px">
                 <div class="w-100  bg-secondary bg-opacity-50 position-absolute" style="height: 2px; top: 25px">
                 </div>
-                <div class="d-flex flex-column align-items-center z-1 bg-white">
+                <div class="d-flex flex-column align-items-center z-1" style="background-color: #F6F9FF">
                     <div class="border border-2  border-success border-opacity-50 d-flex align-items-center justify-content-center rounded-circle" style="width: 50px; height: 50px;">
                         <i class="fs-4 fa fa-file-circle-exclamation text-success"></i>
                     </div>
@@ -82,7 +80,7 @@
                         }
                     </h6>
                 </div>
-                <div class="d-flex flex-column align-items-center z-1 bg-white">
+                <div class="d-flex flex-column align-items-center z-1" style="background-color: #F6F9FF">
 
                     <div class="border border-2 @(!Model.IsPending ? "border-success":"border-secondary") border-opacity-50 d-flex align-items-center justify-content-center rounded-circle" style="width: 50px; height: 50px;">
                         <i class="fs-4 fa fa-file-pen @(!Model.IsPending ? "text-success":"text-body-secondary")"></i>
@@ -99,7 +97,7 @@
                         }
                     </h6>
                 </div>
-                <div class="d-flex flex-column align-items-center z-1 bg-white">
+                <div class="d-flex flex-column align-items-center z-1" style="background-color: #F6F9FF">
                     <div class="border border-2 @(!Model.IsPending && !Model.IsOnProcess && !Model.IsPreparingForRelease && !Model.IsCompleted ? "border-success":"border-secondary") border-opacity-50 d-flex align-items-center justify-content-center rounded-circle" style="width: 50px; height: 50px;">
                         <i class="fs-4 fa fa-file-circle-check  @(!Model.IsPending && !Model.IsOnProcess && !Model.IsPreparingForRelease && !Model.IsCompleted ? "text-success":"text-body-secondary")"></i>
                     </div>
@@ -208,11 +206,11 @@
                     @foreach(var docTracking in Model.DocumentTrackings)
                     {
                         <div class="col-5 mb-3">
-                            <h6 class="text-end  @(docTracking.DocumentTracking.Id == Model.MaxId ? "fw-bold" :"")">@docTracking.DocumentTracking.AddedAt.ToString("dd MMM,yyy hh:mm tt")</h6>
+                            <h6 class="text-end">@docTracking.DocumentTracking.AddedAt.ToString("dd MMM,yyy hh:mm tt")</h6>
                         </div>
                         <div class="col-1 mb-3">
                             <div class="d-flex align-items-center justify-content-center">
-                                <span class="@(docTracking.DocumentTracking.Id == Model.MaxId ? "bg-success": "bg-secondary") rounded-circle p-2 z-1">
+                                <span class="bg-secondary rounded-circle p-2 z-1">
                                 </span>
                             </div>
                         </div>

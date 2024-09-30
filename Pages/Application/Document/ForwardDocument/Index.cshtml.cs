@@ -231,7 +231,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.ForwardDocument
                 ReviewerStatus = ReviewerStatus.Passed
             });
 
-            foreach (var reviewer in InputModel.NewReviewers)
+             foreach (var reviewer in InputModel.NewReviewers.Split(","))
             {
 
                 await _docsTrackRepo.Add(new DocumentTracking

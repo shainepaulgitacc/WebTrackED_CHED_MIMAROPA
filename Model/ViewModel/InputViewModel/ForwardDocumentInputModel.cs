@@ -7,6 +7,6 @@ namespace WebTrackED_CHED_MIMAROPA.Model.ViewModel.InputViewModel
         public int DocumentId { get; set; }
         public ReviewerStatus TrackingStatus { get; set; }
         public string? Note { get; set; }
-        public List<string> NewReviewers { get; set; }
+        public string NewReviewers { get; set; }
     }
 }
