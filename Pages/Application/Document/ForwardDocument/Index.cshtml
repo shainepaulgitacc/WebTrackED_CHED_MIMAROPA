@@ -1,0 +1,116 @@
+﻿@page
+@model WebTrackED_CHED_MIMAROPA.Pages.Application.Document.ForwardDocument.IndexModel
+<div class="row my-4 px-3">
+    <div class="col-lg-8 col-md-8 col-12">
+        <h4>Foward Document</h4>
+        <nav style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='%236c757d'/%3E%3C/svg%3E&#34;);" aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a asp-page="@Model.PreviousPage"><i class="fa fa-table-list"></i> Document List</a></li>
+                <li class="breadcrumb-item"><a asp-page="/Application/Document/ViewDocs" asp-route-prevPage="@Model.PreviousPage" asp-route-pId="@Model.PId"><i class="fa fa-file-circle-question"></i> View Document</a></li>
+                <li class="breadcrumb-item active" aria-current="page"><i class="fa fa-share"></i> Forward</li>
+            </ol>
+        </nav>
+    </div>
+    <div class="col-lg-4 col-md-4 col-12">
+        <h6 id="realtime-date" class="text-body-secondary fw-light fst-italic text-lg-end text-md-end text-start">
+            Date Today
+        </h6>
+    </div>
+</div>
+
+<form method="post">
+    @Html.AntiForgeryToken()
+    <input asp-for="InputModel.DocumentId" value="@Model.PId" type="hidden" />
+    <div class="row">
+        <div class="col-lg-5 col-12">
+            <div class="mb-4">
+                <label asp-for="InputModel.Note" class="fw-bolder mb-2">Add Remarks or Notes (Optional) <i class="fa fa-pen"></i></label>
+                <textarea asp-for="InputModel.Note" class="form-control" placeholder="Write here..."></textarea>
+            </div>
+            <div class="mb-4">
+                <label class="fw-bolder mb-2">Action <i class="fa fa-pen"></i></label>
+                <div class="d-flex gap-3 mb-3">
+                    <div>
+                        <input asp-for="InputModel.TrackingStatus" value="@((ReviewerStatus)0)" class="document-tracking-status form-check-input" type="radio" id="@(0)" />
+                    </div>
+                    <label class="form-check-label" for="@(2)">
+                        For Review
+                    </label>
+                </div>
+                <div class="d-flex gap-3 mb-3">
+                    <div>
+                        <input asp-for="InputModel.TrackingStatus" value="@((ReviewerStatus)4)" class="document-tracking-status form-check-input" type="radio" id="@(4)" />
+                    </div>
+                    <label class="form-check-label" for="">
+                        Preparing For Release
+                    </label>
+                </div>
+                
+
+            </div>
+        </div>
+        <div class="col-lg-7 col-12">
+            <h5 class="mb-4">Select Reviewer <i class="fa-solid fa-user-pen"></i></h5>
+            <div class="overflow-y-scroll px-3 mb-lg-0 mb-4" style="height: 400px">
+
+                @if (Model.ValidReviewers.Count() > 0)
+                {
+                    @foreach (var reviewer in Model.ValidReviewers)
+                    {
+                        <div class="d-flex gap-3 mb-3">
+                            <div>
+                                <input asp-for="InputModel.NewReviewers" value="@reviewer.User.Id" class="reviewer form-check-input" type="checkbox" id="@reviewer.User.Id" />
+                            </div>
+                            <label class="form-check-label" for="@reviewer.User.Id">
+                                @($"{reviewer.User.FirstName} {reviewer.User.MiddleName} {reviewer.User.LastName} {reviewer.User.Suffixes}")
+                                <i class="fa-regular fa-circle-check text-success"></i>
+                            </label>
+                        </div>
+                    }
+
+                }
+                else
+                {
+                    <h6 class="text-center text-body-tertiary">No reviewers for now</h6>
+                }
+            </div>
+        </div>
+        <div class="col-12">
+            <div class="d-flex justify-content-center">
+                <button type="submit" id="submitButton" disabled class="btn btn-primary btn btn-primary w-75 text-center">
+                    <span class="button-text">Submit </span>
+                    <span class="d-none spinner-grow spinner-grow-sm loading-spinner"></span>
+                    <span class="d-none loading-text">Loading...</span>
+                    <i class="fa fa-share"></i>
+                </button>
+            </div>
+
+        </div>
+    </div>
+</form>
+@section Scripts {
+    <script>
+        $(function () {
+            connection.on('reviewerRealtime', function (title, description, notifType, date, redirectLink) {
+                alert('Please reload the page');
+            });
+            // Function to check if both radio groups have a selected value
+            function checkRadioSelection() {
+                var reviewerSelected = $('.reviewer:checked').length > 0;
+                var documentStatusSelected = $('.document-tracking-status:checked').length > 0;
+
+                if (reviewerSelected && documentStatusSelected) {
+                    $('#submitButton').prop('disabled', false);  // Enable the button
+                } else {
+                    $('#submitButton').prop('disabled', true);   // Disable the button
+                }
+            }
+            // Call the function on page load to ensure the button is correctly set
+            checkRadioSelection();
+
+            // Attach event listeners to radio buttons
+            $('.reviewer').change(checkRadioSelection);
+            $('.document-tracking-status').change(checkRadioSelection);
+    </script>
+}
+

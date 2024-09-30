@@ -39,6 +39,12 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document
 
         public string UserId { get; set; }
         public int MaxId { get; set; }
+
+
+        public bool IsPending { get; set; }
+        public bool IsOnProcess { get; set; }
+        public bool IsPreparingForRelease { get; set; }
+        public bool IsCompleted { get; set; }
         public async Task<IActionResult> OnGetAsync(string prevPage, int pId)
         {
             var documentProcedures = await _docProcedureRepo.GetAll();
@@ -61,8 +67,13 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document
             var mxId = filteredDocsTracking.Max(x => x.DocumentTracking.Id);
             MaxId = mxId;
             var docsAttachment = await _docAttachmentRepo.DocumentAttachments();
-            DocumentAttachment = docsAttachment
+            var document = docsAttachment
                 .FirstOrDefault(x =>x.DocumentTracking.Id == mxId);
+            DocumentAttachment = document;
+            IsPending = document.DocumentAttachment.Status == Status.Pending;
+            IsOnProcess = document.DocumentAttachment.Status == Status.OnProcess ;
+            IsPreparingForRelease = document.DocumentAttachment.Status == Status.PreparingRelease;
+            IsCompleted = document.DocumentAttachment.Status == Status.Disapproved || document.DocumentAttachment.Status == Status.Approved;
             return Page();
         }
     }

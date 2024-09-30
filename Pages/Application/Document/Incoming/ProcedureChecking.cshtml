@@ -26,50 +26,31 @@
     else
     {
         <div class="row bg-white p-lg-5 p-3 rounded-2 shadow">
-            <div class="col-lg-7 col-md-7 col-12">
-                <h5 class="mb-4">Procedures <i class="fa-solid fa-pen"></i></h5>
-                <div class="overflow-y-scroll px-3" style="height: 400px">
-                    @if (Model.documentProcedures.Count() > 0)
-                    {
-                        @foreach (var procedure in Model.documentProcedures)
-                        {
-                            <div class="d-flex gap-3 mb-3">
-                                <div>
-                                    <input @(procedure.IsDone ? "checked" : "") value="@procedure.Id" class="procedure-input form-check-input" type="checkbox" />
-                                </div>
-                                <span><b>@procedure.ProcedureTitle</b>(@procedure.ProcedureDescription)</span>
-                            </div>
-                        }
-                    }
-                    else
-                    {
-                        <h6 class="text-center text-body-secondary mt-2">No possible next reviewer</h6>
-                    }
-                </div>
-            </div>
-            <div class="col-lg-5 col-md-5 col-12">
-                <h5 class="mb-4">Select Reviewer <i class="fa-solid fa-user-pen"></i></h5>
-                <div class="overflow-y-scroll px-3" style="height: 400px">
-                    @if (Model.ValidReviewers.Count() > 0)
-                    {
-                        @foreach (var chedPersonel in Model.ValidReviewers)
-                        {
-                            <div class="d-flex gap-3 mb-3">
-                                <div>
-                                    <input value="@chedPersonel.User.Id" name="reviewer" class="reviewer form-check-input" type="checkbox" id="@chedPersonel.User.Id" />
-                                </div>
-                                <label class="form-check-label" for="@chedPersonel.User.Id">
-                                    @($"{chedPersonel.User.FirstName} {chedPersonel.User.MiddleName} {chedPersonel.User.LastName} {chedPersonel.User.Suffixes}")
-                                </label>
-                            </div>
-                        }
-                    }
-                    else
-                    {
-                        <h6 class="text-center text-body-tertiary mt-2">No possible next reviewer</h6>
-                    }
-                </div>
-            </div>
+            @*
+        <div class="col-lg-7 col-md-7 col-12">
+        <h5 class="mb-4">Procedures <i class="fa-solid fa-pen"></i></h5>
+        <div class="overflow-y-scroll px-3" style="height: 400px">
+        @if (Model.documentProcedures.Count() > 0)
+        {
+        @foreach (var procedure in Model.documentProcedures)
+        {
+        <div class="d-flex gap-3 mb-3">
+        <div>
+        <input @(procedure.IsDone ? "checked" : "") value="@procedure.Id" class="procedure-input form-check-input" type="checkbox" />
+        </div>
+        <span><b>@procedure.ProcedureTitle</b>(@procedure.ProcedureDescription)</span>
+        </div>
+        }
+        }
+        else
+        {
+        <h6 class="text-center text-body-secondary mt-2">No possible next reviewer</h6>
+        }
+        </div>
+        </div>
+            *@
+           
+          
             <div class="col-12">
                 <div class="d-flex justify-content-end pt-5 pe-3">
                     @if (!Model.HasCurrentllyReviewing)
@@ -93,6 +74,75 @@
         </div>
     }
 </div>
+
+<form method="post">
+    @Html.AntiForgeryToken()
+    <input asp-for="InputModel.DocumentId" value="@Model.PId" type="hidden" />
+    <div class="row">
+        <div class="col-lg-5 col-12">
+            <div class="mb-4">
+                <label asp-for="InputModel.Note" class="fw-bolder mb-2">Add Remarks or Notes (Optional) <i class="fa fa-pen"></i></label>
+                <textarea asp-for="InputModel.Note" class="form-control" placeholder="Write here..."></textarea>
+            </div>
+            <div class="mb-4">
+                <label class="fw-bolder mb-2">Action <i class="fa fa-pen"></i></label>
+                <div class="d-flex gap-3 mb-3">
+                    <div>
+                        <input asp-for="InputModel.TrackingStatus" value="@((ReviewerStatus)0)" class="document-tracking-status form-check-input" type="radio" id="@(2)" />
+                    </div>
+                    <label class="form-check-label" for="@(2)">
+                        For Review
+                    </label>
+                </div>
+                <div class="d-flex gap-3 mb-3">
+                    <div>
+                        <input asp-for="InputModel.TrackingStatus" value="@((ReviewerStatus)4)" class="document-tracking-status form-check-input" type="radio" id="@(4)" />
+                    </div>
+                    <label class="form-check-label" for="">
+                        For Release
+                    </label>
+                </div>
+              
+
+            </div>
+        </div>
+        <div class="col-lg-5 col-md-5 col-12">
+            <h5 class="mb-4">Select Reviewer <i class="fa-solid fa-user-pen"></i></h5>
+            <div class="overflow-y-scroll px-3" style="height: 400px">
+                @if (Model.ValidReviewers.Count() > 0)
+                {
+                    @foreach (var chedPersonel in Model.ValidReviewers)
+                    {
+                        <div class="d-flex gap-3 mb-3">
+                            <div>
+                                <input value="@chedPersonel.User.Id" asp-for="InputModel.SelectedIds" class="reviewer form-check-input" type="checkbox" id="@chedPersonel.User.Id" />
+                            </div>
+                            <label class="form-check-label" for="@chedPersonel.User.Id">
+                                @($"{chedPersonel.User.FirstName} {chedPersonel.User.MiddleName} {chedPersonel.User.LastName} {chedPersonel.User.Suffixes}")
+                            </label>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <h6 class="text-center text-body-tertiary mt-2">No possible next reviewer</h6>
+                }
+            </div>
+        </div>
+       
+        <div class="col-12">
+            <div class="d-flex justify-content-center">
+                <button type="submit" id="submitButton" disabled class="btn btn-primary btn btn-primary w-75 text-center">
+                    <span class="button-text">Submit </span>
+                    <span class="d-none spinner-grow spinner-grow-sm loading-spinner"></span>
+                    <span class="d-none loading-text">Loading...</span>
+                    <i class="fa fa-share"></i>
+                </button>
+            </div>
+
+        </div>
+    </div>
+</form>
 
 @section Scripts{
     <script src="~/js/ProcedureChecking.js" asp-append-version="true"></script>

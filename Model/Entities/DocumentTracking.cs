@@ -7,6 +7,7 @@ namespace WebTrackED_CHED_MIMAROPA.Model.Entities
         [ForeignKey("DocsAttachment")]
         public int DocumentAttachmentId { get; set; }
         public ReviewerStatus ReviewerStatus { get; set; }
+        public string? Note { get; set; }
         [ForeignKey("Reviewer")]
         public string ReviewerId { get; set; }
         public  virtual DocumentAttachment DocsAttachment { get; set; }

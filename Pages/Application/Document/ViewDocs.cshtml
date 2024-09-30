@@ -222,7 +222,7 @@
                             else if (Model.DocumentAttachment.DocumentTrackings.OrderByDescending(x => x.Id).FirstOrDefault(x => x.ReviewerId == Model.AccountId)?.ReviewerStatus == ReviewerStatus.Reviewed)
                             {
                                
-                                <a asp-page="./Incoming/ProcedureChecking" asp-route-prevPage="@Model.PreviousPage" asp-route-pId="@Model.DocumentAttachment.DocumentAttachment.Id" class="btn btn-info text-white">Proceed <i class="fa-solid fa-arrow-right"></i></a>
+                                <a asp-page="./ForwardDocument/Index" asp-route-prevPage="@Model.PreviousPage" asp-route-pId="@Model.DocumentAttachment.DocumentAttachment.Id" class="btn btn-info text-white">Forward <i class="fa-solid fa-arrow-right"></i></a>
                             }
                            
                         }
