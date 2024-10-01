@@ -181,9 +181,9 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.Incoming
                .Select(result => new CHEDList
                {
                    User = result.First().Reviewer,
-                   IsValid = !docTracks.Any( x => x.DocumentAttachmentId == pId &&  x.ReviewerId == result.Key && (int)x.ReviewerStatus < 4),
+                   //IsValid = !docTracks.Any( x => x.DocumentAttachmentId == pId &&  x.ReviewerId == result.Key && (int)x.ReviewerStatus < 4),
                })
-               .Where(x => x.IsValid && x.User.TypeOfUser != TypeOfUser.Sender)
+               //.Where(x => x.IsValid && x.User.TypeOfUser != TypeOfUser.Sender)
                .ToList();
 
 

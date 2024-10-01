@@ -18,7 +18,7 @@
     </div>
 </div>
 
-<form method="post">
+<form method="post" asp-route-pId="@Model.PId">
     @Html.AntiForgeryToken()
     <input asp-for="InputModel.DocumentId" value="@Model.PId" type="hidden" />
     <div class="row">
@@ -39,7 +39,7 @@
                 </div>
                 <div class="d-flex gap-3 mb-3">
                     <div>
-                        <input asp-for="InputModel.TrackingStatus" value="@((ReviewerStatus)4)" class="document-tracking-status form-check-input" type="radio" id="@(4)" />
+                        <input asp-for="InputModel.TrackingStatus" value="@((ReviewerStatus)3)" class="document-tracking-status form-check-input" type="radio" id="@(3)" />
                     </div>
                     <label class="form-check-label" for="">
                         Preparing For Release
@@ -62,7 +62,7 @@
                                 <input asp-for="InputModel.NewReviewers" value="@reviewer.User.Id" class="reviewer form-check-input" type="checkbox" id="@reviewer.User.Id" />
                             </div>
                             <label class="form-check-label" for="@reviewer.User.Id">
-                                @($"{reviewer.User.FirstName} {reviewer.User.MiddleName} {reviewer.User.LastName} {reviewer.User.Suffixes}")
+                                @($"{reviewer.User.FirstName} {reviewer.User.MiddleName} {reviewer.User.LastName} {reviewer.User.Suffixes} ({reviewer.Designation.DesignationName})")
                                 <i class="fa-regular fa-circle-check text-success"></i>
                             </label>
                         </div>
@@ -89,28 +89,7 @@
     </div>
 </form>
 @section Scripts {
-    <script>
-        $(function () {
-            connection.on('reviewerRealtime', function (title, description, notifType, date, redirectLink) {
-                alert('Please reload the page');
-            });
-            // Function to check if both radio groups have a selected value
-            function checkRadioSelection() {
-                var reviewerSelected = $('.reviewer:checked').length > 0;
-                var documentStatusSelected = $('.document-tracking-status:checked').length > 0;
-
-                if (reviewerSelected && documentStatusSelected) {
-                    $('#submitButton').prop('disabled', false);  // Enable the button
-                } else {
-                    $('#submitButton').prop('disabled', true);   // Disable the button
-                }
-            }
-            // Call the function on page load to ensure the button is correctly set
-            checkRadioSelection();
-
-            // Attach event listeners to radio buttons
-            $('.reviewer').change(checkRadioSelection);
-            $('.document-tracking-status').change(checkRadioSelection);
-    </script>
+    <script src="~/js/ForwardDocument.js" asp-append-version="true"></script>
 }
+
 

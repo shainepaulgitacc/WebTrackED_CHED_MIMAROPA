@@ -27,6 +27,8 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.ForwardDocument
         private readonly IBaseRepository<Settings> _settingsRepo;
         private readonly IMapper _mapper;
         private readonly IBaseRepository<Office> _officeRepo;
+        private readonly IBaseRepository<Designation> _designationRepo;
+
         public IndexModel(
             IBaseRepository<DocumentProcedure> docsProcedRepo,
             IBaseRepository<DocumentTracking> docsTrackRepo,
@@ -39,6 +41,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.ForwardDocument
             IBaseRepository<Settings> settingsRepo,
             IBaseRepository<AppIdentityUser> revAccRepo,
             IBaseRepository<Office> officeRepo,
+            IBaseRepository<Designation> designationRepo,
 
         IMapper mapper)
 
@@ -55,12 +58,15 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.ForwardDocument
             _settingsRepo = settingsRepo;
             _revAccRepo = revAccRepo;
             _officeRepo = officeRepo;
+            _designationRepo = designationRepo;
         }
         public List<DocumentProcedure> documentProcedures { get; set; }
         public List<CHEDPersonelListViewModel> ChedPersonels { get; set; }
 
         public List<CHEDList> ValidReviewers { get; set; }
         public List<string> NewReviewers { get; set; }
+
+        public List<DocumentTracking> DocumentTrackings { get; set; }
         public int PId { get; set; }
         public string OldReviewerId { get; set; }
         public string PreviousPage { get; set; }
@@ -79,7 +85,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.ForwardDocument
             PreviousPage = prevPage;
             var docProcedures = await _docsProcedRepo.GetAll();
             var chedPersonels = await _chedPRepo.CHEDPersonelRecords();
-
+            var designations = await _designationRepo.GetAll();
             var chedP = await _chedPRepo.GetAll();
             var offices = await _officeRepo.GetAll();
 
@@ -97,15 +103,6 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.ForwardDocument
             var account = await _userManager.FindByNameAsync(User.Identity?.Name);
             var revs = await _revAccRepo.GetAll();
             var docTracks = await _docsTrackRepo.GetAll();
-
-
-            var filtered = docProcedures.Where(x => x.DocumentAttachmentId == pId).ToList();
-            if (filtered.Count() <= 0)
-                return BadRequest($"No procedure for now");
-            documentProcedures = filtered;
-
-
-
 
             HasCurrentllyReviewing = docAttachments.Where(x => x.Id == pId)
                 .Join(docsTrackings,
@@ -132,9 +129,27 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.ForwardDocument
                 })
                 .Any(x => x.ReviewerStatus == ReviewerStatus.ToReceived || x.ReviewerStatus == ReviewerStatus.OnReview);
 
+            var docJoined = docAttachments
+                .Join(docTracks,
+                dt => dt.Id,
+                dtr => dtr.DocumentAttachmentId,
+                (dt, dtr) => new
+                {
+                    Document = dt,
+                    DocumentTracking = dtr
+                })
+                .OrderByDescending(x => x.DocumentTracking.Id)
+                .GroupBy(x => x.Document.Id)
+                .Select(r => new
+                {
+                    Document = r.First().Document,
+                    DocumentTracking = r.First().DocumentTracking,
+                })
+                .ToList()
+                ;
 
             ValidReviewers = revs
-               .GroupJoin(docTracks,
+               .GroupJoin(docTracks.OrderByDescending(x => x.Id),
                r => r.Id,
                d => d.ReviewerId,
                (r, d) => new
@@ -161,21 +176,36 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.ForwardDocument
                    ChedPersonel = c.ChedPersonel,
                    Office = o.FirstOrDefault()
                })
+               .Join(designations,
+                d => d.ChedPersonel.DesignationId,
+                c => c.Id,
+                (d,c) => new
+                {
+					Reviewer = d.Reviewer,
+					DocumentTracking = d.DocumentTracking.FirstOrDefault(),
+					ChedPersonel = d.ChedPersonel,
+					Office = d.Office,
+                    Designation = c
+				})
                .Select(result => new
                {
                    Reviewer = result.Reviewer,
-                   DocumentTracking = result.DocumentTracking.FirstOrDefault(),
+                   DocumentTracking = result.DocumentTracking,
                    ChedPersonel = result.ChedPersonel,
-                   Office = result.Office
+                   Office = result.Office,
+                   Designation = result.Designation
                })
-               .Where(x => x.DocumentTracking == null && !(x.Office == null || (x.Office != null && x.Office.OfficeName.Contains("Records Office"))) || x.DocumentTracking?.ReviewerId != account.Id && !(x.Office == null || (x.Office != null && x.Office.OfficeName.Contains("Records Office"))))
+               .Where(x => !docsTrackings.Any(w => w.DocumentAttachmentId == pId && w.ReviewerId == x.Reviewer.Id) || x.Office != null && x.DocumentTracking.ReviewerId != account.Id && !(docAttachments.FirstOrDefault(x => x.Id == pId).DocumentTrackings.OrderByDescending(x => x.Id).FirstOrDefault(y => y.ReviewerId == x.Reviewer.Id).ReviewerStatus == ReviewerStatus.ToReceived || docAttachments.FirstOrDefault(x => x.Id == pId).DocumentTrackings.OrderByDescending(x => x.Id).FirstOrDefault(y => y.ReviewerId == x.Reviewer.Id).ReviewerStatus == ReviewerStatus.OnReview)  /* && docJoined.Any(y => y.Document.Id == pId && y.DocumentTracking.ReviewerId == x.Reviewer.Id && y.DocumentTracking.ReviewerStatus != ReviewerStatus.ToReceived && y.DocumentTracking.ReviewerStatus != ReviewerStatus.OnReview*/)
+
+               //.Where(x => x.DocumentTracking == null && !(x.Office == null || (x.Office != null && x.Office.OfficeName.Contains("Records Office"))) || x.DocumentTracking?.ReviewerId != account.Id && !(x.Office == null || (x.Office != null && x.Office.OfficeName.Contains("Records Office"))))
                .GroupBy(res => res.Reviewer.Id)
                .Select(result => new CHEDList
                {
                    User = result.First().Reviewer,
-                   IsValid = !docTracks.Any(x => x.DocumentAttachmentId == pId && x.ReviewerId == result.Key && (int)x.ReviewerStatus < 4),
+                   Designation =result.First().Designation,
+                  // IsValid = !docTracks.Any(x => x.DocumentAttachmentId == pId && x.ReviewerId == result.Key && (int)x.ReviewerStatus < 4),
                })
-               .Where(x => x.IsValid && x.User.TypeOfUser != TypeOfUser.Sender)
+              // .Where(x => x.IsValid && x.User.TypeOfUser != TypeOfUser.Sender)
                .ToList();
 
 
@@ -220,6 +250,8 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.ForwardDocument
             {
                 _notifHub.Clients.User(rev.DocumentTracking.ReviewerId).ReviewerRealtime();
             }
+            documentAttachment.Status = InputModel.TrackingStatus == ReviewerStatus.PreparingRelease ? Status.PreparingRelease : Status.OnProcess;
+            await _documentAttachmentRepository.Update(documentAttachment,pId);
 
             await _docsTrackRepo.Add(new DocumentTracking
             {

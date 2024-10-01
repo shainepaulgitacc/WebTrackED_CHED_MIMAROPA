@@ -5,6 +5,7 @@ namespace WebTrackED_CHED_MIMAROPA.Model.ViewModel.ListViewModel
     public class CHEDList
     {
         public AppIdentityUser User { get; set; }
-        public bool IsValid { get; set; }
+        public Designation? Designation { get; set; }
+      //  public bool IsValid { get; set; }
     }
 }

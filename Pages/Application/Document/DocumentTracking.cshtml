@@ -222,6 +222,11 @@
                                 </span>
                             </h6>
                             <span class="text-primary fw-bold">@(docTracking.Office != null ? docTracking.Office.OfficeName:"N/A")</span>
+                            @if (!string.IsNullOrEmpty(docTracking.DocumentTracking.Note))
+                            {
+                                <h6 class="fst-italic text-secondary m-0 p-0">(Remarks/Notes)</h6>
+                                <p class="fst-italic text-secondary m-0">@(docTracking.DocumentTracking.Note)</p>
+                            }
                         </div>
                     }
               

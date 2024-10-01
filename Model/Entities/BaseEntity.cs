@@ -22,8 +22,8 @@ namespace WebTrackED_CHED_MIMAROPA.Model.Entities
         ToReceived,
         OnReview,
         Reviewed,
-        Passed,
         PreparingRelease,
+        Passed,
         Approved,
         Disapproved,
       

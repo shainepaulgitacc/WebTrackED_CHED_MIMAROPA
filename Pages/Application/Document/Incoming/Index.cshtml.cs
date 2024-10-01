@@ -19,31 +19,37 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Admin.Document.Incoming
         private readonly IDocumentTrackingRepository _docTrackRepo;
         private readonly IBaseRepository<CHEDPersonel> _reviewerRepo;
         private readonly UserManager<AppIdentityUser> _userManager;
+        private readonly ICHEDPersonelRepository _chedRepo;
         private readonly IMapper _mapper;
         public IndexModel(
             IDocumentAttachmentRepository docRepo,
             IDocumentTrackingRepository docTrackRepo,
             IBaseRepository<CHEDPersonel> reviewerRepo,
             UserManager<AppIdentityUser> userManager,
-            IMapper mapper)
+            IMapper mapper,
+            ICHEDPersonelRepository chedRepo)
         {
             _docRepo = docRepo;
             _docTrackRepo = docTrackRepo;
             _reviewerRepo = reviewerRepo;
             _userManager = userManager;
             _mapper = mapper;
+            _chedRepo = chedRepo;
         }
 
         public List<DocumentAttachmentViewModel> DocsAttachments { get; set; }
         public async Task OnGetAsync()
         {
             var docsAttachments = await _docRepo.DocumentAttachments();
-
             var account = await _userManager.FindByNameAsync(User.Identity?.Name);
+            var reviewerRecord = await _chedRepo.CHEDPersonelRecords();
+            var reviewer = reviewerRecord.FirstOrDefault(x => x.Account.UserName == User.Identity.Name);
 
             var role = await _userManager.GetRolesAsync(account);
             DocsAttachments = docsAttachments
-                .Where(s => s.DocumentTrackings.OrderByDescending(x => x.Id).FirstOrDefault(x => x.ReviewerId == account.Id)?.ReviewerStatus == ReviewerStatus.ToReceived || s.DocumentTrackings.OrderByDescending(x => x.Id).FirstOrDefault(x => x.ReviewerId == account.Id)?.ReviewerStatus == ReviewerStatus.OnReview  || s.DocumentTrackings.OrderByDescending(x => x.Id).FirstOrDefault(x => x.ReviewerId == account.Id)?.ReviewerStatus == ReviewerStatus.Reviewed && (int)s.DocumentAttachment.Status < 2 || s.DocumentAttachment.Status == Status.PreparingRelease && role.Any(x => x == "Admin"))
+            .Where(x => reviewer.Office.OfficeName.Contains("Records Office") && x.DocumentAttachment.DocumentTrackings.OrderByDescending(x => x.Id).FirstOrDefault(x => x.ReviewerId == account.Id)?.ReviewerStatus == ReviewerStatus.PreparingRelease || x.DocumentAttachment.DocumentTrackings.OrderByDescending(x => x.Id).FirstOrDefault(x => x.ReviewerId == account.Id)?.ReviewerStatus == ReviewerStatus.ToReceived || x.DocumentAttachment.DocumentTrackings.OrderByDescending(x => x.Id).FirstOrDefault(x => x.ReviewerId == account.Id)?.ReviewerStatus == ReviewerStatus.OnReview || x.DocumentAttachment.DocumentTrackings.OrderByDescending(x => x.Id).FirstOrDefault(x => x.ReviewerId == account.Id)?.ReviewerStatus == ReviewerStatus.Reviewed)
+
+             
                 .ToList();
 
 

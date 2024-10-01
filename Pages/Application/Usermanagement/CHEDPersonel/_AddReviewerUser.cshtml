@@ -4,6 +4,7 @@
 @inject IBaseRepository<CHEDPersonel> chedPersonelRepo
 @{
 	var offices = await officeRepo.GetAll();
+	var designations = await desigRepo.GetAll();
 	var chedPersonels = await chedPersonelRepo.GetAll();
 
 	var grouped = offices
@@ -22,7 +23,22 @@
 		CHEDPersonel = x.ChedPersonel.FirstOrDefault()
 	})
 	.ToList();
-	var designations = await desigRepo.GetAll();
+	var groupDesignations = designations
+	.GroupJoin(chedPersonels,
+	d => d.Id,
+	c => c.DesignationId,
+	(d, c) => new
+	{
+		Designation = d,
+		CHEDPersonel = c
+	})
+	.Select(x => new
+	{
+		Designation = x.Designation,
+		CHEDPersonel = x.CHEDPersonel.FirstOrDefault()
+	})
+	.Where(x => x.CHEDPersonel == null)
+	.ToList();
 }
 <div class="modal fade" id="add-reviewer-user">
 	<div class="modal-dialog modal-lg">
@@ -138,7 +154,7 @@
 							<div class="col-12 col-lg-6 col-md-6">
 								<div class="mb-3">
 									<label asp-for="DesignationId" class="fw-bolder mb-2"></label><span class="text-danger">*</span>
-									<select required class="form-select" asp-for="DesignationId" asp-items="@designations.ToList().Select(x => new SelectListItem(x.DesignationName,x.Id.ToString()))">
+									<select required class="form-select" asp-for="DesignationId" asp-items="@groupDesignations.Select(x => new SelectListItem(x.Designation.DesignationName,x.Designation.Id.ToString()))">
 										<option hidden selected value="">Select...</option>
 									</select>
 									<span class="text-danger" asp-validation-for="DesignationId"></span>
