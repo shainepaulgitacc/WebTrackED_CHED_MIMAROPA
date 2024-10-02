@@ -189,14 +189,15 @@
                     }
                     else if (Model.DocumentAttachment.DocumentAttachment.Status == Status.OnProcess)
                     {
-                        @if (User.IsInRole("Admin"))
-                        {
-                            <button data-bs-toggle="modal" data-bs-target="#disapproved" class="btn btn-danger">Disapproved <i class="fa-solid fa-xmark"></i></button>
-                        }
+                      
                         @if(Model.DocumentAttachment.DocumentAttachment.Prioritization != null )
                         {
                             @if (Model.DocumentAttachment.DocumentTrackings.OrderByDescending(x => x.Id).FirstOrDefault(x => x.ReviewerId == Model.AccountId)?.ReviewerStatus == ReviewerStatus.OnReview)
                             {
+                                @if (User.IsInRole("Admin"))
+                                {
+                                    <button data-bs-toggle="modal" data-bs-target="#disapproved" class="btn btn-danger">Disapproved <i class="fa-solid fa-xmark"></i></button>
+                                }
                                 <button data-bs-toggle="modal" data-bs-target="#reviewed" class="btn btn-success text-white">Reviewed <i class="fa-solid fa-circle-check"></i></button>
                                 <div class="modal fade" id="reviewed">
                                     <div class="modal-dialog">
@@ -228,7 +229,7 @@
                         }
                         else
                         {
-                           <span class="text-body-tertiary fs-italic">Set prioritization first to proceed</span>
+                           <span class="text-body-tertiary fs-italic">Set prioritization</span>
                         }
 
                     }

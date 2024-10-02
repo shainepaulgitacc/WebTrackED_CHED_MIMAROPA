@@ -64,17 +64,12 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.ForwardDocument
         public List<CHEDPersonelListViewModel> ChedPersonels { get; set; }
 
         public List<CHEDList> ValidReviewers { get; set; }
-        public List<string> NewReviewers { get; set; }
 
         public List<DocumentTracking> DocumentTrackings { get; set; }
         public int PId { get; set; }
         public string OldReviewerId { get; set; }
         public string PreviousPage { get; set; }
-
-
-        public bool HasCurrentllyReviewing { get; set; }
-
-        public bool PrioritizationIsNull { get; set; }
+        public string ReviewerOfficeName { get; set; }
 
         [BindProperty]
         public ForwardDocumentInputModel InputModel { get; set; }
@@ -94,60 +89,19 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.ForwardDocument
             var reviewers = await _revAccRepo.GetAll();
 
             var docAttachment = await _documentAttachmentRepository.GetOne(pId.ToString());
-            PrioritizationIsNull = docAttachment.Prioritization == null;
 
             if (docAttachment.Status == Status.PreparingRelease || docAttachment.Status == Status.Approved || docAttachment.Status == Status.Disapproved)
                 return RedirectToPage("/Application/Document/Outgoing/Index");
 
 
             var account = await _userManager.FindByNameAsync(User.Identity?.Name);
+            var reviewerOfficeName = account.CHEDPersonel.Office.OfficeName;
+
+            ReviewerOfficeName = reviewerOfficeName;
             var revs = await _revAccRepo.GetAll();
             var docTracks = await _docsTrackRepo.GetAll();
 
-            HasCurrentllyReviewing = docAttachments.Where(x => x.Id == pId)
-                .Join(docsTrackings,
-                da => da.Id,
-                dt => dt.DocumentAttachmentId,
-                (da, dt) => new
-                {
-                    Document = da,
-                    DocumentTracking = dt
-                })
-                .Join(reviewers,
-                dt => dt.DocumentTracking.ReviewerId,
-                r => r.Id,
-                (dt, r) => new
-                {
-                    Document = dt.Document,
-                    DocumentTracking = dt.DocumentTracking,
-                    Reviewer = r
-                })
-                .GroupBy(r => r.Reviewer.Id)
-                .Select(result => new
-                {
-                    ReviewerStatus = result.OrderByDescending(x => x.DocumentTracking.Id).First().DocumentTracking.ReviewerStatus
-                })
-                .Any(x => x.ReviewerStatus == ReviewerStatus.ToReceived || x.ReviewerStatus == ReviewerStatus.OnReview);
-
-            var docJoined = docAttachments
-                .Join(docTracks,
-                dt => dt.Id,
-                dtr => dtr.DocumentAttachmentId,
-                (dt, dtr) => new
-                {
-                    Document = dt,
-                    DocumentTracking = dtr
-                })
-                .OrderByDescending(x => x.DocumentTracking.Id)
-                .GroupBy(x => x.Document.Id)
-                .Select(r => new
-                {
-                    Document = r.First().Document,
-                    DocumentTracking = r.First().DocumentTracking,
-                })
-                .ToList()
-                ;
-
+          
             ValidReviewers = revs
                .GroupJoin(docTracks.OrderByDescending(x => x.Id),
                r => r.Id,

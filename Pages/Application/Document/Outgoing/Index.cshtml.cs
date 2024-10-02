@@ -51,13 +51,9 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.OutGoing
 
             var filterRecords = docsAttachments.OrderByDescending(x => x.DocumentTracking.Id).ToList();
             DocsAttachments = docsAttachments
-                .Where(x => x.DocumentAttachment.DocumentTrackings.OrderByDescending(x => x.AddedAt).First().ReviewerId != account.Id && !x.DocumentAttachment.DocumentTrackings.Any(x => x.ReviewerStatus == ReviewerStatus.Approved || x.ReviewerStatus == ReviewerStatus.Disapproved) && (x.DocumentAttachment.DocumentTrackings.Any(x => x.ReviewerId == account.Id) || officeName.Contains("Records Office") ))
+                .Where(x =>x.DocumentAttachment.DocumentType == DocumentType.WalkIn && officeName.Contains("Records Office") ||  x.DocumentAttachment.DocumentTrackings.OrderByDescending(x => x.Id).FirstOrDefault(x => x.ReviewerId == account.Id)?.ReviewerStatus == ReviewerStatus.Passed && x.DocumentAttachment.Status != Status.Approved && x.DocumentAttachment.Status != Status.Disapproved)
                 .ToList();
                 
-                /*filterRecords
-               .Where(s => s.DocumentAttachment.DocumentType == DocumentType.WalkIn && getRoles.Any(x => x == "Admin") && (int)s.DocumentTrackings.OrderByDescending(x => x.Id).First().ReviewerStatus < 4 || s.DocumentTrackings.OrderByDescending(x => x.Id).FirstOrDefault(x => x.ReviewerId == account.Id)?.ReviewerStatus == ReviewerStatus.Reviewed && (int)s.DocumentAttachment.Status < 3 || s.DocumentTrackings.OrderByDescending(x => x.Id).FirstOrDefault(x => x.ReviewerId == account.Id)?.ReviewerStatus == ReviewerStatus.Passed && (int)s.DocumentAttachment.Status < 3)
-               .ToList();
-                */
 
         }
     }

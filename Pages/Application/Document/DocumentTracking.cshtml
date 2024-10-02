@@ -22,41 +22,6 @@
     <h6 class="py-2 rounded-2 text-center @(Model.DocumentAttachment.DocumentAttachment.Status == Status.Approved?"bg-success-subtle":"bg-danger-subtle")">@Model.DocumentAttachment.DocumentAttachment.Status</h6>
 }
 <h5 class="py-2 rounded-2 bg-info text-white w-100 text-center mb-4"><i class="fa-solid fa-file-contract"></i> DocumentTracking</h5>
-
-@*
-    <div class="bg-white mb-3 shadow p-4 rounded-3 container">
-    @if (Model.DocumentProcedures.Count() > 0)
-    {
-        <div class="row">
-            @foreach (var docsProcedure in Model.DocumentProcedures)
-            {
-                <div class="col-lg-3 col-md-4 col-12 mb-lg-0 mb-md-0 mb-4">
-                    <div class="d-flex gap-2">
-                        <div class="@(Model.DocumentProcedures.Count() > 4 ?"mb-4":"")">
-                            <i class="fa-solid @(docsProcedure.IsDone?"fa-check bg-info text-white":"fa-file-waveform border text-primary border-primary bg-white border-2 border-opacity-75")  p-3 rounded-circle  fs-5"></i>
-                        </div>
-                        <div>
-                            <h6 class="text-secondary m-0 p-0 fw-bold">@(docsProcedure.ProcedureTitle.Length > 15 ? $"{docsProcedure.ProcedureTitle.Substring(0,15)}..." : docsProcedure.ProcedureTitle)</h6>
-
-                            <div class="dropdown">
-                                <a data-bs-toggle="dropdown" class="text-decoration-none clickable text-primary text-nowrap">View details <i class="fa-solid fa-eye"></i></a>
-
-                                <div class="dropdown-menu p-3 text-center border-0 shadow bg-white">
-                                    <p>@docsProcedure.ProcedureDescription</p>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-            }
-        </div>
-    }
-    else
-    {
-        <h6 class="text-body-tertiary text-center">No procedure</h6>
-    }
-*@
 <div class="row">
     <div class="col-12">
         <div class="rounded-3  mb-4 d-flex justify-content-center">
@@ -98,8 +63,8 @@
                     </h6>
                 </div>
                 <div class="d-flex flex-column align-items-center z-1" style="background-color: #F6F9FF">
-                    <div class="border border-2 @(!Model.IsPending && !Model.IsOnProcess && !Model.IsPreparingForRelease && !Model.IsCompleted ? "border-success":"border-secondary") border-opacity-50 d-flex align-items-center justify-content-center rounded-circle" style="width: 50px; height: 50px;">
-                        <i class="fs-4 fa fa-file-circle-check  @(!Model.IsPending && !Model.IsOnProcess && !Model.IsPreparingForRelease && !Model.IsCompleted ? "text-success":"text-body-secondary")"></i>
+                    <div class="border border-2 @(!Model.IsPending && !Model.IsOnProcess && !Model.IsPreparingForRelease? "border-success":"border-secondary") border-opacity-50 d-flex align-items-center justify-content-center rounded-circle" style="width: 50px; height: 50px;">
+                        <i class="fs-4 fa fa-file-circle-check  @(!Model.IsPending && !Model.IsOnProcess && !Model.IsPreparingForRelease ? "text-success":"text-body-secondary")"></i>
                     </div>
                     <h6 class="text-secondary">
                         Completed
@@ -215,7 +180,7 @@
                             </div>
                         </div>
                         <div class="col-6 mb-3">
-                            <h6 class="@(docTracking.DocumentTracking.Id == Model.MaxId ? "fw-bold" :"")">@(docTracking.DocumentTracking.ReviewerStatus == ReviewerStatus.OnReview ? "Reviewing by" : docTracking.DocumentTracking.ReviewerStatus == ReviewerStatus.Reviewed ? "Reviewed by" : docTracking.DocumentTracking.ReviewerStatus == ReviewerStatus.ToReceived ? "To Be Recieved by" : docTracking.DocumentTracking.ReviewerStatus == ReviewerStatus.PreparingRelease ? "Ready for Release by":docTracking.DocumentTracking.ReviewerStatus == ReviewerStatus.Approved ? "Approved by":docTracking.DocumentTracking.ReviewerStatus == ReviewerStatus.Passed?"Successfully Passed by":"Disapproved by")
+                            <h6>@(docTracking.DocumentTracking.ReviewerStatus == ReviewerStatus.OnReview ? "Reviewing by" : docTracking.DocumentTracking.ReviewerStatus == ReviewerStatus.Reviewed ? "Reviewed by" : docTracking.DocumentTracking.ReviewerStatus == ReviewerStatus.ToReceived ? "To Be Recieved by" : docTracking.DocumentTracking.ReviewerStatus == ReviewerStatus.PreparingRelease ? "Ready for Release by":docTracking.DocumentTracking.ReviewerStatus == ReviewerStatus.Approved ? "Approved by":docTracking.DocumentTracking.ReviewerStatus == ReviewerStatus.Passed?"Successfully Passed by":"Disapproved by")
                                 <span>
                                     @($"{docTracking.Account.FirstName} {docTracking.Account.MiddleName} {docTracking.Account.LastName} {docTracking.Account.Suffixes}")
                                     @(Model.UserId == docTracking.Account.Id ? "(You)" : "")

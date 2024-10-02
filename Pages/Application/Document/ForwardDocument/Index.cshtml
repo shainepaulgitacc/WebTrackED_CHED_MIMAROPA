@@ -37,14 +37,18 @@
                         For Review
                     </label>
                 </div>
-                <div class="d-flex gap-3 mb-3">
-                    <div>
-                        <input asp-for="InputModel.TrackingStatus" value="@((ReviewerStatus)3)" class="document-tracking-status form-check-input" type="radio" id="@(3)" />
+                @if(!Model.ReviewerOfficeName.Contains("Records Office"))
+                {
+                    <div class="d-flex gap-3 mb-3">
+                        <div>
+                            <input asp-for="InputModel.TrackingStatus" value="@((ReviewerStatus)3)" class="document-tracking-status form-check-input" type="radio" id="@(3)" />
+                        </div>
+                        <label class="form-check-label" for="">
+                            Preparing For Release
+                        </label>
                     </div>
-                    <label class="form-check-label" for="">
-                        Preparing For Release
-                    </label>
-                </div>
+                }
+              
                 
 
             </div>
@@ -52,14 +56,14 @@
         <div class="col-lg-7 col-12">
             <h5 class="mb-4">Select Reviewer <i class="fa-solid fa-user-pen"></i></h5>
             <div class="overflow-y-scroll px-3 mb-lg-0 mb-4" style="height: 400px">
-
+                <input asp-for="InputModel.NewReviewers" type="hidden" id="new-reviewer" />
                 @if (Model.ValidReviewers.Count() > 0)
                 {
                     @foreach (var reviewer in Model.ValidReviewers)
                     {
                         <div class="d-flex gap-3 mb-3">
                             <div>
-                                <input asp-for="InputModel.NewReviewers" value="@reviewer.User.Id" class="reviewer form-check-input" type="checkbox" id="@reviewer.User.Id" />
+                                <input value="@reviewer.User.Id" class="reviewer form-check-input" type="checkbox" id="@reviewer.User.Id" />
                             </div>
                             <label class="form-check-label" for="@reviewer.User.Id">
                                 @($"{reviewer.User.FirstName} {reviewer.User.MiddleName} {reviewer.User.LastName} {reviewer.User.Suffixes} ({reviewer.Designation.DesignationName})")
