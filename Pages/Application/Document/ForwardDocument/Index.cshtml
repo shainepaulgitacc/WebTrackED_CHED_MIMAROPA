@@ -21,7 +21,7 @@
 <form method="post" asp-route-pId="@Model.PId">
     @Html.AntiForgeryToken()
     <input asp-for="InputModel.DocumentId" value="@Model.PId" type="hidden" />
-    <div class="row">
+    <div class="row bg-white p-5 rounded-2 shadow">
         <div class="col-lg-5 col-12">
             <div class="mb-4">
                 <label asp-for="InputModel.Note" class="fw-bolder mb-2">Add Remarks or Notes (Optional) <i class="fa fa-pen"></i></label>
