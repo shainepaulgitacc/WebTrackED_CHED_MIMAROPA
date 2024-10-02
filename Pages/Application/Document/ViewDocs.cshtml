@@ -222,10 +222,21 @@
                             }
                             else if (Model.DocumentAttachment.DocumentTrackings.OrderByDescending(x => x.Id).FirstOrDefault(x => x.ReviewerId == Model.AccountId)?.ReviewerStatus == ReviewerStatus.Reviewed)
                             {
-                               
-                                <a asp-page="./ForwardDocument/Index" asp-route-prevPage="@Model.PreviousPage" asp-route-pId="@Model.DocumentAttachment.DocumentAttachment.Id" class="btn btn-info text-white">Forward <i class="fa-solid fa-arrow-right"></i></a>
-                            }
-                           
+                                @if (Model.DocumentAttachment.DocumentTrackings.Any(x => x.ReviewerStatus == ReviewerStatus.PreparingRelease))
+                                {
+                                    <a asp-page="./Outgoing/Index" class="btn btn-info text-white">Go to outgoing document page</a>
+                                }
+                                else if (Model.DocumentAttachment.DocumentTrackings.Any(x =>  x.ReviewerStatus == ReviewerStatus.Approved || x.ReviewerStatus == ReviewerStatus.Disapproved))
+                                {
+                                    <a asp-page="./Ended/Index" class="btn btn-info text-white">Go to completed document page</a>
+                                }
+                                else
+                                {
+                                    <a asp-page="./ForwardDocument/Index" asp-route-prevPage="@Model.PreviousPage" asp-route-pId="@Model.DocumentAttachment.DocumentAttachment.Id" class="btn btn-info text-white">Forward <i class="fa-solid fa-arrow-right"></i></a>
+                                }
+
+                             }
+                          
                         }
                         else
                         {
@@ -235,20 +246,29 @@
                     }
                     else if(Model.DocumentAttachment.DocumentAttachment.Status == Status.PreparingRelease)
                     {
-                        <button id="button-print" class="btn btn-primary text-white"><i class="fa fa-print"></i> Print Document Ref#.Code</button>
-                        <a asp-page-handler="Approved" asp-route-pId="@Model.DocumentAttachment.DocumentAttachment.Id.ToString()" class="btn btn-success text-white">Approved</a>
+                        @if(Model.ReviewerOfficeName.Contains("Records Office"))
+                        {
+                            <button id="button-print" class="btn btn-primary text-white"><i class="fa fa-print"></i> Print Document Ref#.Code</button>
+                            <a asp-page-handler="Approved" asp-route-pId="@Model.DocumentAttachment.DocumentAttachment.Id.ToString()" class="btn btn-success text-white">Approved</a>
+                        }
+                        else
+                        {
+                            <a asp-page="./Outgoing/Index" class="btn btn-info text-white">Go to outgoing document page</a>
+                        }
+
+
                     }
                     else
                     {
-                        @if(User.IsInRole("Admin") || (User.IsInRole("Sender") && Model.AccountId == Model.DocumentAttachment.DocumentAttachment.SenderId))
+                        @if (!User.IsInRole("Sender") && Model.ReviewerOfficeName.Contains("Records Office") || (User.IsInRole("Sender") && Model.AccountId == Model.DocumentAttachment.DocumentAttachment.SenderId))
                         {
-                            @if (!User.IsInRole("Sender"))
+                            @if (!User.IsInRole("Sender") && Model.ReviewerOfficeName.Contains("Records Office"))
                             {
                                 <button id="button-print" class="btn btn-primary text-white"><i class="fa fa-print"></i> Print Document Ref#.Code</button>
                             }
                             <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal-@Model.DocumentAttachment.DocumentAttachment.Id">Delete <i class="fa-regular fa-trash-can"></i></button>
                             <partial name="PartialViews/_DeleteDataModal" model="new DeleteModalViewModel(){Id=Model.DocumentAttachment.DocumentAttachment.Id.ToString(),returnUrl = returnUrlVal}" />
-                        }
+                        }   
                     }
                 </div>
             </div>

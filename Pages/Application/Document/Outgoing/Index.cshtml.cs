@@ -51,7 +51,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.OutGoing
 
             var filterRecords = docsAttachments.OrderByDescending(x => x.DocumentTracking.Id).ToList();
             DocsAttachments = docsAttachments
-                .Where(x =>x.DocumentAttachment.DocumentType == DocumentType.WalkIn && officeName.Contains("Records Office") ||  x.DocumentAttachment.DocumentTrackings.OrderByDescending(x => x.Id).FirstOrDefault(x => x.ReviewerId == account.Id)?.ReviewerStatus == ReviewerStatus.Passed && x.DocumentAttachment.Status != Status.Approved && x.DocumentAttachment.Status != Status.Disapproved)
+                .Where(x =>x.DocumentAttachment.DocumentType == DocumentType.WalkIn && officeName.Contains("Records Office") && account.Id != x.ReviewerAccount.Id ||  x.DocumentAttachment.DocumentTrackings.OrderByDescending(x => x.Id).FirstOrDefault(x => x.ReviewerId == account.Id)?.ReviewerStatus == ReviewerStatus.Passed && x.DocumentAttachment.Status != Status.Approved && x.DocumentAttachment.Status != Status.Disapproved || x.DocumentAttachment.DocumentTrackings.OrderByDescending(x => x.Id).FirstOrDefault(x => x.ReviewerId == account.Id)?.ReviewerStatus == ReviewerStatus.Reviewed && x.DocumentAttachment.DocumentTrackings.Any(x => x.ReviewerStatus == ReviewerStatus.PreparingRelease) && x.DocumentAttachment.Status != Status.Approved && x.DocumentAttachment.Status != Status.Disapproved)
                 .ToList();
                 
 

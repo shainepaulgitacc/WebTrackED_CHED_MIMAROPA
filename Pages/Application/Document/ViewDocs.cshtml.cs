@@ -32,6 +32,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document
 		private readonly IBaseRepository<Settings> _settingsRepo;
         private readonly QRCode_Generator _qrGenerator;
 		private readonly IMapper _mapper;
+        private readonly IBaseRepository<Office> _officeRepo;
 		public ViewDocsModel(
 			IDocumentAttachmentRepository docRepo,
 			IBaseRepository<DocumentTracking> docTrackRepo,
@@ -45,6 +46,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document
 			IBaseRepository<Notification> notificationRepo,
             IBaseRepository<Settings> settingsRepo,
             QRCode_Generator qrGenerator,
+            IBaseRepository<Office> officeRepo,
 
 
             IMapper mapper)
@@ -61,6 +63,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document
 			_mapper = mapper;
             _qrGenerator = qrGenerator;
 			_settingsRepo = settingsRepo;
+            _officeRepo = officeRepo;
 		}
 		public string PreviousPage { get; set; }
 
@@ -73,9 +76,9 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document
 		public DocumentAttachmentViewModel DocumentAttachment { get; set; }
 		public Designation Designation { get; set; }
 		public string Logo { get; set; }
+        public string ReviewerOfficeName { get; set; }
 
-
-		public bool HasCurrentlyReviewing { get; set; }
+		//public bool HasCurrentlyReviewing { get; set; }
 	public string AccountId { get; set; }
 
 		public async Task<IActionResult> OnGetAsync(string prevPage, int pId)
@@ -84,45 +87,38 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document
 			var docsAttachments = await _docRepo.DocumentAttachments();
 			var docAttachment = docsAttachments.OrderByDescending(x => x.DocumentTracking.Id).FirstOrDefault(x => x.DocumentAttachment.Id == pId);
             var user = await _userManager.FindByNameAsync(User.Identity.Name);
+           var reviewers = await _reviewerRepo.GetAll();
+            var accounts = _userManager.Users.ToList();
+            var offices = await _officeRepo.GetAll();
+
+            ReviewerOfficeName = reviewers
+                .Join(offices,
+                r => r.OfficeId,
+                o => o.Id,
+                (r, o) => new
+                {
+                    Reviewer = r,
+                    Office = o
+                })
+                .Join(accounts,
+                r => r.Reviewer.IdentityUserId,
+                a => a.Id,
+                (r, a) => new
+                {
+                    Reviewer = r.Reviewer,
+                    Office = r.Office,
+                    Account = a
+                })
+                .FirstOrDefault(x => x.Account.Id == user.Id)?
+                .Office.OfficeName;
             var getRoles = await _userManager.GetRolesAsync(user);
             if (docAttachment == null)
                 return BadRequest($"Unknown document");
-            else if (docAttachment.DocumentAttachment.Status == Status.PreparingRelease && !getRoles.Any(x => x == "Admin"))
-                return BadRequest("You can't access this page it is only available to the record");
+          
 			DocumentAttachment = docAttachment;
 			AccountId = user.Id;
             var settings = await _settingsRepo.GetAll();
             Logo = settings.OrderByDescending(x => x.Id).First().LogoFileName;
-
-            var docsTrackings = await _docTrackRepo.GetAll();
-            var docAttachments = await _docRepo.GetAll();
-            var reviewers = await _revAccRepo.GetAll();
-
-            HasCurrentlyReviewing = docAttachments.Where(x => x.Id == pId)
-             .Join(docsTrackings,
-             da => da.Id,
-             dt => dt.DocumentAttachmentId,
-             (da, dt) => new
-             {
-                 Document = da,
-                 DocumentTracking = dt
-             })
-             .Join(reviewers,
-             dt => dt.DocumentTracking.ReviewerId,
-             r => r.Id,
-             (dt, r) => new
-             {
-                 Document = dt.Document,
-                 DocumentTracking = dt.DocumentTracking,
-                 Reviewer = r
-             })
-             .GroupBy(r => r.Reviewer.Id)
-             .Select(result => new
-             {
-                 ReviewerStatus = result.OrderByDescending(x => x.DocumentTracking.Id).First().DocumentTracking.ReviewerStatus
-             })
-             .Any(x => x.ReviewerStatus != ReviewerStatus.Reviewed || x.ReviewerStatus == ReviewerStatus.Passed);
-
             var refCode = docAttachment.DocumentAttachment.DocumentType == DocumentType.WalkIn ? $"dW{pId.ToString("00000")}" : $"dE{pId.ToString("00000")}";
 
             var qrCode = _qrGenerator.GenerateCode(refCode);

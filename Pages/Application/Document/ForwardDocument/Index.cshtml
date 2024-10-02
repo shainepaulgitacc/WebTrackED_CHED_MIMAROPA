@@ -39,14 +39,30 @@
                 </div>
                 @if(!Model.ReviewerOfficeName.Contains("Records Office"))
                 {
-                    <div class="d-flex gap-3 mb-3">
-                        <div>
-                            <input asp-for="InputModel.TrackingStatus" value="@((ReviewerStatus)3)" class="document-tracking-status form-check-input" type="radio" id="@(3)" />
+                    @if (!Model.CurrentlyToReviewed)
+                    {
+                        <div class="d-flex gap-3 mb-3">
+                            <div>
+                                <input asp-for="InputModel.TrackingStatus" value="@((ReviewerStatus)3)" class="document-tracking-status form-check-input" type="radio" id="@(3)" />
+                            </div>
+                            <label class="form-check-label" for="">
+                                Preparing For Release
+                            </label>
                         </div>
-                        <label class="form-check-label" for="">
-                            Preparing For Release
-                        </label>
-                    </div>
+                    }
+                    else
+                    {
+                        <div class="d-flex gap-3 mb-3" >
+                            <div>
+                                <input disabled asp-for="InputModel.TrackingStatus" value="@((ReviewerStatus)3)" class="document-tracking-status form-check-input" type="radio" id="@(3)" />
+                            </div>
+                            <label class="form-check-label text-body-tertiary" for="">
+                                Pending Release: Awaiting review from the assigned reviewer
+                            </label>
+                        </div>
+                    }
+
+
                 }
               
                 
@@ -61,15 +77,17 @@
                 {
                     @foreach (var reviewer in Model.ValidReviewers)
                     {
-                        <div class="d-flex gap-3 mb-3">
-                            <div>
-                                <input value="@reviewer.User.Id" class="reviewer form-check-input" type="checkbox" id="@reviewer.User.Id" />
+                           
+                            <div class="d-flex gap-3 mb-3">
+                                <div>
+                                    <input value="@reviewer.User.Id" class="reviewer form-check-input" type="checkbox" id="@reviewer.User.Id" />
+                                </div>
+                                <label class="form-check-label" for="@reviewer.User.Id">
+                                    @($"{reviewer.User.FirstName} {reviewer.User.MiddleName} {reviewer.User.LastName} {reviewer.User.Suffixes} ({reviewer.Designation.DesignationName})")
+                                    <i class="fa-regular fa-circle-check text-success"></i>
+                                </label>
                             </div>
-                            <label class="form-check-label" for="@reviewer.User.Id">
-                                @($"{reviewer.User.FirstName} {reviewer.User.MiddleName} {reviewer.User.LastName} {reviewer.User.Suffixes} ({reviewer.Designation.DesignationName})")
-                                <i class="fa-regular fa-circle-check text-success"></i>
-                            </label>
-                        </div>
+                     
                     }
 
                 }

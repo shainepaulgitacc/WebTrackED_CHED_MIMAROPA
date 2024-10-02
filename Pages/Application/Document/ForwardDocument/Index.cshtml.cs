@@ -71,6 +71,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.ForwardDocument
         public string PreviousPage { get; set; }
         public string ReviewerOfficeName { get; set; }
 
+        public bool CurrentlyToReviewed { get; set; }
         [BindProperty]
         public ForwardDocumentInputModel InputModel { get; set; }
 
@@ -90,8 +91,10 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.ForwardDocument
 
             var docAttachment = await _documentAttachmentRepository.GetOne(pId.ToString());
 
-            if (docAttachment.Status == Status.PreparingRelease || docAttachment.Status == Status.Approved || docAttachment.Status == Status.Disapproved)
+            if (docAttachment.Status == Status.PreparingRelease)
                 return RedirectToPage("/Application/Document/Outgoing/Index");
+            else if(docAttachment.Status == Status.Approved || docAttachment.Status == Status.Disapproved)
+                return RedirectToPage("/Application/Document/Ended/Index");
 
 
             var account = await _userManager.FindByNameAsync(User.Identity?.Name);
@@ -149,19 +152,26 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.ForwardDocument
                    Office = result.Office,
                    Designation = result.Designation
                })
-               .Where(x => !docsTrackings.Any(w => w.DocumentAttachmentId == pId && w.ReviewerId == x.Reviewer.Id) || x.Office != null && x.DocumentTracking.ReviewerId != account.Id && !(docAttachments.FirstOrDefault(x => x.Id == pId).DocumentTrackings.OrderByDescending(x => x.Id).FirstOrDefault(y => y.ReviewerId == x.Reviewer.Id).ReviewerStatus == ReviewerStatus.ToReceived || docAttachments.FirstOrDefault(x => x.Id == pId).DocumentTrackings.OrderByDescending(x => x.Id).FirstOrDefault(y => y.ReviewerId == x.Reviewer.Id).ReviewerStatus == ReviewerStatus.OnReview)  /* && docJoined.Any(y => y.Document.Id == pId && y.DocumentTracking.ReviewerId == x.Reviewer.Id && y.DocumentTracking.ReviewerStatus != ReviewerStatus.ToReceived && y.DocumentTracking.ReviewerStatus != ReviewerStatus.OnReview*/)
-
-               //.Where(x => x.DocumentTracking == null && !(x.Office == null || (x.Office != null && x.Office.OfficeName.Contains("Records Office"))) || x.DocumentTracking?.ReviewerId != account.Id && !(x.Office == null || (x.Office != null && x.Office.OfficeName.Contains("Records Office"))))
+               .Where(x => !docsTrackings.Any(w => w.DocumentAttachmentId == pId && w.ReviewerId == x.Reviewer.Id) || x.Office != null && x.DocumentTracking.ReviewerId != account.Id && !(docAttachments.FirstOrDefault(x => x.Id == pId).DocumentTrackings.OrderByDescending(x => x.Id).FirstOrDefault(y => y.ReviewerId == x.Reviewer.Id).ReviewerStatus == ReviewerStatus.ToReceived || docAttachments.FirstOrDefault(x => x.Id == pId).DocumentTrackings.OrderByDescending(x => x.Id).FirstOrDefault(y => y.ReviewerId == x.Reviewer.Id).ReviewerStatus == ReviewerStatus.OnReview))
                .GroupBy(res => res.Reviewer.Id)
                .Select(result => new CHEDList
                {
                    User = result.First().Reviewer,
                    Designation =result.First().Designation,
-                  // IsValid = !docTracks.Any(x => x.DocumentAttachmentId == pId && x.ReviewerId == result.Key && (int)x.ReviewerStatus < 4),
+                 
                })
-              // .Where(x => x.IsValid && x.User.TypeOfUser != TypeOfUser.Sender)
                .ToList();
 
+               CurrentlyToReviewed = docAttachment.DocumentTrackings
+                .OrderByDescending(x => x.Id)
+                .GroupBy(x => x.ReviewerId)
+                .Select(r => new
+                {
+                    ReviewerId = r.Key,
+                    HasCurrentlyOnReview = r.First().ReviewerStatus == ReviewerStatus.ToReceived || r.First().ReviewerStatus == ReviewerStatus.OnReview
+                })
+                .Where(x => x.HasCurrentlyOnReview)
+                .Count() > 0;
 
             OldReviewerId = chedPersonels.FirstOrDefault(x => x.Account.Id == account?.Id).CHEDPersonel.IdentityUserId;
             return Page();
