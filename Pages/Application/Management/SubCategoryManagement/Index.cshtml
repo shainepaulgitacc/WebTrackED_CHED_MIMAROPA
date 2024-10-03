@@ -3,14 +3,14 @@
 @{
     ViewData["Title"] = "Services";
     var breadcrump_data = new BreadCrumpViewModel
-            {
-                pageName = "Services",
-                date = DateTime.Now,
-                breadCrump = new (string, string?, string, bool,int?)[]
-                                {
-                ("fa-solid fa-list-check",null,"Management",true,null)
-                        }
-            };
+    {
+        pageName = "Services",
+        date = DateTime.Now,
+        breadCrump = new (string, string?, string, bool,int?)[]
+        {
+            ("fa-solid fa-list-check",null,"Management",true,null)
+        }
+    };
 }
 @await Component.InvokeAsync("BreadCrump", breadcrump_data)
 <div class="row">
