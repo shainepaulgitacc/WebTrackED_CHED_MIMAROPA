@@ -38,6 +38,8 @@
             alert('Please drop a PDF file.');
         }
     });
+
+    /*
     $('#submitButton').on('click', function (event) {
         var fileInput = $('#docs-file')[0];
         var file = fileInput.files[0];
@@ -49,6 +51,7 @@
             $('#uploadForm').submit();
         }
     });
+    */
 
 
 });

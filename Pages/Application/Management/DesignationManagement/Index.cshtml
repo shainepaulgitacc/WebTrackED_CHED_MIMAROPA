@@ -63,8 +63,8 @@
                                 <td>@designation.Id.ToString("00000")</td>
 
                                 <td>@designation.DesignationName</td>
-                                <td>@designation.AddedAt.ToString("MMM dd, yyy")</td>
-                                <td>@designation.AddedAt.ToString("MMM dd, yyy")</td>
+                                <td>@designation.AddedAt.ToString("MM/dd/yyy hh:mm tt")</td>
+                                <td>@designation.AddedAt.ToString("MM/dd/yyy hh:mm tt")</td>
                                 <td>
                                     <button data-bs-toggle="modal" data-bs-target="#update-designation-@(designation.Id)" class="rounded-4 btn btn-success"><i class="fa-regular fa-pen-to-square"></i></button>
                                     @await Component.InvokeAsync("UpdateDesignation", new { Id = designation.Id.ToString() })

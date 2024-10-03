@@ -15,7 +15,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.ForwardDocument
 
     public class IndexModel : PageModel
     {
-        private readonly IBaseRepository<DocumentProcedure> _docsProcedRepo;
+    
         private readonly IBaseRepository<DocumentTracking> _docsTrackRepo;
         private readonly ICHEDPersonelRepository _chedPRepo;
         private readonly IBaseRepository<Sender> _senderRepo;
@@ -30,7 +30,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.ForwardDocument
         private readonly IBaseRepository<Designation> _designationRepo;
 
         public IndexModel(
-            IBaseRepository<DocumentProcedure> docsProcedRepo,
+       
             IBaseRepository<DocumentTracking> docsTrackRepo,
             IBaseRepository<Sender> senderRepo,
             ICHEDPersonelRepository chedPRepo,
@@ -46,7 +46,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.ForwardDocument
         IMapper mapper)
 
         {
-            _docsProcedRepo = docsProcedRepo;
+          
             _docsTrackRepo = docsTrackRepo;
             _senderRepo = senderRepo;
             _chedPRepo = chedPRepo;
@@ -60,7 +60,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.ForwardDocument
             _officeRepo = officeRepo;
             _designationRepo = designationRepo;
         }
-        public List<DocumentProcedure> documentProcedures { get; set; }
+    
         public List<CHEDPersonelListViewModel> ChedPersonels { get; set; }
 
         public List<CHEDList> ValidReviewers { get; set; }
@@ -79,7 +79,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.ForwardDocument
         {
             PId = pId;
             PreviousPage = prevPage;
-            var docProcedures = await _docsProcedRepo.GetAll();
+           
             var chedPersonels = await _chedPRepo.CHEDPersonelRecords();
             var designations = await _designationRepo.GetAll();
             var chedP = await _chedPRepo.GetAll();

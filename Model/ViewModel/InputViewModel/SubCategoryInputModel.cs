@@ -6,7 +6,7 @@ namespace WebTrackED_CHED_MIMAROPA.Model.ViewModel.InputViewModel
     public class SubCategoryInputModel:BaseInputModel
     {
        
-        [Required, DisplayName("Subcategory Name")]
+        [Required, DisplayName("Service Name")]
         public string SubCategoryName { get; set; }
     }
 }

@@ -18,23 +18,23 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document
     {
         private readonly IDocumentTrackingRepository _docTrackRepo;
         private readonly IDocumentAttachmentRepository _docAttachmentRepo;
-        private readonly IBaseRepository<DocumentProcedure> _docProcedureRepo;
+     
 
         private readonly UserManager<AppIdentityUser> _userManager;
         public DocumentTrackingModel(
             IDocumentTrackingRepository docTrackRepo,
             IDocumentAttachmentRepository docAttachmentRepo,
-            IBaseRepository<DocumentProcedure> docProcedureRepo,
+          
             UserManager<AppIdentityUser> userManager)
         {
             _docTrackRepo = docTrackRepo;
             _docAttachmentRepo = docAttachmentRepo;
-            _docProcedureRepo = docProcedureRepo;
+          
             _userManager = userManager;
         }
         public string PreviousPage { get; set; }
         public List<DocumentTrackingViewModel> DocumentTrackings { get; set; }
-        public List<DocumentProcedure> DocumentProcedures { get; set; }
+     
         public DocumentAttachmentViewModel DocumentAttachment { get; set; }
 
         public string UserId { get; set; }
@@ -47,13 +47,9 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document
         public bool IsCompleted { get; set; }
         public async Task<IActionResult> OnGetAsync(string prevPage, int pId)
         {
-            var documentProcedures = await _docProcedureRepo.GetAll();
+         
             var user = await _userManager.FindByNameAsync(User.Identity.Name);
             UserId = user.Id;
-
-            DocumentProcedures = documentProcedures
-                .Where(x => x.DocumentAttachmentId == pId)
-                .ToList();
             PreviousPage = prevPage;
             var docsTrackings = await _docTrackRepo
                 .DocumentTrackings();

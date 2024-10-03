@@ -20,7 +20,7 @@ namespace WebTrackED_CHED_MIMAROPA.Model.Entities
         public Status Status { get; set; } = Status.Pending;
         public Prioritization? Prioritization { get; set; }
         public string? Comment { get; set; }
-        public virtual ICollection<DocumentProcedure> DocumentProcedures { get; set; }
+     
         public virtual ICollection<DocumentTracking> DocumentTrackings { get; set; }
         public virtual Category Category { get; set; }
         public virtual SubCategory SubCategory { get; set; }

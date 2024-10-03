@@ -6,7 +6,6 @@ namespace WebTrackED_CHED_MIMAROPA.Model.Entities
     {
         public string SubCategoryName { get; set; }
 
-        public virtual ICollection<Procedure> Procedures { get; set; }
         public virtual ICollection<DocumentAttachment> Documents { get; set; }
     }
 }

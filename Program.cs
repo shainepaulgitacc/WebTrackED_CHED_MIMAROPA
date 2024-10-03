@@ -36,7 +36,7 @@ builder.Services.AddScoped<QRCode_Generator>();
 builder.Services.AddSignalR();
 builder.Services.Configure<FormOptions>(options =>
 {
-    options.MultipartBodyLengthLimit = 52428800;
+    options.MultipartBodyLengthLimit = long.MaxValue; // Allow unlimited file size
 });
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();

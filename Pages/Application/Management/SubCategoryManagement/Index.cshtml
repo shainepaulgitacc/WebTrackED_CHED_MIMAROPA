@@ -1,10 +1,10 @@
 ﻿@page
 @model WebTrackED_CHED_MIMAROPA.Pages.Application.Management.SubCategoryManagement.IndexModel
 @{
-    ViewData["Title"] = "Subcategory";
+    ViewData["Title"] = "Services";
     var breadcrump_data = new BreadCrumpViewModel
             {
-                pageName = "Subcategory",
+                pageName = "Services",
                 date = DateTime.Now,
                 breadCrump = new (string, string?, string, bool,int?)[]
                                 {
@@ -17,7 +17,7 @@
     <div class="col-lg-4 col-md-4 col-12 mb-lg-0 mb-md-0 mb-4">
         <div class="rounded-3 overflow-hidden bg-white shadow">
             <div class=" text-white mb-3 d-flex align-items-center justify-content-between px-3 py-2 bg-primary">
-                <h5 class="p-0 m-0">Add new sub-category</h5>
+                <h5 class="p-0 m-0">Add New Sevices</h5>
                 <i class="fa-regular fa-square-plus fs-5"></i>
             </div>
             <form method="post">
@@ -51,7 +51,7 @@
                         <tr>
                             <th>Id</th>
 
-                            <th>Sub-category</th>
+                            <th>Service Name</th>
                             <th>Created At</th>
                             <th>Updated At</th>
                             <th>Actions</th>
@@ -64,12 +64,11 @@
                                 <td>@subcategory.Id.ToString("00000")</td>
 
                                 <td>@subcategory.SubCategoryName</td>
-                                <td>@subcategory.AddedAt.ToString("MMM ddd, yyy")</td>
-                                <td>@subcategory.UpdatedAt.ToString("MMM ddd, yyy")</td>
+                                <td>@subcategory.AddedAt.ToString("MM/dd/yyy hh:mm tt")</td>
+                                <td>@subcategory.UpdatedAt.ToString("MM/dd/yyy hh:mm tt")</td>
                                 <td class="text-nowrap">
                                     <button data-bs-toggle="modal" data-bs-target="#update-subcategory-@(subcategory.Id)" class="rounded-4 btn btn-success"><i class="fa-regular fa-pen-to-square"></i></button>
                                     @await Component.InvokeAsync("UpdateSubCategory", new { Id = subcategory.Id.ToString() })
-                                    <a class="text-white rounded-4 btn btn-info" asp-page="./Subcategory_Procedures" asp-route-pId="@subcategory.Id"><i class="fa-regular fa-clock"></i></a>
                                     <button class="rounded-4 btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal-@subcategory.Id"><i class="fa-regular fa-trash-can"></i></button>
                                     <partial name="PartialViews/_DeleteDataModal" model="new DeleteModalViewModel(){Id=subcategory.Id.ToString(),returnUrl = null}" />
                                 </td>

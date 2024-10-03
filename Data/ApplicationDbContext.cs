@@ -14,13 +14,13 @@ namespace WebTrackED_CHED_MIMAROPA.Data
         public virtual DbSet<SubCategory> SubCategories { get; set; }
         public virtual DbSet<Office> Offices { get; set; }
         public virtual DbSet<Designation> Designations { get; set; }
-        public virtual DbSet<Procedure> Procedures { get; set; }
+      
         public virtual DbSet<CHEDPersonel> CHEDPersonels { get; set; }
         public virtual DbSet<DocumentAttachment> DocumentAttachments { get; set; }
         public virtual DbSet<Sender> Senders { get; set; }
         public virtual DbSet<DocumentTracking> DocumentTrackings { get; set; }
 
-        public virtual DbSet<DocumentProcedure> DocumentProcedures { get; set; }
+      
         public virtual DbSet<Message> Messages { get; set; }
         public virtual DbSet<Settings> Settings { get; set; }
         public virtual DbSet<Notification> Notifications { get; set; }

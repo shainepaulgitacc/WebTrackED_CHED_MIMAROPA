@@ -33,13 +33,13 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.Compose
         private readonly ICHEDPersonelRepository _chedRepo;
         private readonly IBaseRepository<Category> _categRepo;
         private readonly IBaseRepository<SubCategory> _scategRepo;
-        private readonly IBaseRepository<Procedure> _procedureRepo;
+       
         private readonly IBaseRepository<Sender> _senderRepo;
         private readonly UserManager<AppIdentityUser> _userManager;
         private readonly IBaseRepository<Settings> _settingsRepo;
         private readonly IMapper _mapper;
         private readonly FileUploader _fileUploader;
-        private readonly IBaseRepository<DocumentProcedure> _docsProcedure;
+   
 		private readonly IBaseRepository<Notification> _notificationRepo;
         private readonly IHubContext<NotificationHub, INotificationHub> _notifHub;
         private readonly IBaseRepository<AppIdentityUser> _userRepo;
@@ -49,12 +49,12 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.Compose
             IBaseRepository<Category> categRepo,
             IBaseRepository<Sender> senderRepo,
             IBaseRepository<SubCategory> scategRepo,
-            IBaseRepository<Procedure> procedureRepo,
+          
             UserManager<AppIdentityUser> userManager,
             IBaseRepository<DocumentTracking> docTrackingRepo,
             IMapper mapper,
             FileUploader fileUploader,
-            IBaseRepository<DocumentProcedure> docsProcedure,
+          
 			IBaseRepository<Notification> notificationRepo,
 			IHubContext<NotificationHub, INotificationHub> notifHub,
             IBaseRepository<Settings> settingsRepo,
@@ -67,11 +67,11 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.Compose
             _senderRepo = senderRepo;
             _scategRepo = scategRepo;
             _userManager = userManager;
-            _procedureRepo = procedureRepo;
+          
             _docTrackingRepo = docTrackingRepo;
             _mapper = mapper;
             _fileUploader = fileUploader;
-            _docsProcedure = docsProcedure;
+         
             _notificationRepo = notificationRepo;
             _notifHub = notifHub;
             _settingsRepo = settingsRepo;
@@ -157,20 +157,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.Compose
                 }
             }
 
-            var procedures = await _procedureRepo.GetAll();
-
-            foreach (var procedure in procedures.Where(x => x.SubCategoryId == convert.SubCategoryId))
-            {
-                await _docsProcedure.Add(new DocumentProcedure()
-                {
-                    DocumentAttachment = convert,
-                    IsDone = false,
-                    ProcedureDescription = procedure.Description,
-                    ProcedureTitle = procedure.ProcedureTitle
-
-                });
-            }
-
+           
 
             TempData["validation-message"] = "Successfully submitted";
             if (User.IsInRole("Admin"))
