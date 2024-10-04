@@ -21,7 +21,7 @@
 			<thead class="bg-primary-subtle">
 				<tr>
 					<th>Document Ref#.Code</th>
-					<th>Reviewer</th>
+					<th>Current Reviewer</th>
 					<th>Details</th>
 					<th>Date</th>
 					<th>Actions</th>
@@ -37,7 +37,7 @@
 								<span>@(docAttachment.DocumentAttachment.DocumentType == DocumentType.WalkIn ? $"dW{docAttachment.DocumentAttachment.Id.ToString("00000")}" : $"dE{docAttachment.DocumentAttachment.Id.ToString("00000")}")</span>
 							</div>
 						</td>
-						<td>@($"{docAttachment.ReviewerAccount.FirstName} {docAttachment.ReviewerAccount.MiddleName} {docAttachment.ReviewerAccount.LastName} {docAttachment.ReviewerAccount.Suffixes}")</td>
+						<td>@($"{docAttachment.ReviewerAccount.FirstName} {docAttachment.ReviewerAccount.LastName} ({docAttachment.ReviewerAccount.CHEDPersonel.Office.OfficeName})")</td>
 						<td>
 							<span class="text-primary">@docAttachment.DocumentAttachment.Category.CategoryName</span>
 							<span class="fw-bold"> - @docAttachment.DocumentAttachment.SubCategory.SubCategoryName</span>

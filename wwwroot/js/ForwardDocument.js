@@ -1,7 +1,5 @@
 ﻿$(function () {
-    connection.on('reviewerRealtime', function (title, description, notifType, date, redirectLink) {
-        alert('Please reload the page');
-    });
+   
 
     // Function to check if both radio groups have a selected value
     function checkRadioSelection() {
@@ -40,4 +38,10 @@
 
     // Initial update in case some checkboxes are pre-checked
     updateSelectedReviewers();
+
+   
+    connection.on('reviewerRealtime', function () {
+           
+    });
+    
 });

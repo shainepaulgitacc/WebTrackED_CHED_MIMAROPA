@@ -208,12 +208,14 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.ForwardDocument
                 .ToList();
 
             var user = await _userManager.FindByNameAsync(User.Identity.Name);
-
-
-            foreach (var rev in joined1.Where(x => x.DocumentTracking.DocumentAttachmentId == int.Parse(pId) && x.DocumentTracking.ReviewerId != user.Id))
+            foreach (var rev in  documentAttachment.DocumentTrackings.Where(x => x.ReviewerId != user.Id))
             {
-                _notifHub.Clients.User(rev.DocumentTracking.ReviewerId).ReviewerRealtime();
-            }
+				_notifHub.Clients.User(rev.ReviewerId).ReviewerRealtime();
+
+                /*
+				var revStatus = documentAttachment.DocumentTrackings.OrderByDescending(x => x.Id).FirstOrDefault(y => y.ReviewerId == rev.ReviewerId)?.ReviewerStatus;
+				if (revStatus == ReviewerStatus.ToReceived || revStatus == ReviewerStatus.OnReview || revStatus == ReviewerStatus.Passed)*/	
+			}
             documentAttachment.Status = InputModel.TrackingStatus == ReviewerStatus.PreparingRelease ? Status.PreparingRelease : Status.OnProcess;
             await _documentAttachmentRepository.Update(documentAttachment,pId);
 

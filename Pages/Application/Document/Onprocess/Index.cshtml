@@ -20,8 +20,8 @@
         <table id="table-data" class="table table-striped table-hover remove-scrollbar  w-100">
             <thead class="bg-primary-subtle">
                 <tr>
-                    <th>Code</th>
-                 
+                    <th>Document Ref#.Code</th>
+                    <th>Current Reviewer</th>
                     <th>Details</th>
                     <th>Prioritization</th>
                     <th>Date</th>
@@ -38,7 +38,7 @@
                                 <span>@(docAttachment.DocumentAttachment.DocumentType == DocumentType.WalkIn ? $"dW{docAttachment.DocumentAttachment.Id.ToString("00000")}" : $"dE{docAttachment.DocumentAttachment.Id.ToString("00000")}")</span>
                             </div>
                         </td>
-
+                        <td>@($"{docAttachment.ReviewerAccount.FirstName} {docAttachment.ReviewerAccount.LastName} ({docAttachment.ReviewerAccount.CHEDPersonel.Office.OfficeName})")</td>
                        
                         <td>
                             <span class="text-primary">@docAttachment.DocumentAttachment.Category.CategoryName</span>
@@ -74,7 +74,7 @@
     <script>
         $(function () {
             $('#table-data').DataTable({
-                "order": [[3, "desc"]] // Order by the 6th column (index 5) in descending order
+                "order": [[4, "desc"]] // Order by the 6th column (index 5) in descending order
             });
         })
     </script>

@@ -238,6 +238,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document
         public async Task<IActionResult> OnGetReviewed(string prevPage, string pId)
         {
             var docAttachment = await _docRepo.GetOne(pId);
+            var documentTrackings = await _docTrackRepo.GetAll();
             var account = await _userManager.FindByNameAsync(User.Identity?.Name);
             var reviewers = await _reviewerRepo.CHEDPersonelRecords();
             var reviewer = reviewers.FirstOrDefault(x => x.Account.Id == account?.Id);
@@ -271,6 +272,11 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document
                     notification.AddedAt.ToString("MMMM dd, yyyy"),
                     notification.RedirectLink
                 );
+             
+                foreach (var tracking in documentTrackings.Where(x => x.DocumentAttachmentId == int.Parse(pId)))
+                {
+                    _notifHub.Clients.Users(tracking.ReviewerId).ReviewerRealtime();
+                }
             }
             TempData["validation-message"] = "Successfully perform the action.";
 			await _docRepo.Update(docAttachment, docAttachment.Id.ToString());
