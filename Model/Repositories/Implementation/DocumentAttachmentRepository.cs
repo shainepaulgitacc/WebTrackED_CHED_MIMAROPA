@@ -161,12 +161,7 @@ namespace WebTrackED_CHED_MIMAROPA.Model.Repositories.Implementation
             {
                 fRec = rec.ToList();
             }
-               /* 
-                .Where(x => 
-               subCategory != null ? x.SubCategory.Id == subCategory : true &&
-               prioritization != null ? x.DocumentAttachment.Prioritization == prioritization : true &&
-               docsStatus != null ? x.DocumentAttachment.Status == docsStatus : true)
-                .ToList();*/
+             
             var finRecords =  fRec
                 .ToList();
             return new ReportsRecords
