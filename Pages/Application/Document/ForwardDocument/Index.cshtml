@@ -80,7 +80,7 @@
                            
                             <div class="d-flex gap-3 mb-3">
                                 <div>
-                                    <input value="@reviewer.User.Id" class="reviewer form-check-input" type="checkbox" id="@reviewer.User.Id" />
+                                    <input value="@reviewer.User.Id" class="reviewer form-check-input @(reviewer.Office.OfficeName)" type="checkbox" id="@reviewer.User.Id" />
                                 </div>
                                 <label class="form-check-label" for="@reviewer.User.Id">
                                     @($"{reviewer.User.FirstName} {reviewer.User.MiddleName} {reviewer.User.LastName} {reviewer.User.Suffixes} ({reviewer.Designation.DesignationName})")

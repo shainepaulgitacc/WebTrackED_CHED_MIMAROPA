@@ -1,13 +1,15 @@
 ﻿$(function () {
-   
 
     // Function to check if both radio groups have a selected value
     function checkRadioSelection() {
         var reviewerSelected = $('.reviewer:checked').length > 0;
         var documentStatusSelected = $('.document-tracking-status:checked').length > 0;
 
-        // Enable or disable the submit button based on selections
-        $('#submitButton').prop('disabled', !(reviewerSelected && documentStatusSelected));
+        // Check if the radio button with value 0 is selected
+        var trackingStatusIsZero = $('.document-tracking-status:checked').val() == "0";
+
+        // Disable or enable the submit button based on selections, also ensuring that value 0 doesn't trigger submit unless a checkbox is selected
+        $('#submitButton').prop('disabled', !(reviewerSelected && documentStatusSelected && !trackingStatusIsZero));
     }
 
     // Call the function on page load to ensure the button is correctly set
@@ -39,9 +41,29 @@
     // Initial update in case some checkboxes are pre-checked
     updateSelectedReviewers();
 
-   
-    connection.on('reviewerRealtime', function () {
-           
+
+    // Disable/Enable reviewers based on the selected radio button value
+    $('.document-tracking-status').change(function () {
+        var trackingStatusValue = $(this).val();
+
+        if (trackingStatusValue == "3") {
+            // Disable all reviewers except those with class "Records Office"
+            $('.reviewer').prop('disabled', true); // Disable all
+            $('.reviewer.Records\\ Office').prop('disabled', false); // Enable only "Records Office"
+        } else if (trackingStatusValue == "0") {
+            // If the radio button with value 0 is selected, do nothing special, just check if reviewers are selected
+            checkRadioSelection();
+        } else {
+            // Re-enable all reviewers when the radio button with value other than 3 is selected
+            $('.reviewer').prop('disabled', false);
+        }
+
+        // Re-check button enablement logic
+        checkRadioSelection();
     });
-    
+
+    // Connection to handle real-time reviewer update
+    connection.on('reviewerRealtime', function () {
+        location.reload();
+    });
 });

@@ -45,6 +45,8 @@
         $("#form-prioritization").submit();
     })
 
+
+    /*
     $('#form-new-docs').on('submit', function (event) {
         var fileInput = $('#new-docs')[0];
         var file = fileInput.files[0];
@@ -53,5 +55,6 @@
             event.preventDefault(); // Prevent the form from submitting
         }
     });
+    */
     
 });

@@ -25,92 +25,17 @@ namespace WebTrackED_CHED_MIMAROPA.Model.Repositories.Implementation
             var categories = _db.Categories.ToList();
             var subcategories = _db.SubCategories.ToList();
             var senders = _db.Senders.ToList();
+            var offices = _db.Offices.ToList();
+            var designations = _db.Designations.ToList();
+
 
             var reviewerAccounts = _db.Set<AppIdentityUser>().ToList();
             var senderAccounts = _db.Set<AppIdentityUser>().ToList();
 
-           var records =  docTrackings
-                .Join(documents ,
-                docTrack => docTrack.DocumentAttachmentId,
-                docs => docs.Id,
-                (docTrack,docs) => new
-                {
-                    DocTrack = docTrack,
-                    Document = docs,
-                })
-               
-                .Join(reviewers,
-                 result => result.DocTrack.ReviewerId,
-                 rev => rev.IdentityUserId,
-                 (doc, rev) => new
-                 {
-                     DocTrack = doc.DocTrack,
-                     Document = doc.Document,
-                     Reviewer = rev
-                 })
-                .Join(reviewerAccounts,
-                 reviewer => reviewer.Reviewer.IdentityUserId,
-                revAcc => revAcc.Id,
-                (result, revAcc) => new
-                {
-                    DocTrack = result.DocTrack,
-                    Document = result.Document,
-                    Reviewer = result.Reviewer,
-                    ReviewerAcc = revAcc
-                })
-                 .Join(senders,
-                 result => result.Document.SenderId,
-                 sender => sender.IdentityUserId,
-                 (result, sender) => new
-                 {
-                     DocTrack = result.DocTrack,
-                     Document = result.Document,
-                     Reviewer = result.Reviewer,
-                     ReviewerAcc = result.ReviewerAcc,
-                     Sender = sender
-                 })
-                 .Join(senderAccounts,
-                 result => result.Sender.IdentityUserId,
-                 senderAcc => senderAcc.Id,
-                 (result, senderAcc) => new
-                 {
-                     DocTrack = result.DocTrack,
-                     Document = result.Document,
-                     Reviewer = result.Reviewer,
-                     ReviewerAcc = result.ReviewerAcc,
-                     Sender = result.Sender,
-                     SenderAcc = senderAcc
-                 })
-                .Join(categories,
-                result => result.Document.CategoryId,
-                categ => categ.Id,
-                (result, categ) => new
-                {
-                    DocTrack = result.DocTrack,
-                    Document = result.Document,
-                    Reviewer = result.Reviewer,
-                    ReviewerAcc = result.ReviewerAcc,
-                    Sender = result.Sender,
-                    SenderAcc = result.SenderAcc,
-                    Category = categ
-                })
-                .Join(subcategories,
-                results => results.Document.SubCategoryId,
-                subcategs => subcategs.Id,
-                (result, subcateg) => new DocumentAttachmentViewModel
-                {
-                    DocumentTracking = result.DocTrack,
-                    DocumentAttachment = result.Document,
-                    Reviewer = result.Reviewer,
-                    ReviewerAccount = result.ReviewerAcc,
-                    SenderAccount = result.SenderAcc,
-                    Category = result.Category,
-                    SubCategory = subcateg
-                }).ToList();
+         
 
 
-
-            var sample = docTrackings
+            var joined = docTrackings
                 .Join(documents,
                 docTrack => docTrack.DocumentAttachmentId,
                 docs => docs.Id,
@@ -129,6 +54,27 @@ namespace WebTrackED_CHED_MIMAROPA.Model.Repositories.Implementation
                      Document = doc.Document,
                      Reviewer = rev
                  })
+                .Join(offices,
+                r => r.Reviewer.OfficeId,
+                o => o.Id,
+                (r,o) => new
+                {
+                    DocTrack = r.DocTrack,
+                    Document = r.Document,
+                    Reviewer = r.Reviewer,
+                    Office = o
+                })
+                .Join(designations,
+                r => r.Reviewer.DesignationId,
+                d => d.Id,
+                (r,d) => new
+                {
+                    DocTrack = r.DocTrack,
+                    Document = r.Document,
+                    Reviewer = r.Reviewer,
+                    Office = r.Office,
+                    Designation = d
+                })
                 .Join(reviewerAccounts,
                  reviewer => reviewer.Reviewer.IdentityUserId,
                 revAcc => revAcc.Id,
@@ -177,7 +123,7 @@ namespace WebTrackED_CHED_MIMAROPA.Model.Repositories.Implementation
 				}).ToList();
 
 
-            var finRec = sample
+            var finRec = joined
                 .OrderByDescending(x => x.DocumentTracking.Id)
                 .GroupBy(x => x.DocumentAttachment.Id)
                 .Select(result => new DocumentAttachmentViewModel
@@ -189,8 +135,9 @@ namespace WebTrackED_CHED_MIMAROPA.Model.Repositories.Implementation
                     ReviewerAccount = result.First().ReviewerAccount,
                     SenderAccount = result.First().SenderAccount,
                     SubCategory = result.First().SubCategory,
-                    DocumentTrackings = docTrackings.Where(x => x.DocumentAttachmentId == result.Key).ToList()
-
+                    DocumentTrackings = docTrackings.Where(x => x.DocumentAttachmentId == result.Key).ToList(),
+                    Office = result.First().Office,
+                    Designation = result.First().Designation
                 })
                 .ToList();
             return finRec;

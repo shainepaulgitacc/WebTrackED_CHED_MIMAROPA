@@ -57,6 +57,13 @@ builder.Services.Configure<SecurityStampValidatorOptions>(options =>
 });
 builder.Services.AddRazorPages();
 var app = builder.Build();
+
+app.Use(async (context, next) =>
+{
+    context.Features.Get<IHttpMaxRequestBodySizeFeature>().MaxRequestBodySize = null; // Disable request body size limit
+    await next();
+});
+
 //seeding
 using (var scope = app.Services.CreateScope())
 {

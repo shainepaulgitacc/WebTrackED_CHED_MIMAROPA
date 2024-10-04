@@ -158,7 +158,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.ForwardDocument
                {
                    User = result.First().Reviewer,
                    Designation =result.First().Designation,
-                 
+                   Office = result.First().Office
                })
                .ToList();
 
@@ -194,27 +194,14 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.ForwardDocument
 
             var docTrackings = await _docsTrackRepo.GetAll();
             var docAttachment = await _documentAttachmentRepository.GetAll();
-
-            var joined1 = docAttachment
-                .Join(docTrackings,
-                da => da.Id,
-                dt => dt.DocumentAttachmentId,
-                (da, dt) => new
-                {
-                    DocumentAttachment = da,
-                    DocumentTracking = dt
-                })
-
-                .ToList();
-
+            var recordsReviewer = Reviewers.FirstOrDefault(x => x.Office.OfficeName.Contains("Records Office"));
+          
             var user = await _userManager.FindByNameAsync(User.Identity.Name);
             foreach (var rev in  documentAttachment.DocumentTrackings.Where(x => x.ReviewerId != user.Id))
             {
 				_notifHub.Clients.User(rev.ReviewerId).ReviewerRealtime();
 
-                /*
-				var revStatus = documentAttachment.DocumentTrackings.OrderByDescending(x => x.Id).FirstOrDefault(y => y.ReviewerId == rev.ReviewerId)?.ReviewerStatus;
-				if (revStatus == ReviewerStatus.ToReceived || revStatus == ReviewerStatus.OnReview || revStatus == ReviewerStatus.Passed)*/	
+               	
 			}
             documentAttachment.Status = InputModel.TrackingStatus == ReviewerStatus.PreparingRelease ? Status.PreparingRelease : Status.OnProcess;
             await _documentAttachmentRepository.Update(documentAttachment,pId);
@@ -236,7 +223,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.ForwardDocument
                 {
                     AddedAt = DateTime.Now,
                     UpdatedAt = DateTime.Now,
-                    ReviewerId = reviewer,
+                    ReviewerId = InputModel.TrackingStatus == ReviewerStatus.PreparingRelease ? recordsReviewer?.Account.Id : reviewer,
                     DocumentAttachmentId = InputModel.DocumentId,
                     ReviewerStatus = InputModel.TrackingStatus,
                 });
