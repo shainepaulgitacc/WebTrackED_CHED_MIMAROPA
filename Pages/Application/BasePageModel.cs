@@ -27,13 +27,14 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application
         public T2 InputModel { get; set; }
 
         public List<T> Records { get; set; }
-        public virtual async Task<IActionResult> OnPostAsync(string? pageName = null,string? pId= null,bool  hasMessage = true)
+        public async virtual Task<IActionResult> OnPostAsync(string? pageName = null,string? pId= null,bool  hasMessage = true)
         {
             if(!ModelState.IsValid)
                 return BadRequest(ModelState);
             var converted = _mapper.Map<T>(InputModel);
             converted.AddedAt = DateTime.Now;
             converted.UpdatedAt = DateTime.Now;
+            
             await _repo.Add(converted);
             TempData["validation-message"] = hasMessage ? "Successfully added":null;
             if (pId == null && pageName != null)

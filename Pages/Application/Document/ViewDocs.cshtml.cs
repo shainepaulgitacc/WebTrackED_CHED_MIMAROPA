@@ -114,7 +114,8 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document
             var getRoles = await _userManager.GetRolesAsync(user);
             if (docAttachment == null)
                 return BadRequest($"Unknown document");
-          
+            if (User.IsInRole("Sender") && docAttachment.DocumentAttachment.SenderId != user.Id)
+                return BadRequest("Can't access this page");
 			DocumentAttachment = docAttachment;
 			AccountId = user.Id;
             var settings = await _settingsRepo.GetAll();

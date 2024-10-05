@@ -23,7 +23,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Management.OfficeManagement
             var offices = await _repo.GetAll();
             Records = offices.ToList();
         }
-        public override async Task<IActionResult> OnPostAsync(string? pageName = null, string? pId = null, bool hasMessage = true)
+        public async override Task<IActionResult> OnPostAsync(string? pageName = null, string? pId = null, bool hasMessage = true)
         {
             var offices = await _repo.GetAll();
             if(offices.Any(x => x.OfficeName == InputModel.OfficeName))
@@ -32,7 +32,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Management.OfficeManagement
                 return RedirectToPage();
             }
                 
-            await OnPostAsync(pageName, pId, hasMessage);
+            await base.OnPostAsync(pageName, pId, hasMessage);
             return RedirectToPage();
         }
         public async override Task<IActionResult> OnGetDelete(string Id, string? returnUrl = null, string? pId = null, bool hasMessage = true)
