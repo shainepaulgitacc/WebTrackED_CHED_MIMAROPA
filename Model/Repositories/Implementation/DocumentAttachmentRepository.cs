@@ -83,6 +83,8 @@ namespace WebTrackED_CHED_MIMAROPA.Model.Repositories.Implementation
                     DocTrack = result.DocTrack,
                     Document = result.Document,
                     Reviewer = result.Reviewer,
+                    Office = result.Office,
+                    Designation = result.Designation,
                     ReviewerAcc = revAcc
                 })
                 .Join(senderAccounts,
@@ -93,7 +95,9 @@ namespace WebTrackED_CHED_MIMAROPA.Model.Repositories.Implementation
 					DocTrack = doc.DocTrack,
 					Document = doc.Document,
 					Reviewer = doc.Reviewer,
-					ReviewerAcc = doc.ReviewerAcc,
+                    Office = doc.Office,
+                    Designation = doc.Designation,
+                    ReviewerAcc = doc.ReviewerAcc,
 					SenderAcc = sender
 				}).
                 Join(categories,
@@ -104,7 +108,9 @@ namespace WebTrackED_CHED_MIMAROPA.Model.Repositories.Implementation
 					DocTrack = result.DocTrack,
 					Document = result.Document,
 					Reviewer = result.Reviewer,
-					ReviewerAcc = result.ReviewerAcc,
+                    Office = result.Office,
+                    Designation = result.Designation,
+                    ReviewerAcc = result.ReviewerAcc,
 					SenderAcc = result.SenderAcc,
 					Category = categ
 				})
@@ -116,7 +122,9 @@ namespace WebTrackED_CHED_MIMAROPA.Model.Repositories.Implementation
 					DocumentTracking = result.DocTrack,
 					DocumentAttachment = result.Document,
 					Reviewer = result.Reviewer,
-					ReviewerAccount = result.ReviewerAcc,
+                    Office = result.Office,
+                    Designation = result.Designation,
+                    ReviewerAccount = result.ReviewerAcc,
 					SenderAccount = result.SenderAcc,
 					Category = result.Category,
 					SubCategory = subcateg
