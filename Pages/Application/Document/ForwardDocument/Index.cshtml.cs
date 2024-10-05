@@ -90,19 +90,31 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.ForwardDocument
             var reviewers = await _revAccRepo.GetAll();
 
             var docAttachment = await _documentAttachmentRepository.GetOne(pId.ToString());
-
-            if (docAttachment.Status == Status.PreparingRelease)
-                return RedirectToPage("/Application/Document/Outgoing/Index");
-            else if(docAttachment.Status == Status.Approved || docAttachment.Status == Status.Disapproved)
-                return RedirectToPage("/Application/Document/Ended/Index");
-
-
             var account = await _userManager.FindByNameAsync(User.Identity?.Name);
+
             var reviewerOfficeName = account.CHEDPersonel.Office.OfficeName;
 
-            ReviewerOfficeName = reviewerOfficeName;
             var revs = await _revAccRepo.GetAll();
             var docTracks = await _docsTrackRepo.GetAll();
+            var reviewerStatus = docAttachment.DocumentTrackings.OrderByDescending(x => x.Id).FirstOrDefault(x => x.ReviewerId == account.Id).ReviewerStatus;
+
+            if (docAttachment.Status == Status.PreparingRelease)
+            {
+                if(reviewerOfficeName.Contains("Records Office"))
+                {
+                    return RedirectToPage("/Application/Document/Incoming/Index");
+                }
+                return RedirectToPage("/Application/Document/Outgoing/Index");
+            }
+            else if (docAttachment.Status == Status.Approved || docAttachment.Status == Status.Disapproved)
+                return RedirectToPage("/Application/Document/Ended/Index");
+            else if (reviewerStatus == ReviewerStatus.Passed || reviewerStatus == ReviewerStatus.ToReceived || reviewerStatus == ReviewerStatus.OnReview && !(docAttachment.Status == Status.PreparingRelease || docAttachment.Status == Status.Approved || docAttachment.Status == Status.Disapproved))
+                return BadRequest("Can't access this page");
+
+
+          
+            ReviewerOfficeName = reviewerOfficeName;
+          
 
           
             ValidReviewers = revs
@@ -194,7 +206,6 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.ForwardDocument
 
             var docTrackings = await _docsTrackRepo.GetAll();
             var docAttachment = await _documentAttachmentRepository.GetAll();
-            var recordsReviewer = Reviewers.FirstOrDefault(x => x.Office.OfficeName.Contains("Records Office"));
           
             var user = await _userManager.FindByNameAsync(User.Identity.Name);
             foreach (var rev in  documentAttachment.DocumentTrackings.Where(x => x.ReviewerId != user.Id))
@@ -223,7 +234,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.ForwardDocument
                 {
                     AddedAt = DateTime.Now,
                     UpdatedAt = DateTime.Now,
-                    ReviewerId = InputModel.TrackingStatus == ReviewerStatus.PreparingRelease ? recordsReviewer?.Account.Id : reviewer,
+                    ReviewerId = reviewer,
                     DocumentAttachmentId = InputModel.DocumentId,
                     ReviewerStatus = InputModel.TrackingStatus,
                 });
@@ -256,16 +267,21 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.ForwardDocument
                     //notification for the next reviewer
                     var notificationPassedReviewer = new Notification
                     {
-                        Title = "Review Document",
+                        Title = InputModel.TrackingStatus == ReviewerStatus.PreparingRelease ?
+                               "Document Ready for Release" :
+                               "Document Review Required",
                         Recepient = newRevAcc?.Account.Id,
                         IsViewed = false,
                         IsArchived = false,
-                        Description = $"The document has been forwarded to you by {cUser?.Account.FirstName} {cUser.Account.MiddleName} {cUser.Account.LastName} {cUser.Account.Suffixes}, from {cUser.Office.OfficeName}. You can now review it.",
+                        Description = InputModel.TrackingStatus == ReviewerStatus.PreparingRelease ?
+                                 "This document is now ready for release. Please proceed with your review." :
+                                 $"You have received a new document from {cUser?.Account.FirstName} {cUser.Account.MiddleName} {cUser.Account.LastName} {cUser.Account.Suffixes} of {cUser.Office.OfficeName}. Kindly review the document at your convenience.",
                         NotificationType = NotificationType.Document,
                         RedirectLink = "/Application/Document/Incoming/Index",
                         AddedAt = DateTime.Now,
                         UpdatedAt = DateTime.Now,
                     };
+
 
                     await _notificationRepo.Add(notificationPassedReviewer);
                     _notifHub.Clients.User(notificationPassedReviewer.Recepient).ReceiveNotification(

@@ -27,7 +27,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application
         public T2 InputModel { get; set; }
 
         public List<T> Records { get; set; }
-        public async Task<IActionResult> OnPostAsync(string? pageName = null,string? pId= null,bool  hasMessage = true)
+        public virtual async Task<IActionResult> OnPostAsync(string? pageName = null,string? pId= null,bool  hasMessage = true)
         {
             if(!ModelState.IsValid)
                 return BadRequest(ModelState);
