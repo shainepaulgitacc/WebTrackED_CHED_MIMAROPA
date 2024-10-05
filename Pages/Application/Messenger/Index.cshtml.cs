@@ -63,7 +63,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Messenger
                 })
                 .OrderByDescending(x => x.Message.Id)
                 .ToList();
-            Users = users.Where(x => x.Id != user.Id).ToList();
+            Users = users.Where(x => x.Id != user.Id  && x.Id != users.First().Id).ToList();
             Messages = messages.ToList();
             RecipientId = rId?? string.Empty;
             SenderId = user?.Id;

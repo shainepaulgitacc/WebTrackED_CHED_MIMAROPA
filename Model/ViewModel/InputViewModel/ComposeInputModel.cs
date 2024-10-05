@@ -8,7 +8,7 @@ namespace WebTrackED_CHED_MIMAROPA.Model.ViewModel.InputViewModel
     {
         [Required, DisplayName("Category")]
         public int CategoryId { get; set; }
-        [Required, DisplayName("Sub Category")]
+        [Required, DisplayName("Service")]
         public int SubCategoryId { get; set; }
         [Required, DisplayName("Sender")]
         public string SenderId { get; set; }

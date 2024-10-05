@@ -74,7 +74,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.ForwardDocument
         public bool CurrentlyToReviewed { get; set; }
         [BindProperty]
         public ForwardDocumentInputModel InputModel { get; set; }
-
+      
         public async Task<IActionResult> OnGetAsync(int pId, string prevPage)
         {
             PId = pId;
@@ -98,6 +98,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.ForwardDocument
             var docTracks = await _docsTrackRepo.GetAll();
             var reviewerStatus = docAttachment.DocumentTrackings.OrderByDescending(x => x.Id).FirstOrDefault(x => x.ReviewerId == account.Id).ReviewerStatus;
 
+            DocumentTrackings = docAttachment.DocumentTrackings.ToList();
             if (docAttachment.Status == Status.PreparingRelease)
             {
                 if(reviewerOfficeName.Contains("Records Office"))

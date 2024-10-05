@@ -84,7 +84,10 @@
                                 </div>
                                 <label class="form-check-label" for="@reviewer.User.Id">
                                     @($"{reviewer.User.FirstName} {reviewer.User.MiddleName} {reviewer.User.LastName} {reviewer.User.Suffixes} ({reviewer.Designation.DesignationName})")
+                                @if(Model.DocumentTrackings.Any(x => x.ReviewerId == reviewer.User.Id && x.ReviewerStatus == ReviewerStatus.Reviewed))
+                                {
                                     <i class="fa-regular fa-circle-check text-success"></i>
+                                }
                                 </label>
                             </div>
                      

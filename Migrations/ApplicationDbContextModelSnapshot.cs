@@ -438,41 +438,6 @@ namespace WebTrackED_CHED_MIMAROPA.Migrations
                     b.ToTable("DocumentAttachments");
                 });
 
-            modelBuilder.Entity("WebTrackED_CHED_MIMAROPA.Model.Entities.DocumentProcedure", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("AddedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("DocumentAttachmentId")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsDone")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("ProcedureDescription")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ProcedureTitle")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DocumentAttachmentId");
-
-                    b.ToTable("DocumentProcedures");
-                });
-
             modelBuilder.Entity("WebTrackED_CHED_MIMAROPA.Model.Entities.DocumentTracking", b =>
                 {
                     b.Property<int>("Id")
@@ -605,38 +570,6 @@ namespace WebTrackED_CHED_MIMAROPA.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Offices");
-                });
-
-            modelBuilder.Entity("WebTrackED_CHED_MIMAROPA.Model.Entities.Procedure", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("AddedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ProcedureTitle")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("SubCategoryId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("SubCategoryId");
-
-                    b.ToTable("Procedures");
                 });
 
             modelBuilder.Entity("WebTrackED_CHED_MIMAROPA.Model.Entities.Sender", b =>
@@ -859,17 +792,6 @@ namespace WebTrackED_CHED_MIMAROPA.Migrations
                     b.Navigation("SubCategory");
                 });
 
-            modelBuilder.Entity("WebTrackED_CHED_MIMAROPA.Model.Entities.DocumentProcedure", b =>
-                {
-                    b.HasOne("WebTrackED_CHED_MIMAROPA.Model.Entities.DocumentAttachment", "DocumentAttachment")
-                        .WithMany("DocumentProcedures")
-                        .HasForeignKey("DocumentAttachmentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("DocumentAttachment");
-                });
-
             modelBuilder.Entity("WebTrackED_CHED_MIMAROPA.Model.Entities.DocumentTracking", b =>
                 {
                     b.HasOne("WebTrackED_CHED_MIMAROPA.Model.Entities.CHEDPersonel", null)
@@ -902,17 +824,6 @@ namespace WebTrackED_CHED_MIMAROPA.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("WebTrackED_CHED_MIMAROPA.Model.Entities.Procedure", b =>
-                {
-                    b.HasOne("WebTrackED_CHED_MIMAROPA.Model.Entities.SubCategory", "SubCategory")
-                        .WithMany("Procedures")
-                        .HasForeignKey("SubCategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("SubCategory");
                 });
 
             modelBuilder.Entity("WebTrackED_CHED_MIMAROPA.Model.Entities.Sender", b =>
@@ -956,8 +867,6 @@ namespace WebTrackED_CHED_MIMAROPA.Migrations
 
             modelBuilder.Entity("WebTrackED_CHED_MIMAROPA.Model.Entities.DocumentAttachment", b =>
                 {
-                    b.Navigation("DocumentProcedures");
-
                     b.Navigation("DocumentTrackings");
                 });
 
@@ -974,8 +883,6 @@ namespace WebTrackED_CHED_MIMAROPA.Migrations
             modelBuilder.Entity("WebTrackED_CHED_MIMAROPA.Model.Entities.SubCategory", b =>
                 {
                     b.Navigation("Documents");
-
-                    b.Navigation("Procedures");
                 });
 #pragma warning restore 612, 618
         }
