@@ -56,8 +56,8 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Profiles
 		public ChangeProfileInputModel ChangeProfileInput { get; set; }
 		public UpdatePasswordInputModel UpdatePasswordInput { get; set; }
 
-		public IEnumerable<Office> Offices { get; set; }
-		public IEnumerable<Designation> Designations { get; set; }
+		public IEnumerable<AvailableOffice> Offices { get; set; }
+		public IEnumerable<AvailableDesignation> Designations { get; set; }
 
 		// Input models
 		public CHEDPersonelInputModel ReviewerInput { get; set; }
@@ -66,10 +66,41 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Profiles
 
 		public async Task OnGetAsync(string accId = null)
 		{
-			Offices = await _officeRepo.GetAll();	
-			Designations = await _designationRepo.GetAll();
+			var reviewers = await _chedRepo.GetAll();
+			var offices = await _officeRepo.GetAll();	
+			var designations = await _designationRepo.GetAll();
+            Offices = offices.
+               GroupJoin(reviewers,
+               o => o.Id,
+               r => r.OfficeId,
+               (o, r) => new
+               {
+                   Office = o,
+                   Reviewer = r.FirstOrDefault()
+               })
+               .Where(x => x.Reviewer == null)
+               .Select(r => new AvailableOffice
+               {
+                   OfficeId = r.Office.Id,
+                   OfficeName = r.Office.OfficeName
+               });
+            Designations = designations
+                .GroupJoin(reviewers,
+                d => d.Id,
+                r => r.DesignationId,
+                (d, r) => new
+                {
+                    Designation = d,
+                    Reviewer = r
+                })
+                .Where(x => x.Reviewer == null)
+                .Select(r => new AvailableDesignation
+                {
+                    Id = r.Designation.Id,
+                    DesignationName = r.Designation.DesignationName,
+                });
 
-			if (accId != null)
+            if (accId != null)
 			{
 				var senders = await _senderRepo.SenderRecords();
 				var sender = senders.FirstOrDefault(x => x.User.Id == accId)?.Sender;

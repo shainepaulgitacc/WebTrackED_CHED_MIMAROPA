@@ -8,8 +8,10 @@ using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pag
 using System.Net;
 using WebTrackED_CHED_MIMAROPA.Model.Entities;
 using WebTrackED_CHED_MIMAROPA.Model.Repositories.Contracts;
+using WebTrackED_CHED_MIMAROPA.Model.Repositories.Implementation;
 using WebTrackED_CHED_MIMAROPA.Model.Service;
 using WebTrackED_CHED_MIMAROPA.Model.ViewModel.InputViewModel.BaseIdentityUser;
+using WebTrackED_CHED_MIMAROPA.Model.ViewModel.ListViewModel;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Admin.Usermanagement.Reviewer
@@ -47,11 +49,16 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Admin.Usermanagement.Review
         [BindProperty]
         public CHEDPersonelInputModel Input { get; set; }
 
-        public IEnumerable<Office> Offices { get; set; }
-        public IEnumerable<Designation> Designations { get; set; }
+        public IEnumerable<AvailableOffice> Offices { get; set; }
+        public IEnumerable<AvailableDesignation> Designations { get; set; }
         public async Task<IActionResult> OnGetAsync(int Id)
         {
             var personels =  await _chedRepo.CHEDPersonelRecords();
+            var reviewers = await _chedRepo.GetAll();
+            var offices = await _officeRepo.GetAll();
+            var designations = await _desigRepo.GetAll();
+
+
             var personel = personels.FirstOrDefault(x => x.CHEDPersonel.Id  == Id);
             if (personel == null)
                 return RedirectToPage($"{Id} is not valid");
@@ -88,8 +95,38 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Admin.Usermanagement.Review
                 
             };
 
-            Offices = await _officeRepo.GetAll();
-            Designations = await _desigRepo.GetAll();
+            Offices = offices.
+                GroupJoin(reviewers,
+                o => o.Id,
+                r => r.OfficeId,
+                (o, r) => new
+                {
+                    Office = o,
+                    Reviewer = r.FirstOrDefault()
+                })
+                .Where(x => x.Reviewer == null)
+                .Select(r => new AvailableOffice
+                {
+                    OfficeId = r.Office.Id,
+                    OfficeName = r.Office.OfficeName
+                });
+            Designations = designations
+                .GroupJoin(reviewers,
+                d => d.Id,
+                r => r.DesignationId,
+                (d, r) => new
+                {
+                    Designation = d,
+                    Reviewer = r
+                })
+                .Where(x => x.Reviewer == null)
+                .Select(r => new AvailableDesignation
+                {
+                    Id = r.Designation.Id,
+                    DesignationName = r.Designation.DesignationName,
+                });
+
+
             return Page();
         }
         public async Task<IActionResult> OnGetActivation(string accId,bool isActive)

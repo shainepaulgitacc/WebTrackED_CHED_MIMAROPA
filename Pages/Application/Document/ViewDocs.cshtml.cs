@@ -135,7 +135,8 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document
 			try
 			{
 				byte[] fileBytes = await _fileUploader.DownloadFile(filename);
-				return File(fileBytes, "application/octet-stream", filename);
+                var splitedFileName = filename.Split("=");
+				return File(fileBytes, "application/octet-stream", splitedFileName[splitedFileName.Length - 1]);
 			}
 			catch (FileNotFoundException ex)
 			{
