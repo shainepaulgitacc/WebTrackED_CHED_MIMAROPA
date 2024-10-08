@@ -104,7 +104,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Admin.Usermanagement.Review
                     Office = o,
                     Reviewer = r.FirstOrDefault()
                 })
-                .Where(x => x.Reviewer == null)
+                //.Where(x => x.Reviewer == null)
                 .Select(r => new AvailableOffice
                 {
                     OfficeId = r.Office.Id,
@@ -117,9 +117,9 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Admin.Usermanagement.Review
                 (d, r) => new
                 {
                     Designation = d,
-                    Reviewer = r
+                    Reviewer = r.FirstOrDefault()
                 })
-                .Where(x => x.Reviewer == null)
+               // .Where(x => x.Reviewer == null)
                 .Select(r => new AvailableDesignation
                 {
                     Id = r.Designation.Id,

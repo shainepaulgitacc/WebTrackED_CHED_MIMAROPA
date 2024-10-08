@@ -307,7 +307,7 @@
 					<div class="col-12 col-lg-6 col-md-6">
 						<div class="mb-3">
 							<label asp-for="ReviewerInput.DesignationId" class="fw-bolder mb-2"></label><span class="text-danger fw-bolder">*</span>
-							<select required label asp-for="ReviewerInput.DesignationId" class="form-select" asp-items="@Model.Designations.Select(x => new SelectListItem(x.DesignationName,x.Id.ToString()))">
+							<select required asp-for="ReviewerInput.DesignationId" class="form-select" asp-items="@Model.Designations.Select(x => new SelectListItem(x.DesignationName,x.Id.ToString()))">
 								@if (Model.ReviewerInput.DesignationId == null)
 								{
 									<option value="" selected hidden disabled>Select...</option>

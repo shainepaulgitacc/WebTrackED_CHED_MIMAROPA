@@ -164,7 +164,7 @@
                 <div class="col-12 col-lg-6 col-md-6">
                     <div class="mb-3">
                         <label asp-for="Input.DesignationId" class="fw-bolder mb-2"></label><span class="text-danger">*</span>
-                        <select label asp-for="Input.DesignationId" required class="form-select" asp-items="@Model.Designations.Select(x => new SelectListItem(x.DesignationName,x.Id.ToString()))">
+                        <select asp-for="Input.DesignationId" required class="form-select" asp-items="@Model.Designations.Select(x => new SelectListItem(x.DesignationName,x.Id.ToString()))">
                            
                         </select>
                         <span class="text-danger" asp-validation-for="Input.DesignationId"></span>

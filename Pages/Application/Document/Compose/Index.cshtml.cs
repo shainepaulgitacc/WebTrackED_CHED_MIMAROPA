@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.SignalR;
 using WebTrackED_CHED_MIMAROPA.Hubs;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.CodeAnalysis.Elfie.Serialization;
 
 namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.Compose
 {
@@ -119,11 +120,30 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.Compose
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
             var convert = _mapper.Map<DocumentAttachment>(InputModel);
+            var reviewers = await _chedRepo.CHEDPersonelRecords();
+            var records = reviewers.FirstOrDefault(x => x.Office != null && x.Office.OfficeName.Contains("Records Office"));
+
             convert.FileName = await _fileUploader.Uploadfile(InputModel.File,"Documents");
 
             await _repo.Add(convert);
 
-            foreach(var revId in InputModel.ReviewersId)
+
+            /*
+			if (convert.DocumentType== DocumentType.WalkIn)
+            {
+				var docTracking = new DocumentTracking()
+				{
+					AddedAt = DateTime.Now,
+					UpdatedAt = DateTime.Now,
+					ReviewerStatus = ReviewerStatus.Reviewed,
+					ReviewerId = records.Account.Id,
+					DocsAttachment = convert
+				};
+
+				await _docTrackingRepo.Add(docTracking);
+			}
+            */
+				foreach (var revId in InputModel.ReviewersId)
             {
                 var docTracking = new DocumentTracking()
                 {

@@ -165,7 +165,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.ForwardDocument
                    Office = result.Office,
                    Designation = result.Designation
                })
-               .Where(x => !docsTrackings.Any(w => w.DocumentAttachmentId == pId && w.ReviewerId == x.Reviewer.Id) || x.Office != null && x.DocumentTracking.ReviewerId != account.Id && !(docAttachments.FirstOrDefault(x => x.Id == pId).DocumentTrackings.OrderByDescending(x => x.Id).FirstOrDefault(y => y.ReviewerId == x.Reviewer.Id).ReviewerStatus == ReviewerStatus.ToReceived || docAttachments.FirstOrDefault(x => x.Id == pId).DocumentTrackings.OrderByDescending(x => x.Id).FirstOrDefault(y => y.ReviewerId == x.Reviewer.Id).ReviewerStatus == ReviewerStatus.OnReview))
+               .Where(x =>  !docsTrackings.Any(w => w.DocumentAttachmentId == pId && w.ReviewerId == x.Reviewer.Id) || x.Office != null && x.Office.OfficeName.Contains("Records Office") && x.DocumentTracking == null || x.Office != null && x.DocumentTracking.ReviewerId != account.Id && !(docAttachments.FirstOrDefault(x => x.Id == pId).DocumentTrackings.OrderByDescending(x => x.Id).FirstOrDefault(y => y.ReviewerId == x.Reviewer.Id).ReviewerStatus == ReviewerStatus.ToReceived || docAttachments.FirstOrDefault(x => x.Id == pId).DocumentTrackings.OrderByDescending(x => x.Id).FirstOrDefault(y => y.ReviewerId == x.Reviewer.Id).ReviewerStatus == ReviewerStatus.OnReview))
                .GroupBy(res => res.Reviewer.Id)
                .Select(result => new CHEDList
                {
