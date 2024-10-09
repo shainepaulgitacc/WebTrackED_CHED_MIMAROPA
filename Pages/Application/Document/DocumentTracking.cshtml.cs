@@ -65,7 +65,10 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document
 				.OrderByDescending(x => x.DocumentTracking.Id)
 				.ToList();
 
-			if (!filteredDocsTracking.Any())
+			if(User.IsInRole("Sender")&& documentAtt.SenderId != user.Id)
+                return RedirectToPage("/Account/AccessDenied", new { area = "Identity" });
+
+            if (!filteredDocsTracking.Any())
 				return BadRequest("Document doesn't exist");
 
 			DocumentTrackings = filteredDocsTracking;

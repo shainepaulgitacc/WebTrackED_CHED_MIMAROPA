@@ -127,7 +127,10 @@
                                     <form enctype="multipart/form-data" id="form-new-docs" asp-page-handler="ChangeDocument" asp-route-prevPage="@Model.PreviousPage" asp-route-pId="@Model.DocumentAttachment.DocumentAttachment.Id">
                                         @Html.AntiForgeryToken()
 
-                                        <label for="new-docs" class="btn btn-success">
+                                      
+                                        <label for="new-docs" id="change-document" class="btn btn-success">
+                                            <span class="d-none spinner-grow spinner-grow-sm loading-spinner"></span>
+                                            <span class="d-none loading-text">Loading...</span>
                                             <i class="fa-solid fa-repeat"></i>
                                         </label>
                                         <input asp-for="NewDocuments" id="new-docs" accept="application/zip" class="d-none" />

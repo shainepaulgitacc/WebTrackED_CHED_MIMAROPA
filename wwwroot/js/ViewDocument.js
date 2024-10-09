@@ -46,6 +46,17 @@
     })
 
 
+    $('#new-docs').on('change', function (e) {
+        // Disable the button and show the spinner and loading text
+        // $("#form-pass").submit();
+        $(window).on('beforeunload', function () {
+            $(this).prop('disabled', true);
+            $('.loading-spinner').removeClass('d-none');
+            $('.loading-text').removeClass('d-none');
+            $('#change-document i').addClass('d-none');
+        })
+    });
+
     /*
     $('#form-new-docs').on('submit', function (event) {
         var fileInput = $('#new-docs')[0];

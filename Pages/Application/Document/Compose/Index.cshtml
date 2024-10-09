@@ -47,7 +47,7 @@
                             <span class="text-danger" asp-validation-for="InputModel.SubCategoryId"></span>
                         </div>
                     </div>
-                    @if (User.IsInRole("Admin"))
+                    @if (!User.IsInRole("Sender"))
                     {
                         <div class="col-12 col-lg-6">
                             <div class="mb-3">
@@ -98,7 +98,7 @@
                                         <li>File format: ZIP</li>
                                     </ul>
                                     <p class="text-secondary fst-italic">
-                                        Files exceeding the maximum size limit will not be accepted. Ensure your file is correctly formatted and compressed before uploading.
+                                        Ensure your file is correctly formatted and compressed before uploading.
                                     </p>
                                 </div>
                                 <div class="col-lg-5 col-12 mb-3">

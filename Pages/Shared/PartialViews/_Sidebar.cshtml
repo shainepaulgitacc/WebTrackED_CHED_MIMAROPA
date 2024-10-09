@@ -1,9 +1,13 @@
 ﻿@inject SignInManager<AppIdentityUser> _signInManager
 @inject UserManager<AppIdentityUser> _userManager
+@inject ICHEDPersonelRepository _reviewerRepo;
 @inject IBaseRepository<Message> _messageRepo;
 @{
 
     var user = await _userManager.FindByNameAsync(User.Identity.Name);
+    var reviewers = await _reviewerRepo.CHEDPersonelRecords();
+    var reviewerOffice = reviewers.FirstOrDefault(x => x.Account.Id == user.Id).Office.OfficeName;
+
     var messages = await _messageRepo.GetAll();
     var messF = messages.Where(x => x.Recipient == user?.Id).OrderByDescending(x => x.Id).ToList();
 
@@ -78,71 +82,14 @@
             @foreach (var menu in menus)
             {
                 <div>
-                    @if (User.IsInRole("Admin"))
-                    {
-                        @if (menu.submenus != null)
-                        {
-                            <a class="text-nowrap menu text-secondary menus d-block text-decoration-none rounded-3 p-2 mb-2 d-flex justify-content-between align-items-center">
-                                <div class="d-flex align-items-center">
-                                    <div style="width: 30px; height: 30px;" class="rounded-2 bg-white shadow d-flex align-items-center justify-content-center">
-                                        <i class="menu-icon color-muted @menu.icon fs-5"></i>
-                                    </div>
-                                    <span class="ms-2">@menu.menuName</span>
-                                </div>
-                                <i class="dropdown-icon fa-solid fa-chevron-right"></i>
-                            </a>
-                            <div class="submenus ms-4 border-start border-secondary border-opacity-25 border-3 ps-3 d-flex flex-column gap-3">
-                                @foreach (var submenu in menu.submenus)
-                                {
-                                    if(submenu.Item1 != "Pending" && submenu.Item1 != "Onprocess" && submenu.Item1 != "WalkIn")
-                                    {
-                                        <a asp-page="@submenu.Item2" class="text-nowrap d-block text-secondary text-decoration-none">@submenu.Item1</a>
-                                    }
-                                   
-                                }
-                            </div>
-                        }
-                        else
-                        {
-                            @if(menu.menuName == "Message")
-                            {
-                                <div id="message-menu" class="position-relative">
-                                    @if (messF.Where(x => !x.IsViewed).Count() > 0)
-                                    {
-                                        <span class="fw-bolder text-white bg-danger py-1 px-2 rounded-pill position-absolute" style="top: -1px; right: -2px;">@(messF.Where(x => !x.IsViewed).Count() > 10 ? $"{messF.Where(x => !x.IsViewed).Count()}+" : messF.Where(x => !x.IsViewed).Count())</span>
-                                    }
-                                    <a asp-page="@menu.link" class="text-nowrap menu text-secondary menus d-block text-decoration-none rounded-3 p-2 mb-2 d-flex justify-content-between align-items-center">
-                                        <div class="d-flex align-items-center">
-                                            <div style="width: 30px; height: 30px;" class="rounded-2 bg-white shadow d-flex align-items-center justify-content-center">
-                                                <i class="menu-icon color-muted @menu.icon fs-5"></i>
-                                            </div>
-                                            <span class="ms-2">@menu.menuName</span>
-                                        </div>
-                                    </a>
-
-                                </div>
-
-                            }
-                            else
-                            {
-                                <a asp-page="@menu.link" class="text-nowrap menu text-secondary menus d-block text-decoration-none rounded-3 p-2 mb-2 d-flex justify-content-between align-items-center">
-                                    <div class="d-flex align-items-center">
-                                        <div style="width: 30px; height: 30px;" class="rounded-2 bg-white shadow d-flex align-items-center justify-content-center">
-                                            <i class="menu-icon color-muted @menu.icon fs-5"></i>
-                                        </div>
-                                        <span class="ms-2">@menu.menuName</span>
-                                    </div>
-                                </a>
-                            }
-                            
-                        }
-                    }
-                    else if(User.IsInRole("Reviewer"))
+                   
+                   
+                    @if(User.IsInRole("Sender"))
                     {
                         @if (menu.menuName != "Management" &&
-                             menu.menuName != "Settings" &&
-                             menu.menuName != "User Management" &&
-                             menu.menuName != "Report")
+                       menu.menuName != "Settings" &&
+                       menu.menuName != "User Management" &&
+                       menu.menuName != "Report")
                         {
                             @if (menu.submenus != null)
                             {
@@ -158,10 +105,10 @@
                                 <div class="submenus ms-4 border-start border-secondary border-opacity-25 border-3 ps-3 d-flex flex-column gap-3">
                                     @foreach (var submenu in menu.submenus)
                                     {
-                                        if (submenu.Item1 != "Pending" && submenu.Item1 != "Onprocess" && submenu.Item1 != "Compose" && submenu.Item1 != "WalkIn")
+                                        if (submenu.Item1 != "Incoming"&& submenu.Item1 != "Outgoing")
                                         {
                                             <a asp-page="@submenu.Item2" class="text-nowrap d-block text-secondary text-decoration-none">@submenu.Item1</a>
-                                        }
+                                        }                                        
                                     }
                                 </div>
                             }
@@ -201,7 +148,66 @@
                         }
 
                     }
-                    else if(User.IsInRole("Sender"))
+                    else if (User.IsInRole("Admin"))
+                    {
+                        @if (menu.submenus != null)
+                        {
+                            <a class="text-nowrap menu text-secondary menus d-block text-decoration-none rounded-3 p-2 mb-2 d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    <div style="width: 30px; height: 30px;" class="rounded-2 bg-white shadow d-flex align-items-center justify-content-center">
+                                        <i class="menu-icon color-muted @menu.icon fs-5"></i>
+                                    </div>
+                                    <span class="ms-2">@menu.menuName</span>
+                                </div>
+                                <i class="dropdown-icon fa-solid fa-chevron-right"></i>
+                            </a>
+                            <div class="submenus ms-4 border-start border-secondary border-opacity-25 border-3 ps-3 d-flex flex-column gap-3">
+                                @foreach (var submenu in menu.submenus)
+                                {
+                                    if (!(submenu.Item1 == "Pending" || submenu.Item1 == "Onprocess" || submenu.Item1 == "WalkIn") || reviewerOffice.Contains("Records Office") && submenu.Item1 == "Compose")
+                                    {
+                                        <a asp-page="@submenu.Item2" class="text-nowrap d-block text-secondary text-decoration-none">@submenu.Item1</a>
+                                    }
+
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            @if (menu.menuName == "Message")
+                            {
+                                <div id="message-menu" class="position-relative">
+                                    @if (messF.Where(x => !x.IsViewed).Count() > 0)
+                                    {
+                                        <span class="fw-bolder text-white bg-danger py-1 px-2 rounded-pill position-absolute" style="top: -1px; right: -2px;">@(messF.Where(x => !x.IsViewed).Count() > 10 ? $"{messF.Where(x => !x.IsViewed).Count()}+" : messF.Where(x => !x.IsViewed).Count())</span>
+                                    }
+                                    <a asp-page="@menu.link" class="text-nowrap menu text-secondary menus d-block text-decoration-none rounded-3 p-2 mb-2 d-flex justify-content-between align-items-center">
+                                        <div class="d-flex align-items-center">
+                                            <div style="width: 30px; height: 30px;" class="rounded-2 bg-white shadow d-flex align-items-center justify-content-center">
+                                                <i class="menu-icon color-muted @menu.icon fs-5"></i>
+                                            </div>
+                                            <span class="ms-2">@menu.menuName</span>
+                                        </div>
+                                    </a>
+
+                                </div>
+
+                            }
+                            else
+                            {
+                                <a asp-page="@menu.link" class="text-nowrap menu text-secondary menus d-block text-decoration-none rounded-3 p-2 mb-2 d-flex justify-content-between align-items-center">
+                                    <div class="d-flex align-items-center">
+                                        <div style="width: 30px; height: 30px;" class="rounded-2 bg-white shadow d-flex align-items-center justify-content-center">
+                                            <i class="menu-icon color-muted @menu.icon fs-5"></i>
+                                        </div>
+                                        <span class="ms-2">@menu.menuName</span>
+                                    </div>
+                                </a>
+                            }
+
+                        }
+                    }
+                    else if (User.IsInRole("Reviewer"))
                     {
                         @if (menu.menuName != "Management" &&
                        menu.menuName != "Settings" &&
@@ -222,10 +228,14 @@
                                 <div class="submenus ms-4 border-start border-secondary border-opacity-25 border-3 ps-3 d-flex flex-column gap-3">
                                     @foreach (var submenu in menu.submenus)
                                     {
-                                        if (submenu.Item1 != "Incoming"&& submenu.Item1 != "Outgoing")
+                                        if (!(submenu.Item1 == "Pending" || submenu.Item1 == "Onprocess" || submenu.Item1 == "WalkIn") || reviewerOffice.Contains("Records Office") && submenu.Item1 == "Compose")
                                         {
+                                            @{
+                                                var menu = submenu.Item1;
+                                                var sample = "";
+                                            }
                                             <a asp-page="@submenu.Item2" class="text-nowrap d-block text-secondary text-decoration-none">@submenu.Item1</a>
-                                        }                                        
+                                        }
                                     }
                                 </div>
                             }

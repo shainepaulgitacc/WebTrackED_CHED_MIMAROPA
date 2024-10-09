@@ -25,7 +25,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.Compose
         public string LastName { get; set; }
         public string Suffix { get; set; }
     }
-    [Authorize(Roles = "Sender,Admin")]
+    [Authorize]
     [ValidateAntiForgeryToken]
     public class IndexModel : PageModel
     {
@@ -91,7 +91,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.Compose
       
 
         //public List<AppIdentityUser> Reviewers { get; set; }
-        public async Task OnGetAsync()
+        public async Task<IActionResult> OnGetAsync()
         {
             var reviewers = await _chedRepo.CHEDPersonelRecords();
             var offices = await _officeRepo.GetAll();
@@ -101,6 +101,8 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.Compose
             RecordsOfficeId = recordsOfficeId;
             var senderUser = await _userManager.FindByNameAsync(User.Identity?.Name);
 
+            if (!User.IsInRole("Sender") && !reviewers.FirstOrDefault(x => x.Account.UserName == User.Identity.Name).Office.OfficeName.Contains("Records Office"))
+                return RedirectToPage("/Account/AccessDenied", new { area = "Identity" });
             Sender = senderUser;
 
 
@@ -113,6 +115,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.Compose
             Reviewers = reviewers.Where(x => x.Account.Id != senderUser.Id && x.Office != null).ToList();
             Categories = categories.ToList();
             SubCategories = subcategories.ToList();
+            return Page();
         }
 		public async Task<IActionResult> OnPostAsync()
         

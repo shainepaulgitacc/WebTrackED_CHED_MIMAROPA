@@ -25,15 +25,30 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="wwwroot\Documents\" />
-    <Folder Include="wwwroot\ProfilePicture\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Content Update="Pages\Application\Document\Ended\Index.cshtml">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
+    <Content Update="wwwroot\Documents\WebTrackED.txt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>WebTrackED.txt</LastGenOutput>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>WebTrackED.txt</DependentUpon>
+    </Content>
+    <Content Update="wwwroot\ProfilePicture\Profile.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Profile.txt</LastGenOutput>
+    </Content>
+    <Content Update="wwwroot\ProfilePicture\Profile.txt">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Profile.tt</DependentUpon>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
   </ItemGroup>
 
 </Project>
