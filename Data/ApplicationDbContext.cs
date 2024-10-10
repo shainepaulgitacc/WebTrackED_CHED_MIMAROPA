@@ -12,7 +12,6 @@ namespace WebTrackED_CHED_MIMAROPA.Data
         }
         public virtual DbSet<Category> Categories { get; set; }
         public virtual DbSet<SubCategory> SubCategories { get; set; }
-        public virtual DbSet<Office> Offices { get; set; }
         public virtual DbSet<Designation> Designations { get; set; }
       
         public virtual DbSet<CHEDPersonel> CHEDPersonels { get; set; }

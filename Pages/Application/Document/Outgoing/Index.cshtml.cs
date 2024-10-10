@@ -21,13 +21,15 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.OutGoing
         private readonly IBaseRepository<AppIdentityUser> _userRepo;
         private readonly ICHEDPersonelRepository _reviewerRepo;
         private readonly IMapper _mapper;
+        private readonly IBaseRepository<Designation> _designationRepo;
         public IndexModel(
             IDocumentAttachmentRepository docRepo,
             ICHEDPersonelRepository reviewerRepo,
             UserManager<AppIdentityUser> userManager,
             IDocumentTrackingRepository trackingRepository,
             IBaseRepository<AppIdentityUser> userRepo,
-            IMapper mapper)
+            IMapper mapper,
+            IBaseRepository<Designation> designationRepo)
         {
             _docRepo = docRepo;
             _reviewerRepo = reviewerRepo;
@@ -35,7 +37,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.OutGoing
             _mapper = mapper;
             _trackingRepository = trackingRepository;
             _userRepo = userRepo;
-
+            _designationRepo = designationRepo;
         }
 
         public List<DocumentAttachmentViewModel> DocsAttachments { get; set; }
@@ -46,12 +48,13 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.OutGoing
             var account = await _userManager.FindByNameAsync(User?.Identity?.Name);
             var getRoles = await _userManager.GetRolesAsync(account);
             var reviewers = await _reviewerRepo.CHEDPersonelRecords();
-
-            var officeName = reviewers.FirstOrDefault(x => x.Account.Id == account.Id && x.Office != null)?.Office.OfficeName ?? null;
+            var designations = await _designationRepo.GetAll();
+            var firstDesingationName = designations.OrderBy(x => x.AddedAt).First().DesignationName;
+            var designationName = reviewers.FirstOrDefault(x => x.Account.Id == account.Id && x.Designation != null)?.Designation.DesignationName ?? null;
 
             var filterRecords = docsAttachments.OrderByDescending(x => x.DocumentTracking.Id).ToList();
             DocsAttachments = docsAttachments
-                .Where(x =>x.DocumentAttachment.DocumentType == DocumentType.WalkIn && !string.IsNullOrEmpty(officeName) && officeName.Contains("Records Office") && account.Id != x.ReviewerAccount.Id ||  x.DocumentAttachment.DocumentTrackings.OrderByDescending(x => x.Id).FirstOrDefault(x => x.ReviewerId == account.Id)?.ReviewerStatus == ReviewerStatus.Passed && x.DocumentAttachment.Status != Status.Approved && x.DocumentAttachment.Status != Status.Disapproved || x.DocumentAttachment.DocumentTrackings.OrderByDescending(x => x.Id).FirstOrDefault(x => x.ReviewerId == account.Id)?.ReviewerStatus == ReviewerStatus.Reviewed && x.DocumentAttachment.DocumentTrackings.Any(x => x.ReviewerStatus == ReviewerStatus.PreparingRelease) && x.DocumentAttachment.Status != Status.Approved && x.DocumentAttachment.Status != Status.Disapproved)
+                .Where(x =>x.DocumentAttachment.DocumentType == DocumentType.WalkIn && !string.IsNullOrEmpty(designationName) && designationName.Contains(designationName) && account.Id != x.ReviewerAccount.Id ||  x.DocumentAttachment.DocumentTrackings.OrderByDescending(x => x.Id).FirstOrDefault(x => x.ReviewerId == account.Id)?.ReviewerStatus == ReviewerStatus.Passed && x.DocumentAttachment.Status != Status.Approved && x.DocumentAttachment.Status != Status.Disapproved || x.DocumentAttachment.DocumentTrackings.OrderByDescending(x => x.Id).FirstOrDefault(x => x.ReviewerId == account.Id)?.ReviewerStatus == ReviewerStatus.Reviewed && x.DocumentAttachment.DocumentTrackings.Any(x => x.ReviewerStatus == ReviewerStatus.PreparingRelease) && x.DocumentAttachment.Status != Status.Approved && x.DocumentAttachment.Status != Status.Disapproved)
                 .ToList();
                 
 

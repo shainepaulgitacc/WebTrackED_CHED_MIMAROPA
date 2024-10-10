@@ -18,6 +18,7 @@
     </div>
 </div>
 
+<input type="hidden" value="@Model.FirstDesignationName" id="first-designation" />
 <form method="post" asp-route-pId="@Model.PId">
     @Html.AntiForgeryToken()
     <input asp-for="InputModel.DocumentId" value="@Model.PId" type="hidden" />
@@ -80,7 +81,7 @@
                            
                             <div class="d-flex gap-3 mb-3">
                                 <div>
-                                    <input value="@reviewer.User.Id" class="reviewer form-check-input @(reviewer.Office.OfficeName)" type="checkbox" id="@reviewer.User.Id" />
+                                    <input value="@reviewer.User.Id" class="reviewer form-check-input @(reviewer.Designation.DesignationName)" type="checkbox" id="@reviewer.User.Id" />
                                 </div>
                                 <label class="form-check-label" for="@reviewer.User.Id">
                                     @($"{reviewer.User.FirstName} {reviewer.User.MiddleName} {reviewer.User.LastName} {reviewer.User.Suffixes} ({reviewer.Designation.DesignationName})")

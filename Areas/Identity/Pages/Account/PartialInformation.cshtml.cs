@@ -29,7 +29,7 @@ namespace WebTrackED_CHED_MIMAROPA.Areas.Identity.Pages.Account
         private readonly IBaseRepository<CHEDPersonel> _chedPRepo;
         private readonly IBaseRepository<Sender> _senderRepo;
         private readonly IBaseRepository<AppIdentityUser> _accountRepo;
-        private readonly IBaseRepository<Office> _officeRepo;
+     
         private readonly IBaseRepository<Designation> _desigRepo;
         private readonly UserManager<AppIdentityUser> _userManager;
         private readonly SignInManager<AppIdentityUser> _signInManager;
@@ -42,7 +42,7 @@ namespace WebTrackED_CHED_MIMAROPA.Areas.Identity.Pages.Account
             IBaseRepository<CHEDPersonel> chedPRepo,
             IBaseRepository<Sender> senderRepo,
             IBaseRepository<AppIdentityUser> accountRepo,
-            IBaseRepository<Office> officeRepo,
+          
             IBaseRepository<Designation> desigRepo,
             IHubContext<NotificationHub, INotificationHub> notifHub,
             UserManager<AppIdentityUser> userManager,
@@ -57,7 +57,7 @@ namespace WebTrackED_CHED_MIMAROPA.Areas.Identity.Pages.Account
             _accountRepo = accountRepo;
             _chedPRepo = chedPRepo;
             _senderRepo = senderRepo; 
-            _officeRepo = officeRepo;
+       
             _desigRepo = desigRepo;
             _fileUploader = fileUploader;
             _userManager = userManager;
@@ -80,19 +80,19 @@ namespace WebTrackED_CHED_MIMAROPA.Areas.Identity.Pages.Account
         public CHEDPersonelInputModel ReviewerInput { get; set; }
         public SenderInputModel SenderInput { get; set; }
 
-        public List<Office> Offices { get; set; }
-        public List<Designation> Designations { get; set; }
+       // public List<Office> Offices { get; set; }
+      //  public List<Designation> Designations { get; set; }
         public string Code { get; set; }
         public bool isZeroUser { get; set; }
         public async Task<IActionResult> OnGetAsync(string userId, string code)
         {
-            var offices = await _officeRepo.GetAll();
+       
             var designations = await _desigRepo.GetAll();
             var chedpersonels = await _chedPRepo.GetAll();
             var senders = await _senderRepo.GetAll();
 
-            Offices = offices.ToList();
-            Designations = designations.ToList();
+           // Offices = offices.ToList();
+           // Designations = designations.ToList();
 
             var user = await _userManager.FindByIdAsync(userId);
 
@@ -175,7 +175,6 @@ namespace WebTrackED_CHED_MIMAROPA.Areas.Identity.Pages.Account
 				return BadRequest(ModelState);
 
 
-            var recordOffices = await _officeRepo.GetAll();
 			var converted = _mapper.Map<CHEDPersonel>(ReviewerInput);
 			await _chedPRepo.Add(converted);
 

@@ -32,7 +32,8 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document
 		private readonly IBaseRepository<Settings> _settingsRepo;
         private readonly QRCode_Generator _qrGenerator;
 		private readonly IMapper _mapper;
-        private readonly IBaseRepository<Office> _officeRepo;
+        private readonly IBaseRepository<Designation> _desigRepo;
+
 		public ViewDocsModel(
 			IDocumentAttachmentRepository docRepo,
 			IBaseRepository<DocumentTracking> docTrackRepo,
@@ -46,7 +47,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document
 			IBaseRepository<Notification> notificationRepo,
             IBaseRepository<Settings> settingsRepo,
             QRCode_Generator qrGenerator,
-            IBaseRepository<Office> officeRepo,
+           IBaseRepository<Designation> desigRepo,
 
 
             IMapper mapper)
@@ -63,7 +64,8 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document
 			_mapper = mapper;
             _qrGenerator = qrGenerator;
 			_settingsRepo = settingsRepo;
-            _officeRepo = officeRepo;
+            _desigRepo = desigRepo;
+           
 		}
 		public string PreviousPage { get; set; }
 
@@ -72,11 +74,12 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document
 
 		[BindProperty]
 		public Prioritization? Prioritization { get; set; }
+        public string FirstDesignationName { get; set; }
 
 		public DocumentAttachmentViewModel DocumentAttachment { get; set; }
 		public Designation Designation { get; set; }
 		public string Logo { get; set; }
-        public string ReviewerOfficeName { get; set; }
+        public string ReviewerDesignationName { get; set; }
 
 		//public bool HasCurrentlyReviewing { get; set; }
 	public string AccountId { get; set; }
@@ -89,16 +92,16 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document
             var user = await _userManager.FindByNameAsync(User.Identity.Name);
            var reviewers = await _reviewerRepo.GetAll();
             var accounts = _userManager.Users.ToList();
-            var offices = await _officeRepo.GetAll();
+            var designations = await _desigRepo.GetAll();
 
-            ReviewerOfficeName = reviewers
-                .Join(offices,
-                r => r.OfficeId,
+            ReviewerDesignationName = reviewers
+                .Join(designations,
+                r => r.DesignationId,
                 o => o.Id,
                 (r, o) => new
                 {
                     Reviewer = r,
-                    Office = o
+                    Designation = o
                 })
                 .Join(accounts,
                 r => r.Reviewer.IdentityUserId,
@@ -106,11 +109,12 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document
                 (r, a) => new
                 {
                     Reviewer = r.Reviewer,
-                    Office = r.Office,
+                    Designation = r.Designation,
                     Account = a
                 })
                 .FirstOrDefault(x => x.Account.Id == user.Id)?
-                .Office.OfficeName;
+                .Designation.DesignationName;
+            FirstDesignationName = designations.OrderBy(x => x.AddedAt).First().DesignationName;
             var getRoles = await _userManager.GetRolesAsync(user);
             if (docAttachment == null)
                 return BadRequest($"Unknown document");
@@ -204,29 +208,34 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document
 				DocumentAttachmentId = docAttachment.Id,
 				ReviewerStatus = status == Status.OnProcess ? ReviewerStatus.OnReview : ReviewerStatus.Disapproved
 			});
-			var notification = new Notification
-			{
-				Title = status == Status.Disapproved ? "Document Disapproval" : "Document Review and Process",
-				Recepient = docAttachment.SenderId,
-				IsViewed = false,
-				Description = status == Status.Disapproved ? "Your document has already been disapproved due to errors found by the reviewers." : $"Your document is currently reviewing by {reviewer.Account.FirstName} {reviewer.Account.MiddleName} {reviewer.Account.LastName} {reviewer.Account.Suffixes}, from ({reviewer.Office.OfficeName}).",
-				NotificationType = NotificationType.Document,
-				RedirectLink = status == Status.Disapproved ? "/Application/Document/Ended/Index" : docAttachment.DocumentType != DocumentType.WalkIn ?"/Application/Document/Onprocess/Index": "/Application/Document/Outgoing/Index",
-				AddedAt = DateTime.Now,
-				UpdatedAt = DateTime.Now,
-			};
-            var settings = await _settingsRepo.GetAll();
-            if (settings.OrderByDescending(x => x.Id).First().DocumentNotif)
+            if( status == Status.Disapproved)
             {
-                await _notificationRepo.Add(notification);
-                _notifHub.Clients.User(docAttachment.SenderId).ReceiveNotification(
-                    notification.Title,
-                    notification.Description.Length > 30 ? $"{notification.Description.Substring(0, 30)}..." : notification.Description,
-                    notification.NotificationType.ToString(),
-                    notification.AddedAt.ToString("MMMM dd, yyyy"),
-                    notification.RedirectLink
-                );
+                var notification = new Notification
+                {
+                    Title = status == Status.Disapproved ? "Document Disapproval" : "Document Review and Process",
+                    Recepient = docAttachment.SenderId,
+                    IsViewed = false,
+                    Description = "Your document has already been disapproved due to errors found by the reviewers.",
+                    NotificationType = NotificationType.Document,
+                    RedirectLink = status == Status.Disapproved ? "/Application/Document/Ended/Index" : docAttachment.DocumentType != DocumentType.WalkIn ? "/Application/Document/Onprocess/Index" : "/Application/Document/Outgoing/Index",
+                    AddedAt = DateTime.Now,
+                    UpdatedAt = DateTime.Now,
+                };
+                var settings = await _settingsRepo.GetAll();
+                if (settings.OrderByDescending(x => x.Id).First().DocumentNotif)
+                {
+                    await _notificationRepo.Add(notification);
+                    _notifHub.Clients.User(docAttachment.SenderId).ReceiveNotification(
+                        notification.Title,
+                        notification.Description.Length > 30 ? $"{notification.Description.Substring(0, 30)}..." : notification.Description,
+                        notification.NotificationType.ToString(),
+                        notification.AddedAt.ToString("MMMM dd, yyyy"),
+                        notification.RedirectLink
+                    );
+                }
             }
+
+			
 			docAttachment.Status = status;
 			TempData["validation-message"] = status == Status.OnProcess ? "Successfully perform the action." : "Successfully disapproved document";
 			await _docRepo.Update(docAttachment, docAttachment.Id.ToString());
@@ -257,7 +266,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document
                 Title = "Document Reviewed",
                 Recepient = docAttachment.SenderId,
                 IsViewed = false,
-                Description =$"Your document has been reviewed by {reviewer.Account.FirstName} {reviewer.Account.MiddleName} {reviewer.Account.LastName} {reviewer.Account.Suffixes}, from ({reviewer.Office.OfficeName}).",
+                Description =$"Your document has been reviewed by ({reviewer.Designation.DesignationName}).",
                 NotificationType = NotificationType.Document,
                 RedirectLink = docAttachment.DocumentType != DocumentType.WalkIn ? "/Application/Document/Onprocess/Index" : "/Application/Document/Outgoing/Index",
                 AddedAt = DateTime.Now,

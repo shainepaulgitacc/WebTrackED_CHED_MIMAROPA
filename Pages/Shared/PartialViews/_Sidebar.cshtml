@@ -6,8 +6,7 @@
 
     var user = await _userManager.FindByNameAsync(User.Identity.Name);
     var reviewers = await _reviewerRepo.CHEDPersonelRecords();
-    var reviewerOffice = reviewers.FirstOrDefault(x => x.Account.Id == user.Id).Office.OfficeName;
-
+  
     var messages = await _messageRepo.GetAll();
     var messF = messages.Where(x => x.Recipient == user?.Id).OrderByDescending(x => x.Id).ToList();
 
@@ -29,7 +28,6 @@
             {
                 ("Category","/Application/Management/CategoryManagement/Index"),
                 ("Services","/Application/Management/SubCategoryManagement/Index"),
-                ("Office","/Application/Management/OfficeManagement/Index"),
                 ("Designation","/Application/Management/DesignationManagement/Index")
             }
         },
@@ -150,6 +148,7 @@
                     }
                     else if (User.IsInRole("Admin"))
                     {
+                        var reviewerDesignation = reviewers.FirstOrDefault(x => x.Account.Id == user.Id).Designation.DesignationName;
                         @if (menu.submenus != null)
                         {
                             <a class="text-nowrap menu text-secondary menus d-block text-decoration-none rounded-3 p-2 mb-2 d-flex justify-content-between align-items-center">
@@ -164,7 +163,7 @@
                             <div class="submenus ms-4 border-start border-secondary border-opacity-25 border-3 ps-3 d-flex flex-column gap-3">
                                 @foreach (var submenu in menu.submenus)
                                 {
-                                    if (!(submenu.Item1 == "Pending" || submenu.Item1 == "Onprocess" || submenu.Item1 == "WalkIn" || submenu.Item1 == "Compose" && !reviewerOffice.Contains("Records Office")))
+                                    if (!(submenu.Item1 == "Pending" || submenu.Item1 == "Onprocess" || submenu.Item1 == "WalkIn" || submenu.Item1 == "Compose" && !reviewerDesignation.Contains("Records")))
                                     {
                                         <a asp-page="@submenu.Item2" class="text-nowrap d-block text-secondary text-decoration-none">@submenu.Item1</a>
                                     }
@@ -209,6 +208,8 @@
                     }
                     else if (User.IsInRole("Reviewer"))
                     {
+                        var reviewerDesignation = reviewers.FirstOrDefault(x => x.Account.Id == user.Id).Designation.DesignationName;
+
                         @if (menu.menuName != "Management" &&
                        menu.menuName != "Settings" &&
                        menu.menuName != "User Management" &&
@@ -228,7 +229,7 @@
                                 <div class="submenus ms-4 border-start border-secondary border-opacity-25 border-3 ps-3 d-flex flex-column gap-3">
                                     @foreach (var submenu in menu.submenus)
                                     {
-                                        if (!(submenu.Item1 == "Pending" || submenu.Item1 == "Onprocess" || submenu.Item1 == "WalkIn" || submenu.Item1 == "Compose" && !reviewerOffice.Contains("Records Office")))
+                                        if (!(submenu.Item1 == "Pending" || submenu.Item1 == "Onprocess" || submenu.Item1 == "WalkIn" || submenu.Item1 == "Compose" && !reviewerDesignation.Contains("Records")))
                                         {
                                             <a asp-page="@submenu.Item2" class="text-nowrap d-block text-secondary text-decoration-none">@submenu.Item1</a>
                                         }

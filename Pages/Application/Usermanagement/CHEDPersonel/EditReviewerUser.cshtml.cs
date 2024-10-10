@@ -21,7 +21,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Admin.Usermanagement.Review
 	public class EditReviewerUserModel : PageModel
     {
         private readonly ICHEDPersonelRepository _chedRepo;
-        private readonly IBaseRepository<Office> _officeRepo;
+      
         private readonly IBaseRepository<Designation> _desigRepo;
         private readonly IBaseRepository<AppIdentityUser> _accRepo;
         private readonly UserManager<AppIdentityUser> _userManager;
@@ -30,7 +30,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Admin.Usermanagement.Review
         private readonly IUserEmailStore<AppIdentityUser> _emailStore;
         public EditReviewerUserModel(
             ICHEDPersonelRepository chedRepo,
-            IBaseRepository<Office> officeRepo,
+           
             IBaseRepository<Designation> desigRepo,
             IBaseRepository<AppIdentityUser> accRepo,
             UserManager<AppIdentityUser> userManager,
@@ -38,7 +38,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Admin.Usermanagement.Review
             FileUploader fileUploader)
         {
             _chedRepo = chedRepo;
-            _officeRepo = officeRepo;
+          
             _desigRepo = desigRepo;
             _accRepo = accRepo;
             _userStore = userStore;
@@ -55,7 +55,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Admin.Usermanagement.Review
         {
             var personels =  await _chedRepo.CHEDPersonelRecords();
             var reviewers = await _chedRepo.GetAll();
-            var offices = await _officeRepo.GetAll();
+           
             var designations = await _desigRepo.GetAll();
 
 
@@ -75,7 +75,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Admin.Usermanagement.Review
                 Suffixes = personel.Account.Suffixes
                 
                 ,
-                OfficeId = personel.Office != null ? personel.Office.Id : null,
+              
                 DesignationId = personel.Designation != null ? personel.Designation.Id : null,  
                 
                 
@@ -95,21 +95,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Admin.Usermanagement.Review
                 
             };
 
-            Offices = offices.
-                GroupJoin(reviewers,
-                o => o.Id,
-                r => r.OfficeId,
-                (o, r) => new
-                {
-                    Office = o,
-                    Reviewer = r.FirstOrDefault()
-                })
-                //.Where(x => x.Reviewer == null)
-                .Select(r => new AvailableOffice
-                {
-                    OfficeId = r.Office.Id,
-                    OfficeName = r.Office.OfficeName
-                });
+         
             Designations = designations
                 .GroupJoin(reviewers,
                 d => d.Id,
@@ -180,7 +166,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Admin.Usermanagement.Review
             {
                 Id =(int)Input.ReviewerId,
                 DesignationId = Input.DesignationId,
-                OfficeId = Input.OfficeId,
+             
                 IdentityUserId = Input.IdentityUserId
             };
             var Id = cPersonel.Id;

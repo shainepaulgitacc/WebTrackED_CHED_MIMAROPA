@@ -7,8 +7,6 @@ namespace WebTrackED_CHED_MIMAROPA.Model.ViewModel.InputViewModel.BaseIdentityUs
     public class CHEDPersonelInputModel : BaseIdentityUserInputModel
     {
         public int? ReviewerId { get; set; }
-        [DisplayName("Office")]
-        public int? OfficeId { get; set; }
         [DisplayName("Designation")]
         public int? DesignationId { get; set; }
 

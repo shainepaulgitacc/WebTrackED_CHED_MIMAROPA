@@ -249,7 +249,7 @@
                     }
                     else if(Model.DocumentAttachment.DocumentAttachment.Status == Status.PreparingRelease)
                     {
-                        @if(Model.ReviewerOfficeName.Contains("Records Office"))
+                        @if(Model.ReviewerDesignationName.Contains(Model.FirstDesignationName))
                         {
                             <button id="button-print" class="btn btn-primary text-white"><i class="fa fa-print"></i> Print Document Ref#.Code</button>
                             <a asp-page-handler="Approved" asp-route-pId="@Model.DocumentAttachment.DocumentAttachment.Id.ToString()" class="btn btn-success text-white">Approved</a>
@@ -263,9 +263,9 @@
                     }
                     else
                     {
-                        @if (!User.IsInRole("Sender") && Model.ReviewerOfficeName.Contains("Records Office") || (User.IsInRole("Sender") && Model.AccountId == Model.DocumentAttachment.DocumentAttachment.SenderId))
+                        @if (!User.IsInRole("Sender") && Model.ReviewerDesignationName.Contains(Model.FirstDesignationName) || (User.IsInRole("Sender") && Model.AccountId == Model.DocumentAttachment.DocumentAttachment.SenderId))
                         {
-                            @if (!User.IsInRole("Sender") && Model.ReviewerOfficeName.Contains("Records Office"))
+                            @if (!User.IsInRole("Sender") && Model.ReviewerDesignationName.Contains(Model.FirstDesignationName))
                             {
                                 <button id="button-print" class="btn btn-primary text-white"><i class="fa fa-print"></i> Print Document Ref#.Code</button>
                             }

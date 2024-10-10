@@ -152,15 +152,7 @@
                 <div class="col-12">
                     <h6 class="py-2 bg-info text-white text-center rounded-2 mt-3 mb-2">About Work</h6>
                 </div>
-                <div class="col-12 col-lg-6 col-md-6">
-                    <div class="mb-3">
-                        <label asp-for="Input.OfficeId" class="fw-bolder mb-2"></label><span class="text-danger">*</span>
-                        <select class="form-select" required asp-for="Input.OfficeId" asp-items="@Model.Offices.Select(x => new SelectListItem(x.OfficeName,x.OfficeId.ToString()))">
-                            
-                        </select>
-                        <span class="text-danger" asp-validation-for="Input.OfficeId"></span>
-                    </div>
-                </div>
+               
                 <div class="col-12 col-lg-6 col-md-6">
                     <div class="mb-3">
                         <label asp-for="Input.DesignationId" class="fw-bolder mb-2"></label><span class="text-danger">*</span>

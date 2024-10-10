@@ -53,7 +53,7 @@
                         <td>
                             <span class="fw-bolder text-nowrap px-3 text-white  px-3 py-1 rounded-pill @(docAttachment.DocumentAttachment.Status == Status.Pending ?"bg-info":docAttachment.DocumentAttachment.Status==Status.OnProcess?"bg-primary":docAttachment.DocumentAttachment.Status == Status.PreparingRelease ? "bg-warning":docAttachment.DocumentAttachment.Status == Status.Approved?"bg-success":"bg-danger") ">@(docAttachment.DocumentAttachment.Status == Status.PreparingRelease ? "Ready for Release" : docAttachment.DocumentAttachment.Status)</span>
                         </td>
-                        <td>@($"{docAttachment.ReviewerAccount.FirstName} {docAttachment.ReviewerAccount.LastName} ({docAttachment.Office.OfficeName})")</td>
+                        <td>@($"{docAttachment.ReviewerAccount.FirstName} {docAttachment.ReviewerAccount.LastName} ({docAttachment.Designation.DesignationName})")</td>
                         <td>
                             @if (docAttachment.DocumentAttachment.Prioritization != null)
                             {

@@ -10,6 +10,6 @@ namespace WebTrackED_CHED_MIMAROPA.Model.ViewModel.ListViewModel
         public CHEDPersonel CHEDPersonel { get; set; }
         public AppIdentityUser Account { get; set; }
         public Designation Designation { get; set; }
-        public Office Office { get; set; }
+      
     }
 }

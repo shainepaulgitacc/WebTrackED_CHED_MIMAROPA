@@ -23,7 +23,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Admin.User.CHED_Personel
         private readonly UserManager<AppIdentityUser> _userManager;
         private readonly IBaseRepository<Designation> _designationRepo;
         private readonly IBaseRepository<AppIdentityUser> _accRepo;
-        private readonly IBaseRepository<Office> _officeRepo;
+      
         private readonly FileUploader _fileUploader;
         private readonly ICHEDPersonelRepository _cpRepo;
         private readonly IUserStore<AppIdentityUser> _userStore;
@@ -57,7 +57,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Admin.User.CHED_Personel
         {
             var personels = await _cpRepo.CHEDPersonelRecords();
             var account = await _userManager.FindByNameAsync(User.Identity?.Name);
-            CHEDPersonels = personels.Where(x => x.Account.Id != account?.Id && x.Office != null).ToList();
+            CHEDPersonels = personels.Where(x => x.Account.Id != account?.Id && x.Designation != null).ToList();
           
         }
         public async Task<IActionResult> OnPostAsync(CHEDPersonelInputModel InputModel)
@@ -85,7 +85,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Admin.User.CHED_Personel
             var cPersonel = new CHEDPersonel()
             {
                 DesignationId = InputModel.DesignationId,
-                OfficeId = InputModel.OfficeId,
+             
                 User = account
             };
 			var settings = await _settingsRepo.GetAll();

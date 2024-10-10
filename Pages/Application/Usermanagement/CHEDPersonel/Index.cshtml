@@ -26,7 +26,7 @@
                     <th>Profile Picture</th>
                     <th>Full Name</th>
                     <th>Username</th>
-                    <th>Office</th>
+                   
                     <th>Designation</th>
                     <th>Status</th>
                     <th>Role</th>
@@ -46,7 +46,7 @@
                         </td>
                         <td>@($"{personel.Account.FirstName} {personel.Account.MiddleName} {personel.Account.LastName} {personel.Account.Suffixes}")</td>
                         <td>@(personel.Account.UserName)</td>
-                        <td>@(personel.Office != null ? personel.Office.OfficeName : "N/A")</td>
+                      
                         <td>@(personel.Designation != null ? personel.Designation.DesignationName : "N/A")</td>
                         <td>
                             <span class="@(personel.Account.Active?"bg-success":"bg-danger") rounded-pill px-3 py-1 text-white">@(personel.Account.Active ? "Active" : "Inactive")</span>

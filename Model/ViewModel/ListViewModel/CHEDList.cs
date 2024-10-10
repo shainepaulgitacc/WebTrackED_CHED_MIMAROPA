@@ -6,7 +6,7 @@ namespace WebTrackED_CHED_MIMAROPA.Model.ViewModel.ListViewModel
     {
         public AppIdentityUser User { get; set; }
         public Designation? Designation { get; set; }
-        public Office? Office { get; set; }
+    
       //  public bool IsValid { get; set; }
     }
 }

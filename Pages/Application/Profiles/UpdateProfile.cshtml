@@ -290,20 +290,7 @@
 					<div class="col-12">
 						<h6 class="bg-info-subtle rounded-2 py-2 text-center">About Work</h6>
 					</div>
-					<div class="col-12 col-lg-6 col-md-6">
-						<div class="mb-3">
-							<label asp-for="ReviewerInput.OfficeId" class="fw-bolder mb-2"></label><span class="text-danger fw-bolder">*</span>
-							<select required class="form-select" asp-for="ReviewerInput.OfficeId" asp-items="@Model.Offices.Select(x => new SelectListItem(x.OfficeName,x.OfficeId.ToString()))">
-								@if (Model.ReviewerInput.OfficeId == null)
-								{
-									<option value="" selected hidden disabled>Select...</option>
-								}
-
-							</select>
-							
-							<span class="text-danger" asp-validation-for="ReviewerInput.OfficeId"></span>
-						</div>
-					</div>
+					
 					<div class="col-12 col-lg-6 col-md-6">
 						<div class="mb-3">
 							<label asp-for="ReviewerInput.DesignationId" class="fw-bolder mb-2"></label><span class="text-danger fw-bolder">*</span>

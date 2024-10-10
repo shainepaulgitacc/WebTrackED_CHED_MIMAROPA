@@ -21,7 +21,7 @@ namespace WebTrackED_CHED_MIMAROPA.Model.Repositories.Implementation
             var reviewers = _db.CHEDPersonels.ToList();
             var reviewerAccount = _db.Set<AppIdentityUser>().ToList();
             var designations = _db.Designations.ToList();
-            var offices = _db.Offices.ToList();
+         
 
             var result = reviewers
                 .GroupJoin(designations,
@@ -32,15 +32,6 @@ namespace WebTrackED_CHED_MIMAROPA.Model.Repositories.Implementation
                         CHEDPersonel = personel,
                         Designation = designationGroup.FirstOrDefault() // Take the first (or default) designation
                     })
-                .GroupJoin(offices,
-                    personelWithDesignation => personelWithDesignation.CHEDPersonel.OfficeId,
-                    office => office.Id,
-                    (personelWithDesignation, officeGroup) => new 
-                    {
-                        CHEDPersonel = personelWithDesignation.CHEDPersonel,
-                        Designation = personelWithDesignation.Designation,
-                        Office = officeGroup.FirstOrDefault() // Take the first (or default) office
-                    })
                 .Join(documentTrackings,
                     result => result.CHEDPersonel.IdentityUserId,
                     tracking => tracking.ReviewerId,
@@ -49,7 +40,7 @@ namespace WebTrackED_CHED_MIMAROPA.Model.Repositories.Implementation
                         DocumentTracking = tracking,
                         CHEDPersonel = result.CHEDPersonel,
                         Designation = result.Designation,
-                        Office = result.Office
+                      
                     })
                 .Join(documentAttachments,
                  result => result.DocumentTracking.DocumentAttachmentId,
@@ -61,7 +52,7 @@ namespace WebTrackED_CHED_MIMAROPA.Model.Repositories.Implementation
                     
                      CHEDPersonel = result.CHEDPersonel,
                      Designation = result.Designation,
-                     Office = result.Office
+                   
                  })
                 .Join(reviewerAccount,
                 result => result.CHEDPersonel.IdentityUserId,
@@ -72,7 +63,7 @@ namespace WebTrackED_CHED_MIMAROPA.Model.Repositories.Implementation
                     DocumentAttachment = result.DocumentAttachment,
                     CHEDPersonel = result.CHEDPersonel,
                     Designation = result.Designation,
-                    Office = result.Office,
+                   
                     Account = revAcc
                     
                 })
@@ -82,7 +73,6 @@ namespace WebTrackED_CHED_MIMAROPA.Model.Repositories.Implementation
                     DocumentAttachment = result.DocumentAttachment,
                     CHEDPersonel = result.CHEDPersonel,
                     Designation = result.Designation,
-                    Office = result.Office,
                     Account = result.Account
                 })
                 .ToList();

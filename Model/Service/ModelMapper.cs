@@ -13,7 +13,7 @@ namespace WebTrackED_CHED_MIMAROPA.Model.Service
             CreateMap<SubCategoryInputModel, SubCategory>().ReverseMap();
           
             CreateMap<SubCategoryInputModel, SubCategory>().ReverseMap();
-            CreateMap<OfficeInputModel, Office>().ReverseMap();
+          
             CreateMap<DesignationInputModel, Designation>().ReverseMap();
             CreateMap<CHEDPersonelInputModel, CHEDPersonel>().ReverseMap();
             CreateMap<SenderInputModel, Sender>().ReverseMap();

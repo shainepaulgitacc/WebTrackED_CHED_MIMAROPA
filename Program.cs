@@ -77,9 +77,11 @@ using (var scope = app.Services.CreateScope())
 		}
 	}
 	var settingsRepo = scope.ServiceProvider.GetRequiredService<IBaseRepository<Settings>>();
-	var officeRepo = scope.ServiceProvider.GetRequiredService<IBaseRepository<Office>>();
+	
+	var designationRepo = scope.ServiceProvider.GetRequiredService<IBaseRepository<Designation>>();
 	var settingsRecords = await settingsRepo.GetAll();
-	var officeRecords = await officeRepo.GetAll();	
+
+	var designations = await designationRepo.GetAll();
 
 	if (settingsRecords.Count() == 0)
 	{
@@ -95,15 +97,15 @@ using (var scope = app.Services.CreateScope())
 			EmailDomain = "ched.gov.ph"
 		});
 	}
-	if(officeRecords.Count() == 0)
+
+	if(designations.Count() == 0)
 	{
-		await officeRepo.Add(new Office
+		await designationRepo.Add(new Designation
 		{
-			OfficeName = "Records Office",
+			DesignationName = "Records",
 			AddedAt = DateTime.Now,
 			UpdatedAt = DateTime.Now,
-
-		});
+		}) ;
 	}
 };
 

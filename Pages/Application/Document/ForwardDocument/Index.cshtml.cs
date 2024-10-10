@@ -26,7 +26,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.ForwardDocument
         private readonly IBaseRepository<Notification> _notificationRepo;
         private readonly IBaseRepository<Settings> _settingsRepo;
         private readonly IMapper _mapper;
-        private readonly IBaseRepository<Office> _officeRepo;
+      
         private readonly IBaseRepository<Designation> _designationRepo;
 
         public IndexModel(
@@ -40,7 +40,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.ForwardDocument
             IBaseRepository<Notification> notificationRepo,
             IBaseRepository<Settings> settingsRepo,
             IBaseRepository<AppIdentityUser> revAccRepo,
-            IBaseRepository<Office> officeRepo,
+          
             IBaseRepository<Designation> designationRepo,
 
         IMapper mapper)
@@ -57,7 +57,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.ForwardDocument
             _notificationRepo = notificationRepo;
             _settingsRepo = settingsRepo;
             _revAccRepo = revAccRepo;
-            _officeRepo = officeRepo;
+          
             _designationRepo = designationRepo;
         }
     
@@ -70,10 +70,11 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.ForwardDocument
         public string OldReviewerId { get; set; }
         public string PreviousPage { get; set; }
         public string ReviewerOfficeName { get; set; }
-
         public bool CurrentlyToReviewed { get; set; }
         [BindProperty]
         public ForwardDocumentInputModel InputModel { get; set; }
+
+        public string FirstDesignationName { get; set; }
       
         public async Task<IActionResult> OnGetAsync(int pId, string prevPage)
         {
@@ -82,8 +83,9 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.ForwardDocument
            
             var chedPersonels = await _chedPRepo.CHEDPersonelRecords();
             var designations = await _designationRepo.GetAll();
+            var firstDesignationName = designations.OrderByDescending(x => x.AddedAt).First().DesignationName;
             var chedP = await _chedPRepo.GetAll();
-            var offices = await _officeRepo.GetAll();
+           
 
             var docsTrackings = await _docsTrackRepo.GetAll();
             var docAttachments = await _documentAttachmentRepository.GetAll();
@@ -92,16 +94,18 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.ForwardDocument
             var docAttachment = await _documentAttachmentRepository.GetOne(pId.ToString());
             var account = await _userManager.FindByNameAsync(User.Identity?.Name);
 
-            var reviewerOfficeName = account.CHEDPersonel.Office.OfficeName;
+       
 
             var revs = await _revAccRepo.GetAll();
             var docTracks = await _docsTrackRepo.GetAll();
             var reviewerStatus = docAttachment.DocumentTrackings.OrderByDescending(x => x.Id).FirstOrDefault(x => x.ReviewerId == account.Id).ReviewerStatus;
 
+            var reviewerDesignationName = chedPersonels.FirstOrDefault(x => x.Account.Id == account.Id).Designation.DesignationName;
+            FirstDesignationName = firstDesignationName;
             DocumentTrackings = docAttachment.DocumentTrackings.ToList();
             if (docAttachment.Status == Status.PreparingRelease)
             {
-                if(reviewerOfficeName.Contains("Records Office"))
+                if(reviewerDesignationName.Contains(firstDesignationName))
                 {
                     return RedirectToPage("/Application/Document/Incoming/Index");
                 }
@@ -113,8 +117,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.ForwardDocument
                 return BadRequest("Can't access this page");
 
 
-          
-            ReviewerOfficeName = reviewerOfficeName;
+         
           
 
           
@@ -136,16 +139,6 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.ForwardDocument
                    DocumentTracking = r.DocumentTracking,
                    ChedPersonel = c
                })
-               .GroupJoin(offices,
-               c => c.ChedPersonel.OfficeId,
-               o => o.Id,
-               (c, o) => new
-               {
-                   Reviewer = c.Reviewer,
-                   DocumentTracking = c.DocumentTracking,
-                   ChedPersonel = c.ChedPersonel,
-                   Office = o.FirstOrDefault()
-               })
                .Join(designations,
                 d => d.ChedPersonel.DesignationId,
                 c => c.Id,
@@ -154,7 +147,6 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.ForwardDocument
 					Reviewer = d.Reviewer,
 					DocumentTracking = d.DocumentTracking.FirstOrDefault(),
 					ChedPersonel = d.ChedPersonel,
-					Office = d.Office,
                     Designation = c
 				})
                .Select(result => new
@@ -162,16 +154,15 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.ForwardDocument
                    Reviewer = result.Reviewer,
                    DocumentTracking = result.DocumentTracking,
                    ChedPersonel = result.ChedPersonel,
-                   Office = result.Office,
+               
                    Designation = result.Designation
                })
-               .Where(x =>  !docsTrackings.Any(w => w.DocumentAttachmentId == pId && w.ReviewerId == x.Reviewer.Id) || x.Office != null && x.Office.OfficeName.Contains("Records Office") && x.DocumentTracking == null || x.Office != null && x.DocumentTracking.ReviewerId != account.Id && !(docAttachments.FirstOrDefault(x => x.Id == pId).DocumentTrackings.OrderByDescending(x => x.Id).FirstOrDefault(y => y.ReviewerId == x.Reviewer.Id).ReviewerStatus == ReviewerStatus.ToReceived || docAttachments.FirstOrDefault(x => x.Id == pId).DocumentTrackings.OrderByDescending(x => x.Id).FirstOrDefault(y => y.ReviewerId == x.Reviewer.Id).ReviewerStatus == ReviewerStatus.OnReview))
+               .Where(x =>  !docsTrackings.Any(w => w.DocumentAttachmentId == pId && w.ReviewerId == x.Reviewer.Id) || x.Designation != null && x.Designation.DesignationName.Contains("Records") && x.DocumentTracking == null || x.Designation != null && x.DocumentTracking.ReviewerId != account.Id && !(docAttachments.FirstOrDefault(x => x.Id == pId).DocumentTrackings.OrderByDescending(x => x.Id).FirstOrDefault(y => y.ReviewerId == x.Reviewer.Id).ReviewerStatus == ReviewerStatus.ToReceived || docAttachments.FirstOrDefault(x => x.Id == pId).DocumentTrackings.OrderByDescending(x => x.Id).FirstOrDefault(y => y.ReviewerId == x.Reviewer.Id).ReviewerStatus == ReviewerStatus.OnReview))
                .GroupBy(res => res.Reviewer.Id)
                .Select(result => new CHEDList
                {
                    User = result.First().Reviewer,
-                   Designation =result.First().Designation,
-                   Office = result.First().Office
+                   Designation =result.First().Designation
                })
                .ToList();
 
@@ -244,14 +235,14 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.ForwardDocument
                 if (setting.DocumentNotif)
                 {
                     // Notification for the sender when the document is passed to the next reviewer for sender
-
+                    /*
                     var notificationPassed = new Notification
                     {
                         Title = "Document Passed for Review",
                         Recepient = documentAttachment.SenderId,
                         IsViewed = false,
                         IsArchived = false,
-                        Description = $"Your document has been passed to {newRevAcc.Account.FirstName} {newRevAcc?.Account.MiddleName} {newRevAcc?.Account.LastName} {newRevAcc?.Account.Suffixes}, from ({newRevAcc?.Office.OfficeName})",
+                        Description = $"Your document has been passed to {newRevAcc.Account.FirstName} {newRevAcc?.Account.MiddleName} {newRevAcc?.Account.LastName} {newRevAcc?.Account.Suffixes})",
                         NotificationType = NotificationType.Document,
                         RedirectLink = documentAttachment.DocumentType != DocumentType.WalkIn ? "/Application/Document/Onprocess/Index" : "/Application/Document/Outgoing/Index",
                         AddedAt = DateTime.Now,
@@ -265,6 +256,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.ForwardDocument
                         notificationPassed.AddedAt.ToString("MMMM dd, yyyy"),
                         notificationPassed.RedirectLink
                     );
+                    */
                     //notification for the next reviewer
                     var notificationPassedReviewer = new Notification
                     {
@@ -276,14 +268,12 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.ForwardDocument
                         IsArchived = false,
                         Description = InputModel.TrackingStatus == ReviewerStatus.PreparingRelease ?
                                  "This document is now ready for release. Please proceed with your review." :
-                                 $"You have received a new document from {cUser?.Account.FirstName} {cUser.Account.MiddleName} {cUser.Account.LastName} {cUser.Account.Suffixes} of {cUser.Office.OfficeName}. Kindly review the document at your convenience.",
+                                 $"You have received a new document from {cUser?.Account.FirstName} {cUser.Account.MiddleName} {cUser.Account.LastName} {cUser.Account.Suffixes} ({cUser.Designation.DesignationName}). Kindly review the document at your convenience.",
                         NotificationType = NotificationType.Document,
                         RedirectLink = "/Application/Document/Incoming/Index",
                         AddedAt = DateTime.Now,
                         UpdatedAt = DateTime.Now,
                     };
-
-
                     await _notificationRepo.Add(notificationPassedReviewer);
                     _notifHub.Clients.User(notificationPassedReviewer.Recepient).ReceiveNotification(
                     notificationPassedReviewer.Title,

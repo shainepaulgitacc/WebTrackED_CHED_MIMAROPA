@@ -52,7 +52,7 @@
                         <div class="col-12 col-lg-6">
                             <div class="mb-3">
                                 <label asp-for="InputModel.ReviewersId" class="mb-2 fw-bolder">Reviewer</label><span class="text-danger fw-bolder">*</span>
-                                <select multiple asp-for="InputModel.ReviewersId" asp-items="@Model.Reviewers.Select(x => new SelectListItem($"{x.Account.FirstName} {x.Account.MiddleName} {x.Account.LastName} {x.Account.Suffixes}({x.Office.OfficeName})", x.Account.Id))" class="form-select">
+                                <select multiple asp-for="InputModel.ReviewersId" asp-items="@Model.Reviewers.Select(x => new SelectListItem($"{x.Account.FirstName} {x.Account.MiddleName} {x.Account.LastName} {x.Account.Suffixes}({x.Designation.DesignationName})", x.Account.Id))" class="form-select">
                                     <option selected hidden disabled value="">Select..</option>
                                 </select>
                                 <span class="text-danger" asp-validation-for="InputModel.ReviewersId"></span>

@@ -1,8 +1,4 @@
 ﻿@model DesignationInputModel
-@inject IBaseRepository<Office> _officeRepo;
-@{
-    var offices = await _officeRepo.GetAll();
-}
 <div class="modal fade" id="update-designation-@(Model.Id)">
     <div class="modal-dialog">
         <form method="post" asp-page-handler="Update">

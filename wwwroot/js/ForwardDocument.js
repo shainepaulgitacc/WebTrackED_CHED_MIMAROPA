@@ -33,10 +33,11 @@
         var trackingStatusValue = $(this).val();
        
         if (trackingStatusValue == "PreparingRelease") {
+            let firstDesignationName = $("#first-designation");
             // Disable all reviewers except those with class "Records Office"
             $('.reviewer').prop('disabled', true); // Disable all
-            $('.Records.Office').prop('disabled', false); // Enable only "Records Office"
-            $('.Records.Office').prop('checked', true);
+            $(firstDesignationName).prop('disabled', false); // Enable only "Records Office"
+            $(firstDesignationName).prop('checked', true);
         } else if (trackingStatusValue == "ToReceived") {
             $('.reviewer').prop('disabled', false); // Disable all          
          

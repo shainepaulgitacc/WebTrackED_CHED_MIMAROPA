@@ -25,7 +25,7 @@ namespace WebTrackED_CHED_MIMAROPA.Model.Repositories.Implementation
             var categories = _db.Categories.ToList();
             var subcategories = _db.SubCategories.ToList();
             var senders = _db.Senders.ToList();
-            var offices = _db.Offices.ToList();
+          
             var designations = _db.Designations.ToList();
 
 
@@ -54,16 +54,6 @@ namespace WebTrackED_CHED_MIMAROPA.Model.Repositories.Implementation
                      Document = doc.Document,
                      Reviewer = rev
                  })
-                .Join(offices,
-                r => r.Reviewer.OfficeId,
-                o => o.Id,
-                (r,o) => new
-                {
-                    DocTrack = r.DocTrack,
-                    Document = r.Document,
-                    Reviewer = r.Reviewer,
-                    Office = o
-                })
                 .Join(designations,
                 r => r.Reviewer.DesignationId,
                 d => d.Id,
@@ -72,7 +62,7 @@ namespace WebTrackED_CHED_MIMAROPA.Model.Repositories.Implementation
                     DocTrack = r.DocTrack,
                     Document = r.Document,
                     Reviewer = r.Reviewer,
-                    Office = r.Office,
+                  
                     Designation = d
                 })
                 .Join(reviewerAccounts,
@@ -83,7 +73,7 @@ namespace WebTrackED_CHED_MIMAROPA.Model.Repositories.Implementation
                     DocTrack = result.DocTrack,
                     Document = result.Document,
                     Reviewer = result.Reviewer,
-                    Office = result.Office,
+                   
                     Designation = result.Designation,
                     ReviewerAcc = revAcc
                 })
@@ -95,7 +85,7 @@ namespace WebTrackED_CHED_MIMAROPA.Model.Repositories.Implementation
 					DocTrack = doc.DocTrack,
 					Document = doc.Document,
 					Reviewer = doc.Reviewer,
-                    Office = doc.Office,
+                  
                     Designation = doc.Designation,
                     ReviewerAcc = doc.ReviewerAcc,
 					SenderAcc = sender
@@ -108,7 +98,7 @@ namespace WebTrackED_CHED_MIMAROPA.Model.Repositories.Implementation
 					DocTrack = result.DocTrack,
 					Document = result.Document,
 					Reviewer = result.Reviewer,
-                    Office = result.Office,
+                   
                     Designation = result.Designation,
                     ReviewerAcc = result.ReviewerAcc,
 					SenderAcc = result.SenderAcc,
@@ -122,7 +112,7 @@ namespace WebTrackED_CHED_MIMAROPA.Model.Repositories.Implementation
 					DocumentTracking = result.DocTrack,
 					DocumentAttachment = result.Document,
 					Reviewer = result.Reviewer,
-                    Office = result.Office,
+                 
                     Designation = result.Designation,
                     ReviewerAccount = result.ReviewerAcc,
 					SenderAccount = result.SenderAcc,
@@ -144,7 +134,7 @@ namespace WebTrackED_CHED_MIMAROPA.Model.Repositories.Implementation
                     SenderAccount = result.First().SenderAccount,
                     SubCategory = result.First().SubCategory,
                     DocumentTrackings = docTrackings.Where(x => x.DocumentAttachmentId == result.Key).ToList(),
-                    Office = result.First().Office,
+                  
                     Designation = result.First().Designation
                 })
                 .ToList();

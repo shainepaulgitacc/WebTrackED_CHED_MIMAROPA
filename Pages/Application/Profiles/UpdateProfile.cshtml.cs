@@ -24,7 +24,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Profiles
 		private readonly UserManager<AppIdentityUser> _userManager;
 		private readonly SignInManager<AppIdentityUser> _signInManager;	
 		private readonly IBaseRepository<AppIdentityUser> _accRepo;
-		private readonly IBaseRepository<Office> _officeRepo;
+	
 		private readonly IBaseRepository<Designation> _designationRepo; 
 		private readonly IMapper _mapper;
 		
@@ -35,7 +35,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Profiles
 			UserManager<AppIdentityUser> userManager,
 			SignInManager<AppIdentityUser> signInManager,
 			IBaseRepository<AppIdentityUser> accRepo,
-			IBaseRepository<Office> officeRepo,
+		
 			IBaseRepository<Designation> designationRepo,
 			IMapper mapper
 			)
@@ -45,7 +45,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Profiles
 			_userManager = userManager;
 			_signInManager = signInManager;
 			_accRepo = accRepo;
-			_officeRepo = officeRepo;
+			
 			_designationRepo = designationRepo;
 			_mapper = mapper;
 		}
@@ -67,23 +67,9 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Profiles
 		public async Task OnGetAsync(string accId = null)
 		{
 			var reviewers = await _chedRepo.GetAll();
-			var offices = await _officeRepo.GetAll();	
+		
 			var designations = await _designationRepo.GetAll();
-            Offices = offices.
-               GroupJoin(reviewers,
-               o => o.Id,
-               r => r.OfficeId,
-               (o, r) => new
-               {
-                   Office = o,
-                   Reviewer = r.FirstOrDefault()
-               })
-             //  .Where(x => x.Reviewer == null)
-               .Select(r => new AvailableOffice
-               {
-                   OfficeId = r.Office.Id,
-                   OfficeName = r.Office.OfficeName
-               });
+           
             Designations = designations
                 .GroupJoin(reviewers,
                 d => d.Id,
@@ -130,7 +116,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Profiles
 						Sex = (Sex)reviewer.Account.Sex,
 
 						ReviewerId = (int)reviewer?.CHEDPersonel.Id,
-						OfficeId = reviewer.Office?.Id,
+					
 						DesignationId = reviewer.Designation?.Id,
 					};
 				}

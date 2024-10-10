@@ -186,7 +186,7 @@
                                     @(Model.UserId == docTracking.Account.Id ? "(You)" : "")
                                 </span>
                             </h6>
-                            <span class="text-primary fw-bold">@(docTracking.Office != null ? docTracking.Office.OfficeName:"N/A")</span>
+                            <span class="text-primary fw-bold">@(docTracking.Designation != null ? docTracking.Designation.DesignationName:"N/A")</span>
                             @if (!string.IsNullOrEmpty(docTracking.DocumentTracking.Note))
                             {
                                 <h6 class="fst-italic text-secondary m-0 p-0">(Remarks/Notes)</h6>

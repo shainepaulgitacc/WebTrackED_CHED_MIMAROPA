@@ -17,7 +17,6 @@ namespace WebTrackED_CHED_MIMAROPA.Model.Repositories.Implementation
         {
             var personels = _db.CHEDPersonels.ToList();
             var designations = _db.Designations.ToList();
-            var offices = _db.Offices.ToList();
             var accounts = _db.Set<AppIdentityUser>();
 
 
@@ -30,15 +29,6 @@ namespace WebTrackED_CHED_MIMAROPA.Model.Repositories.Implementation
                     Reviewer = p,
                     Account = a
                 })
-                .GroupJoin(offices,
-                r => r.Reviewer.OfficeId,
-                o => o.Id,
-                (r, o) => new
-                {
-                    Reviewer = r.Reviewer,
-                    Account = r.Account,
-                    Office = o
-                })
                 .GroupJoin(designations,
                 r => r.Reviewer.DesignationId,
                 d => d.Id,
@@ -46,14 +36,13 @@ namespace WebTrackED_CHED_MIMAROPA.Model.Repositories.Implementation
                 {
                     Reviewer = r.Reviewer,
                     Account = r.Account,
-                    Office = r.Office,
+                  
                     Designation = d
                 })
                 .Select(x => new CHEDPersonelListViewModel
                 {
                     CHEDPersonel = x.Reviewer,
                     Account = x.Account,
-                    Office = x.Office.FirstOrDefault(),
                     Designation = x.Designation.FirstOrDefault()
                 })
                 .ToList();
