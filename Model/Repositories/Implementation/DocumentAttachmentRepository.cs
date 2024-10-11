@@ -112,7 +112,6 @@ namespace WebTrackED_CHED_MIMAROPA.Model.Repositories.Implementation
 					DocumentTracking = result.DocTrack,
 					DocumentAttachment = result.Document,
 					Reviewer = result.Reviewer,
-                 
                     Designation = result.Designation,
                     ReviewerAccount = result.ReviewerAcc,
 					SenderAccount = result.SenderAcc,
@@ -122,37 +121,35 @@ namespace WebTrackED_CHED_MIMAROPA.Model.Repositories.Implementation
 
 
             var finRec = joined
-                .OrderByDescending(x => x.DocumentTracking.Id)
                 .GroupBy(x => x.DocumentAttachment.Id)
                 .Select(result => new DocumentAttachmentViewModel
                 {
                     DocumentAttachment = result.First().DocumentAttachment,
-                    DocumentTracking = result.First().DocumentTracking,
+                    DocumentTracking = result.OrderByDescending(x => x.DocumentTracking.AddedAt).First().DocumentTracking,
                     Category = result.First().Category,
                     Reviewer = result.First().Reviewer,
                     ReviewerAccount = result.First().ReviewerAccount,
                     SenderAccount = result.First().SenderAccount,
                     SubCategory = result.First().SubCategory,
-                    DocumentTrackings = docTrackings.Where(x => x.DocumentAttachmentId == result.Key).ToList(),
-                  
-                    Designation = result.First().Designation
+                    Designation = result.First().Designation,
+                    DocumentTrackings = docTrackings.Where(x => x.DocumentAttachmentId == result.Key).ToList()
                 })
                 .ToList();
             return finRec;
         }
 
         public async Task<ReportsRecords> GetRecordsPiginated(
-           int? subCategory,
-           Prioritization? prioritization,
-           Status? docsStatus
+         int? serviceId,
+          DateTime? from,
+          DateTime? to
             )
         { 
             var rec = await DocumentAttachments();
             var fRec = new List<DocumentAttachmentViewModel>();
-            if(subCategory != null && prioritization!= null && docsStatus != null)
+            if(serviceId != null && from!= null && to != null)
             {
                 fRec = rec
-                     .Where(x => x.SubCategory.Id == subCategory && x.DocumentAttachment.Prioritization == prioritization && x.DocumentAttachment.Status == docsStatus)
+                     .Where(x => x.SubCategory.Id ==  serviceId && x.DocumentAttachment.AddedAt >= from && x.DocumentAttachment.AddedAt <= to)
                      .ToList();
             }
             else
@@ -165,10 +162,9 @@ namespace WebTrackED_CHED_MIMAROPA.Model.Repositories.Implementation
             return new ReportsRecords
             {
                 Records = finRecords,
-                Status = docsStatus,
-                Prioritization = prioritization,
-                SubCategory = subCategory,
-                
+                ServiceId = serviceId,
+                From = from,
+                To = to,
             };
 
         }

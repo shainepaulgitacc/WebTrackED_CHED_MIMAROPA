@@ -21,7 +21,7 @@ namespace WebTrackED_CHED_MIMAROPA.Model.ViewModel.InputViewModel
 
 		public DocumentType DocumentType { get; set; }
 		public string? Comment { get; set; }
-		public Status Status { get; set; } = Status.Pending;
+	
         public Prioritization? Prioritization { get; set; }
     }
    

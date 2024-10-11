@@ -71,16 +71,10 @@
 						<td class="text-nowrap">
 							<a asp-page="/Application/Document/ViewDocs" asp-route-prevPage="@prevPage" asp-route-pId="@docAttachment.DocumentAttachment.Id" class="text-white rounded-4 btn btn-warning"><i class="fa-regular fa-eye"></i></a>
 							<a asp-page="/Application/Document/DocumentTracking" asp-route-prevPage="@prevPage" asp-route-pId="@docAttachment.DocumentAttachment.Id" class="text-white rounded-4 btn btn-info"><i class="fa-solid fa-chart-bar"></i></a>
-							@if (User.IsInRole("Admin") || User.IsInRole("Sender"))
+							@if (!User.IsInRole("Reviewer"))
 							{
 								<button class="rounded-4 btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal-@docAttachment.DocumentAttachment.Id"><i class="text-white fa-regular fa-trash-can"></i></button>
 								<partial name="PartialViews/_DeleteDataModal" model="new DeleteModalViewModel(){Id=docAttachment.DocumentAttachment.Id.ToString(),returnUrl = null}" />
-							}
-
-							@if (!User.IsInRole("Sender") && docAttachment.DocumentAttachment.Status == Status.Disapproved && docAttachment.ReviewerAccount.Id == Model.userId)
-							{
-								<button class="rounded-4 btn btn-primary" data-bs-toggle="modal" data-bs-target="#add-comment-@docAttachment.DocumentAttachment.Id"><i class="fa-regular fa-comment-dots"></i></button>
-								<partial name="_AddComment" model="@(docAttachment.DocumentAttachment.Id.ToString())" />
 							}
 						</td>
 					</tr>

@@ -21,99 +21,37 @@
             <div class="row">
                 <div class="col-12 col-lg-4 col-md-6">
                     <div class="mb-3">
-                        <label class="mb-2 fw-bolder">Status</label>
-                        <select required name="s" class="form-select">
-                            @foreach (var status in Enum.GetValues(typeof(Status)))
-                            {
-                                    @if (Model.Records.Status != null)
-                                    {
-                                        @if ((int)Model.Records.Status == (int)status)
-                                        {
-                                            <option selected value="@((int)status)">@status</option>
-                                        }
-                                        else
-                                        {
-                                            <option value="@((int)status)">@status</option>
-                                        }
-                                    }
-                                    else
-                                    {
-                                        <option selected value="" hidden disabled>select..</option>
-                                        <option value="@((int)status)">@status</option>
-                                    }
-                            }
+                        <label class="mb-2 fw-bolder">Service</label>
+                        <select required name="s" class="form-select form-slect-sm">
                         </select>
 
                     </div>
                 </div>
                 <div class="col-12 col-lg-4 col-md-6">
                     <div class="mb-3">
-                        <label class="mb-2 fw-bolder">Sub Category</label>
-                        <select required name="sC" class="form-select">
-                            @foreach (var sc in Model.SubCategories)
-                            {
-                                if (Model.Records.Status != null)
-                                {
-                                    if (Model.Records.SubCategory == sc.Id)
-                                    {
-                                        <option selected value="@sc.Id">@sc.SubCategoryName</option>
-                                    }
-                                    else
-                                    {
-                                        <option value="@sc.Id">@sc.SubCategoryName</option>
-                                    }
-                                }
-                                else
-                                {
-                                    <option selected value="" hidden disabled>select..</option>
-                                    <option value="@sc.Id">@sc.SubCategoryName</option>
-                                }
-                            }
-                        </select>
-                        
-
+                        <label class="mb-2 fw-bolder">From</label>
+                        <input value="@Model.Records.From?.ToString("yyyy-MM-dd")" name="f" type="date" class="form-control form-control-sm" />
                     </div>
                 </div>
                 <div class="col-12 col-lg-4 col-md-6">
                     <div class="mb-3">
-                        <label class="mb-2 fw-bolder">Prioritization</label>
-                        <select required name="p" class="form-select">
-                            
-                                @foreach (var p in Enum.GetValues(typeof(Prioritization)))
-                                {
-                                    @if (Model.Records.Prioritization != null)
-                                    {
-                                        @if ((int)p == (int)Model.Records.Prioritization)
-                                        {
-                                             <option selected value="@((int)p)">@p</option>
-                                        }
-                                        else
-                                        {
-                                            <option value="@((int)p)">@p</option>
-                                        }
-                                    }
-                                    else
-                                    {
-                                        <option selected value="" hidden disabled>select..</option>
-                                        <option value="@((int)p)">@p</option>
-                                    }
-                                
-                                }
-                               
-                            </select>
+                        <label class="mb-2 fw-bolder">From</label>
+                        <input value="@Model.Records.From?.ToString("yyyy-MM-dd")" name="f" type="date" class="form-control form-control-sm" />
                     </div>
                 </div>
+              
+                
                 <div class="col-12">
                     <div class="d-flex gap-2 mb-5">
-                        <button type="submit" id="submitButton" class="btn btn-primary">
+                        <button type="submit" id="submitButton" class="btn btn-primary btn-sm">
                             <i class="fa-solid fa-filter"></i>
                             <span class="button-text d-none d-lg-inline d-md-inline">Filter</span>
                             <span class="d-none spinner-grow spinner-grow-sm loading-spinner"></span>
                             <span class="d-none loading-text">Loading...</span>
                         </button>
-                        <button id="button-excel" type="button" class="btn btn-info text-white"><i class="fa-solid fa-file-excel"></i> <span class="d-none d-lg-inline d-md-inline">Excel</span> </button>
+                        <button id="button-excel" type="button" class="btn btn-info text-white btn-sm"><i class="fa-solid fa-file-excel"></i> <span class="d-none d-lg-inline d-md-inline">Excel</span> </button>
                        
-                        <button id="button-print" type="button" class="btn btn-light btn-flat border"><i class="fa fa-print"></i> <span class="d-none d-lg-inline d-md-inline">Print</span></button>
+                        <button id="button-print" type="button" class="btn btn-light btn-flat border btn-sm"><i class="fa fa-print"></i> <span class="d-none d-lg-inline d-md-inline">Print</span></button>
                     </div>
                 </div>
             </div>
@@ -134,10 +72,10 @@
                                     <th>Document Ref#.Code</th>
                                     <th>Sender</th>
                                     <th>Description</th>
-                                    <th>Classification</th>
-                                    <th>Sub Category</th>
+                                    <th>Category</th>
+                                    <th>Service</th>
                                     <th>Prioritization</th>
-                                    <th>Status</th>
+                                
                                     <th>Last Transaction</th>
                                    
                                 </tr>
@@ -157,7 +95,7 @@
                                         <td>@record.Category.CategoryName</td>
                                         <td>@record.SubCategory.SubCategoryName</td>
                                         <td>@record.DocumentAttachment.Prioritization</td>
-                                        <td>@record.DocumentAttachment.Status</td>
+                                     
                                         <td>@record.DocumentTracking.AddedAt.ToString("MMM/dd/yyy hh:mm tt")</td>
                                         
                                     </tr>
@@ -183,10 +121,9 @@
                 <th>Id</th>
                 <th>Sender</th>
                 <th>Description</th>
-                <th>Classification</th>
-                <th>Sub Category</th>
+                <th>Category</th>
+                <th>Service</th>
                 <th>Prioritization</th>
-                <th>Status</th>
                 <th>Last Transaction In</th>
             </tr>
         </thead>
@@ -202,7 +139,7 @@
                     <td>@record.Category.CategoryName</td>
                     <td>@record.SubCategory.SubCategoryName</td>
                     <td>@record.DocumentAttachment.Prioritization</td>
-                    <td>@record.DocumentAttachment.Status</td>
+                   
                     <td>@record.DocumentTracking.AddedAt.ToString("MMMM dd, yyyy hh:mm tt")</td>
                    
                 </tr>
@@ -218,7 +155,7 @@
     <script>
         $(function () {
             $('#table-data').DataTable({
-                "order": [[7, "desc"]] // Order by the 6th column (index 5) in descending order
+                "order": [[6, "desc"]] // Order by the 6th column (index 5) in descending order
             });
         })
     </script>

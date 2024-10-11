@@ -52,8 +52,6 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.Pending
             var docsAttachment = docsAttachments.FirstOrDefault(x => x.DocumentAttachment.Id == pId);
             if (docsAttachment == null)
                 return BadRequest($"{pId} invalid DocumentId");
-            else if (docsAttachment.DocumentAttachment.Status != Status.Pending)
-                return BadRequest("Can't access this page");
             DocumentAttachment = docsAttachment;
             var reviewers = new List<string>();
             reviewers.Add(docsAttachment.Reviewer.IdentityUserId);
@@ -68,7 +66,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.Pending
                 ReviewersId =reviewers,
                 Subject = docsAttachment.DocumentAttachment.Subject,
                 Description = docsAttachment.DocumentAttachment.Description,
-                Status = docsAttachment.DocumentAttachment.Status,
+             
                 DocumentType = docsAttachment.DocumentAttachment.DocumentType,
             };
 

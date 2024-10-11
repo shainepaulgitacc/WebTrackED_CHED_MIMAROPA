@@ -45,6 +45,8 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.Compose
 		private readonly IBaseRepository<Notification> _notificationRepo;
         private readonly IHubContext<NotificationHub, INotificationHub> _notifHub;
         private readonly IBaseRepository<AppIdentityUser> _userRepo;
+        private readonly IBaseRepository<Designation> _desigRepo;
+
 		public IndexModel(
             IBaseRepository<DocumentAttachment> repo,
             ICHEDPersonelRepository chedRepo,
@@ -60,7 +62,8 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.Compose
 			IBaseRepository<Notification> notificationRepo,
 			IHubContext<NotificationHub, INotificationHub> notifHub,
             IBaseRepository<Settings> settingsRepo,
-            IBaseRepository<AppIdentityUser> userRepo
+            IBaseRepository<AppIdentityUser> userRepo,
+            IBaseRepository<Designation> desigRepo
            )
         {
             _repo = repo;
@@ -78,12 +81,13 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.Compose
             _notifHub = notifHub;
             _settingsRepo = settingsRepo;
             _userRepo = userRepo;
+            _desigRepo = desigRepo;
            
         }
         [BindProperty]
         public ComposeInputModel InputModel { get; set; }
         public List<CHEDPersonelListViewModel> Reviewers { get; set; }
-        public string RecordsOfficeId { get; set; }
+        public string RecordsDesignationId { get; set; }
         public List<Category> Categories { get; set; }
         public List<SubCategory> SubCategories { get; set; }
         public AppIdentityUser Sender { get; set; }
@@ -100,14 +104,13 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.Compose
             var subcategories = await _scategRepo.GetAll();
          
             var senderUser = await _userManager.FindByNameAsync(User.Identity?.Name);
+            var designations = await _desigRepo.GetAll();
+            var firstDesignation = designations.OrderBy(x => x.AddedAt).First();
+            RecordsDesignationId = reviewers.FirstOrDefault(x => x.Designation!= null && x.Designation.Id == firstDesignation.Id)?.Account.Id;
 
-
-            /*
-            if (!User.IsInRole("Sender") && !reviewers.FirstOrDefault(x => x.Account.UserName == User.Identity.Name).Office.OfficeName.Contains("Records Office"))
+            if (!User.IsInRole("Sender") && !reviewers.FirstOrDefault(x => x.Account.UserName == User.Identity.Name).Designation.DesignationName.Contains(firstDesignation.DesignationName))
                 return RedirectToPage("/Account/AccessDenied", new { area = "Identity" });
-            */
             Sender = senderUser;
-
 
 			InputModel = new ComposeInputModel()
 			{
@@ -117,6 +120,8 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.Compose
 
             Categories = categories.ToList();
             SubCategories = subcategories.ToList();
+            Reviewers = reviewers.Where(x => x.Account.Id != senderUser?.Id && x.Designation != null).ToList();
+
             return Page();
         }
 		public async Task<IActionResult> OnPostAsync()
@@ -131,23 +136,6 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.Compose
             convert.FileName = await _fileUploader.Uploadfile(InputModel.File,"Documents");
 
             await _repo.Add(convert);
-
-
-            /*
-			if (convert.DocumentType== DocumentType.WalkIn)
-            {
-				var docTracking = new DocumentTracking()
-				{
-					AddedAt = DateTime.Now,
-					UpdatedAt = DateTime.Now,
-					ReviewerStatus = ReviewerStatus.Reviewed,
-					ReviewerId = records.Account.Id,
-					DocsAttachment = convert
-				};
-
-				await _docTrackingRepo.Add(docTracking);
-			}
-            */
 				foreach (var revId in InputModel.ReviewersId)
             {
                 var docTracking = new DocumentTracking()

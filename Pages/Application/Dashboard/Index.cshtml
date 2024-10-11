@@ -103,7 +103,7 @@
                         <tr>
                             <th class="fw-bolder">Document Ref#.Code</th>
                             <th class="fw-bolder">Details</th>
-                            <th class="fw-bolder">Status</th>
+                            <th class="fw-bolder">Date Completed</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -117,7 +117,10 @@
                                     <td>
                                         <span class="fw-bolder">@document.Category.CategoryName - @(document.SubCategory.SubCategoryName.Length > 20 ? $"{document.SubCategory.SubCategoryName.Substring(0, 20)}.." : document.SubCategory.SubCategoryName)<span class="fw-lighter">@(document.DocumentAttachment.Description?.Length > 20 ? $"{document.DocumentAttachment.Description.Substring(0, 20)}.." : document.DocumentAttachment.Description)</span></span>
                                     </td>
-                                    <td><span class="text-white @(document.DocumentTracking.ReviewerStatus == ReviewerStatus.Approved?"bg-success":"bg-danger") px-2 py-1 rounded-pill">@document.DocumentTracking.ReviewerStatus</span></td>
+                                    <td>
+                                        @document.DocumentTracking.AddedAt.ToString("MM/dd/yyy hh:mm tt")
+                                    </td>
+                                  
                                 </tr>
                             }
                         }

@@ -22,22 +22,22 @@ namespace WebTrackED_CHED_MIMAROPA.Model.Entities
         ToReceived,
         OnReview,
         Reviewed,
-        PreparingRelease,
         Passed,
         Approved,
-        Disapproved,
-      
+        PreparingRelease,
+        Completed
 
     }
+    /*
     public enum Status
     {
         Pending,
         OnProcess,
-        PreparingRelease,
         Approved,
-        Disapproved
+        PreparingRelease,
+        Completed
     }
-
+    */
 
     public enum MaritalStatus
     {

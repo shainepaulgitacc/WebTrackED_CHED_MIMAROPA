@@ -69,7 +69,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.ForwardDocument
         public int PId { get; set; }
         public string OldReviewerId { get; set; }
         public string PreviousPage { get; set; }
-        public string ReviewerOfficeName { get; set; }
+        public string ReviewerDesignationName { get; set; }
         public bool CurrentlyToReviewed { get; set; }
         [BindProperty]
         public ForwardDocumentInputModel InputModel { get; set; }
@@ -83,7 +83,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.ForwardDocument
            
             var chedPersonels = await _chedPRepo.CHEDPersonelRecords();
             var designations = await _designationRepo.GetAll();
-            var firstDesignationName = designations.OrderByDescending(x => x.AddedAt).First().DesignationName;
+            var firstDesignationName = designations.OrderBy(x => x.AddedAt).First().DesignationName;
             var chedP = await _chedPRepo.GetAll();
            
 
@@ -94,6 +94,18 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.ForwardDocument
             var docAttachment = await _documentAttachmentRepository.GetOne(pId.ToString());
             var account = await _userManager.FindByNameAsync(User.Identity?.Name);
 
+            ReviewerDesignationName = designations
+                .Join(chedP,
+                d => d.Id,
+                c => c.DesignationId,
+                (d, c) => new
+                {
+                    Designation = d,
+                    CHEDP = c
+                })
+                .FirstOrDefault(x => x.CHEDP.IdentityUserId == account.Id)
+                .Designation.DesignationName;
+
        
 
             var revs = await _revAccRepo.GetAll();
@@ -103,24 +115,20 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.ForwardDocument
             var reviewerDesignationName = chedPersonels.FirstOrDefault(x => x.Account.Id == account.Id).Designation.DesignationName;
             FirstDesignationName = firstDesignationName;
             DocumentTrackings = docAttachment.DocumentTrackings.ToList();
-            if (docAttachment.Status == Status.PreparingRelease)
+
+            if (docAttachment.DocumentTrackings.First().ReviewerStatus == ReviewerStatus.PreparingRelease || docAttachment.DocumentTrackings.First().ReviewerStatus == ReviewerStatus.Approved)
             {
-                if(reviewerDesignationName.Contains(firstDesignationName))
+                if (reviewerDesignationName.Contains(firstDesignationName))
                 {
                     return RedirectToPage("/Application/Document/Incoming/Index");
                 }
                 return RedirectToPage("/Application/Document/Outgoing/Index");
             }
-            else if (docAttachment.Status == Status.Approved || docAttachment.Status == Status.Disapproved)
+            else if (docAttachment.DocumentTrackings.First().ReviewerStatus == ReviewerStatus.Completed)
                 return RedirectToPage("/Application/Document/Ended/Index");
-            else if (reviewerStatus == ReviewerStatus.Passed || reviewerStatus == ReviewerStatus.ToReceived || reviewerStatus == ReviewerStatus.OnReview && !(docAttachment.Status == Status.PreparingRelease || docAttachment.Status == Status.Approved || docAttachment.Status == Status.Disapproved))
+            else if (reviewerStatus != ReviewerStatus.Reviewed || reviewerStatus == ReviewerStatus.Reviewed && !(docAttachment.DocumentTrackings.First().ReviewerStatus != ReviewerStatus.PreparingRelease || docAttachment.DocumentTrackings.First().ReviewerStatus != ReviewerStatus.Approved || docAttachment.DocumentTrackings.First().ReviewerStatus != ReviewerStatus.Completed))
                 return BadRequest("Can't access this page");
 
-
-         
-          
-
-          
             ValidReviewers = revs
                .GroupJoin(docTracks.OrderByDescending(x => x.Id),
                r => r.Id,
@@ -206,7 +214,6 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.ForwardDocument
 
                	
 			}
-            documentAttachment.Status = InputModel.TrackingStatus == ReviewerStatus.PreparingRelease ? Status.PreparingRelease : Status.OnProcess;
             await _documentAttachmentRepository.Update(documentAttachment,pId);
 
             await _docsTrackRepo.Add(new DocumentTracking
@@ -221,19 +228,17 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.ForwardDocument
 
              foreach (var reviewer in InputModel.NewReviewers.Split(","))
             {
-
-                await _docsTrackRepo.Add(new DocumentTracking
-                {
-                    AddedAt = DateTime.Now,
-                    UpdatedAt = DateTime.Now,
-                    ReviewerId = reviewer,
-                    DocumentAttachmentId = InputModel.DocumentId,
-                    ReviewerStatus = InputModel.TrackingStatus,
-                });
-
                 newRevAcc = Reviewers.FirstOrDefault(x => x.CHEDPersonel.IdentityUserId == reviewer);
                 if (setting.DocumentNotif)
                 {
+                    await _docsTrackRepo.Add(new DocumentTracking
+                    {
+                        AddedAt = DateTime.Now,
+                        UpdatedAt = DateTime.Now,
+                        ReviewerId = reviewer,
+                        DocumentAttachmentId = InputModel.DocumentId,
+                        ReviewerStatus = InputModel.TrackingStatus,
+                    });
                     // Notification for the sender when the document is passed to the next reviewer for sender
                     /*
                     var notificationPassed = new Notification
@@ -257,6 +262,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.ForwardDocument
                         notificationPassed.RedirectLink
                     );
                     */
+                    /*
                     //notification for the next reviewer
                     var notificationPassedReviewer = new Notification
                     {
@@ -282,6 +288,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.ForwardDocument
                         notificationPassedReviewer.AddedAt.ToString("MMMM dd, yyyy"),
                         notificationPassedReviewer.RedirectLink
                     );
+                    */
 
                 }
 

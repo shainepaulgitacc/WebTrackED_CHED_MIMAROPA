@@ -74,7 +74,7 @@
                 <div class="col-12 col-lg-6">
                     <div class="mb-3">
                         <label asp-for="InputModel.File" class="mb-2 fw-bolder"><i class="fa-solid fa-repeat"></i> Change document</label>
-                        <input asp-for="InputModel.File" id="docs-file" class="form-control" />
+                        <input asp-for="InputModel.File" accept="application/zip" id="docs-file" class="form-control" />
                         <span class="text-danger" asp-validation-for="InputModel.File"></span>
                     </div>
                 </div>

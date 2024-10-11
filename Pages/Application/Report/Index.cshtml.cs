@@ -33,11 +33,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Report
         public async Task OnGetAsync(FilteringRequestModel request)
         {
             SubCategories = await _subCategRepo.GetAll();
-            Records = await _docsAttachRepo.GetRecordsPiginated(request.SubCategory,request.Prioritization,request.Status);
-            if (request.Status != null && request.Prioritization != null && request.SubCategory != null)
-            {
-                TempData["validation-message"] = "Successfully filtered the records";
-            }
+            Records = await _docsAttachRepo.GetRecordsPiginated(request.ServiceId,request.From,request.To);
             var settings = await _settingsRepo.GetAll();
             Logo = settings.OrderByDescending(x => x.Id).First().LogoFileName;
 

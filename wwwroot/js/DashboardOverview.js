@@ -7,11 +7,11 @@
             console.log(result);
             const ctx = document.getElementById('myChart').getContext('2d');
             const data = {
-                labels: ['Approved', 'Disapproved'],
+                labels: ['Walk In', 'Electronic'],
                 datasets: [{
                     label: 'Total',
-                    data: [result.countApproved, result.countDisapproved],
-                    backgroundColor: ['rgb(75, 192, 192)', 'rgb(255, 99, 132)']
+                    data: [result.countWalkIn, result.countElectronic],
+                    backgroundColor: ['#F3C623', '#0D92F4']
                 }]
             };
             new Chart(ctx, {

@@ -33,8 +33,9 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document
         private readonly QRCode_Generator _qrGenerator;
 		private readonly IMapper _mapper;
         private readonly IBaseRepository<Designation> _desigRepo;
+        private readonly IWebHostEnvironment _env;
 
-		public ViewDocsModel(
+        public ViewDocsModel(
 			IDocumentAttachmentRepository docRepo,
 			IBaseRepository<DocumentTracking> docTrackRepo,
 			ISenderRepository senderRepo,
@@ -48,7 +49,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document
             IBaseRepository<Settings> settingsRepo,
             QRCode_Generator qrGenerator,
            IBaseRepository<Designation> desigRepo,
-
+           IWebHostEnvironment env,
 
             IMapper mapper)
 		{
@@ -65,6 +66,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document
             _qrGenerator = qrGenerator;
 			_settingsRepo = settingsRepo;
             _desigRepo = desigRepo;
+            _env = env;
            
 		}
 		public string PreviousPage { get; set; }
@@ -80,6 +82,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document
 		public Designation Designation { get; set; }
 		public string Logo { get; set; }
         public string ReviewerDesignationName { get; set; }
+        public ReviewerStatus CurrentStatus { get; set; }
 
 		//public bool HasCurrentlyReviewing { get; set; }
 	public string AccountId { get; set; }
@@ -88,7 +91,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document
 		{
 			PreviousPage = prevPage;
 			var docsAttachments = await _docRepo.DocumentAttachments();
-			var docAttachment = docsAttachments.OrderByDescending(x => x.DocumentTracking.Id).FirstOrDefault(x => x.DocumentAttachment.Id == pId);
+			var docAttachment = docsAttachments.FirstOrDefault(x => x.DocumentAttachment.Id == pId);
             var user = await _userManager.FindByNameAsync(User.Identity.Name);
            var reviewers = await _reviewerRepo.GetAll();
             var accounts = _userManager.Users.ToList();
@@ -114,6 +117,8 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document
                 })
                 .FirstOrDefault(x => x.Account.Id == user.Id)?
                 .Designation.DesignationName;
+
+
             FirstDesignationName = designations.OrderBy(x => x.AddedAt).First().DesignationName;
             var getRoles = await _userManager.GetRolesAsync(user);
             if (docAttachment == null)
@@ -122,10 +127,13 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document
                 return BadRequest("Can't access this page");
 			DocumentAttachment = docAttachment;
 			AccountId = user.Id;
+            CurrentStatus = (ReviewerStatus)docAttachment.DocumentTrackings.OrderByDescending(x => x.Id).FirstOrDefault(x => x.ReviewerId == user.Id)?.ReviewerStatus;
+           
+
+
             var settings = await _settingsRepo.GetAll();
             Logo = settings.OrderByDescending(x => x.Id).First().LogoFileName;
             var refCode = docAttachment.DocumentAttachment.DocumentType == DocumentType.WalkIn ? $"dW{pId.ToString("00000")}" : $"dE{pId.ToString("00000")}";
-
             var qrCode = _qrGenerator.GenerateCode(refCode);
             string imagebase64 = $"data:image/png;base64,{Convert.ToBase64String(qrCode)}";
             ViewData["qr-code"] = imagebase64;
@@ -151,13 +159,27 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document
 				return StatusCode(500);
 			}
 		}
-		#region --ViewDocument--
-		/*public async Task<IActionResult>OnGetViewDocument(string filename)
+
+        /*
+         
+        public async Task<IActionResult> OnGetViewDocument(string filename)
         {
             try
             {
+                // Get the file (path and content type) from your file uploader service
                 var result = await _fileUploader.ViewFile(filename);
-                return PhysicalFile(result.Item1,result.Item2);
+
+                // Split the file name if needed, assuming filename has '=' characters
+                var splitFile = filename.Split('=');
+                var finalFileName = splitFile[splitFile.Length - 1];
+
+                // Serve the file for viewing
+                var physicalFileResult = PhysicalFile(result.Item1, result.Item2);
+
+                // Save the file as "SavedShaine.pdf" after serving it
+                await SaveFileAs(result.Item1, "SavedShaine.pdf");
+
+                return physicalFileResult;
             }
             catch (FileNotFoundException ex)
             {
@@ -167,10 +189,35 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document
             {
                 return StatusCode(500);
             }
-        }*/
-		#endregion
+        }
 
-		public async Task<IActionResult> OnPostChangeDocument(string prevPage, int pId)
+
+        private async Task SaveFileAs(string originalFilePath, string newFileName)
+        {
+            try
+            {
+                // Define the folder where files are stored
+                const string folderName = "Documents";
+
+                // Path for the new file in wwwroot
+                string newFilePath = Path.Combine(_env.WebRootPath, folderName, newFileName);
+
+                // Check if the original file exists
+                if (System.IO.File.Exists(originalFilePath))
+                {
+                    // Copy the original file to a new file with the specified name
+                    await Task.Run(() => System.IO.File.Copy(originalFilePath, newFilePath, true)); // Overwrite if exists
+                }
+            }
+            catch (Exception ex)
+            {
+                // Handle errors that might occur during the file save process
+                Console.WriteLine($"Error while saving the file: {ex.Message}");
+            }
+        }
+
+        */
+        public async Task<IActionResult> OnPostChangeDocument(string prevPage, int pId)
 		{
 			var docAttachment = await _docRepo.GetOne(pId.ToString());
 
@@ -181,69 +228,73 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document
 			await _docRepo.Update(docAttachment, docAttachment.Id.ToString());
 			TempData["validation-message"] = "Successfully replace document";
 			return RedirectToPage("ViewDocs", new { prevPage, pId });
-		}
-		public async Task<IActionResult> OnPostSetPrioritization(string prevPage, int pId)
-		{
-			var docAttachment = await _docRepo.GetOne(pId.ToString());
+        }
 
-			if (!ModelState.IsValid)
-				return BadRequest(ModelState);
-			docAttachment.Prioritization = Prioritization;
-			docAttachment.UpdatedAt = DateTime.Now;
-			await _docRepo.Update(docAttachment, docAttachment.Id.ToString());
-			TempData["validation-message"] = "Successfully set prioritization";
-			return RedirectToPage("ViewDocs", new { prevPage, pId });
-		}
-		public async Task<IActionResult> OnGetMarkAsOnProcessOrDisapproved(string prevPage, string pId, Status status)
-		{
-			var docAttachment = await _docRepo.GetOne(pId);
-			var account = await _userManager.FindByNameAsync(User.Identity?.Name);
-			var reviewers = await _reviewerRepo.CHEDPersonelRecords();
-			var reviewer = reviewers.FirstOrDefault(x => x.Account.Id == account?.Id);
-			await _docTrackRepo.Add(new DocumentTracking
-			{
-				AddedAt = DateTime.Now,
-				UpdatedAt = DateTime.Now,
-				ReviewerId = reviewer.CHEDPersonel.IdentityUserId,
-				DocumentAttachmentId = docAttachment.Id,
-				ReviewerStatus = status == Status.OnProcess ? ReviewerStatus.OnReview : ReviewerStatus.Disapproved
-			});
-            if( status == Status.Disapproved)
+
+
+
+        public async Task<IActionResult> OnPostSetPrioritization(string prevPage, int pId)
+        {
+            var docAttachment = await _docRepo.GetOne(pId.ToString());
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            docAttachment.Prioritization = Prioritization;
+            docAttachment.UpdatedAt = DateTime.Now;
+            await _docRepo.Update(docAttachment, docAttachment.Id.ToString());
+            TempData["validation-message"] = "Successfully set prioritization";
+            return RedirectToPage("ViewDocs", new { prevPage, pId });
+        }
+
+        public async Task<IActionResult> OnGetViewDocumentAction(string prevPage, string pId,ReviewerStatus status)
+        {
+            var docAttachment = await _docRepo.GetOne(pId);
+            var documentTrackings = await _docTrackRepo.GetAll();
+            var account = await _userManager.FindByNameAsync(User.Identity?.Name);
+            var reviewers = await _reviewerRepo.CHEDPersonelRecords();
+            var reviewer = reviewers.FirstOrDefault(x => x.Account.Id == account?.Id);
+
+           
+            await _docTrackRepo.Add(new DocumentTracking
+            {
+                AddedAt = DateTime.Now,
+                UpdatedAt = DateTime.Now,
+                ReviewerId = reviewer.CHEDPersonel.IdentityUserId,
+                DocumentAttachmentId = docAttachment.Id,
+                ReviewerStatus = ReviewerStatus.Reviewed
+            });
+
+          
+            var settings = await _settingsRepo.GetAll();
+            if (settings.OrderByDescending(x => x.Id).First().DocumentNotif && status == ReviewerStatus.Reviewed)
             {
                 var notification = new Notification
                 {
-                    Title = status == Status.Disapproved ? "Document Disapproval" : "Document Review and Process",
+                    Title = "Document Reviewed",
                     Recepient = docAttachment.SenderId,
                     IsViewed = false,
-                    Description = "Your document has already been disapproved due to errors found by the reviewers.",
+                    Description = $"Your document has been reviewed by ({reviewer.Designation.DesignationName}).",
                     NotificationType = NotificationType.Document,
-                    RedirectLink = status == Status.Disapproved ? "/Application/Document/Ended/Index" : docAttachment.DocumentType != DocumentType.WalkIn ? "/Application/Document/Onprocess/Index" : "/Application/Document/Outgoing/Index",
+                    RedirectLink = docAttachment.DocumentType != DocumentType.WalkIn ? "/Application/Document/Onprocess/Index" : "/Application/Document/Outgoing/Index",
                     AddedAt = DateTime.Now,
                     UpdatedAt = DateTime.Now,
                 };
-                var settings = await _settingsRepo.GetAll();
-                if (settings.OrderByDescending(x => x.Id).First().DocumentNotif)
-                {
-                    await _notificationRepo.Add(notification);
-                    _notifHub.Clients.User(docAttachment.SenderId).ReceiveNotification(
-                        notification.Title,
-                        notification.Description.Length > 30 ? $"{notification.Description.Substring(0, 30)}..." : notification.Description,
-                        notification.NotificationType.ToString(),
-                        notification.AddedAt.ToString("MMMM dd, yyyy"),
-                        notification.RedirectLink
-                    );
-                }
+                await _notificationRepo.Add(notification);
+                _notifHub.Clients.User(docAttachment.SenderId).ReceiveNotification(
+                    notification.Title,
+                    notification.Description.Length > 30 ? $"{notification.Description.Substring(0, 30)}..." : notification.Description,
+                    notification.NotificationType.ToString(),
+                    notification.AddedAt.ToString("MMMM dd, yyyy"),
+                    notification.RedirectLink
+                );
             }
-
-			
-			docAttachment.Status = status;
-			TempData["validation-message"] = status == Status.OnProcess ? "Successfully perform the action." : "Successfully disapproved document";
-			await _docRepo.Update(docAttachment, docAttachment.Id.ToString());
-			if (status == Status.OnProcess)
-				return RedirectToPage("ViewDocs", new { prevPage, pId });
-			else
-				return RedirectToPage("/Application/Document/Ended/Index");
-		}
+            foreach (var tracking in documentTrackings.Where(x => x.DocumentAttachmentId == int.Parse(pId)))
+            {
+                _notifHub.Clients.Users(tracking.ReviewerId).ReviewerRealtime();
+            }
+            TempData["validation-message"] = "Successfully perform the action.";
+            return RedirectToPage("ViewDocs", new { prevPage, pId });
+        }
 
 
         public async Task<IActionResult> OnGetReviewed(string prevPage, string pId)
@@ -284,64 +335,12 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document
                     notification.RedirectLink
                 );
              
-                foreach (var tracking in documentTrackings.Where(x => x.DocumentAttachmentId == int.Parse(pId)))
-                {
-                    _notifHub.Clients.Users(tracking.ReviewerId).ReviewerRealtime();
-                }
+              
             }
             TempData["validation-message"] = "Successfully perform the action.";
 			await _docRepo.Update(docAttachment, docAttachment.Id.ToString());
             return RedirectToPage("ViewDocs", new { prevPage, pId });
         }
 
-
-
-
-        public async Task<IActionResult> OnGetApproved(string pId)
-        {
-            var docAttachment = await _docRepo.GetOne(pId);
-            var account = await _userManager.FindByNameAsync(User.Identity?.Name);
-            await _docTrackRepo.Add(new DocumentTracking
-            {
-                AddedAt = DateTime.Now,
-                UpdatedAt = DateTime.Now,
-                ReviewerId = account.Id,
-                DocumentAttachmentId = docAttachment.Id,
-                ReviewerStatus = ReviewerStatus.Approved
-            });
-
-			if(docAttachment.DocumentType != DocumentType.WalkIn)
-			{
-                var notification = new Notification
-                {
-                    Title = "Complete/Approved Document",
-                    Recepient = docAttachment.SenderId,
-                    IsViewed = false,
-                    Description = "Your document is successfully reviewed by the designated CHED personels. You can now check the status of your document tracking.",
-                    NotificationType = NotificationType.Document,
-                    RedirectLink = "/Application/Document/Ended/Index",
-                    AddedAt = DateTime.Now,
-                    UpdatedAt = DateTime.Now,
-                };
-
-
-                var settings = await _settingsRepo.GetAll();
-                if (settings.OrderByDescending(x => x.Id).First().DocumentNotif)
-                {
-                    await _notificationRepo.Add(notification);
-                    _notifHub.Clients.User(docAttachment.SenderId).ReceiveNotification(
-                        notification.Title,
-                        notification.Description.Length > 30 ? $"{notification.Description.Substring(0, 30)}..." : notification.Description,
-                        notification.NotificationType.ToString(),
-                        notification.AddedAt.ToString("MMMM dd, yyyy"),
-                        notification.RedirectLink
-                    );
-                }
-            }
-            docAttachment.Status = Status.Approved;
-            TempData["validation-message"] ="Successfully approved document";
-            await _docRepo.Update(docAttachment, docAttachment.Id.ToString());
-            return RedirectToPage("/Application/Document/Ended/Index");
-        }
     }
 }

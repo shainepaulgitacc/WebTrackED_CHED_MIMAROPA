@@ -52,14 +52,12 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Admin.Document.Incoming
 
             var role = await _userManager.GetRolesAsync(account);
             DocsAttachments = docsAttachments
-            .Where(x => reviewer.Designation != null && reviewer.Designation.DesignationName.Contains(firstDesignationName) && x.DocumentAttachment.DocumentTrackings.OrderByDescending(x => x.Id).FirstOrDefault(x => x.ReviewerId == account.Id)?.ReviewerStatus == ReviewerStatus.PreparingRelease || x.DocumentAttachment.DocumentTrackings.OrderByDescending(x => x.Id).FirstOrDefault(x => x.ReviewerId == account.Id)?.ReviewerStatus == ReviewerStatus.ToReceived || x.DocumentAttachment.DocumentTrackings.OrderByDescending(x => x.Id).FirstOrDefault(x => x.ReviewerId == account.Id)?.ReviewerStatus == ReviewerStatus.OnReview || x.DocumentAttachment.DocumentTrackings.OrderByDescending(x => x.Id).FirstOrDefault(x => x.ReviewerId == account.Id)?.ReviewerStatus == ReviewerStatus.Reviewed && !x.DocumentAttachment.DocumentTrackings.Any(b => b.ReviewerStatus == ReviewerStatus.PreparingRelease))
-
-             
+            .Where(x =>  CReviewerStatus(x.DocumentTrackings,account.Id)==ReviewerStatus.ToReceived || CReviewerStatus(x.DocumentTrackings, account.Id) == ReviewerStatus.OnReview || CReviewerStatus(x.DocumentTrackings, account.Id) == ReviewerStatus.Reviewed || CReviewerStatus(x.DocumentTrackings, account.Id) == ReviewerStatus.PreparingRelease)
             .ToList();
-
-
-            
-
         }
+        private ReviewerStatus CReviewerStatus(List<DocumentTracking> trackings,string userId)
+        {
+            return trackings.OrderByDescending(x => x.AddedAt).FirstOrDefault(x => x.ReviewerId == userId).ReviewerStatus;
+        } 
     }
 }

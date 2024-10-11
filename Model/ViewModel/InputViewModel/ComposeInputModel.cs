@@ -15,14 +15,11 @@ namespace WebTrackED_CHED_MIMAROPA.Model.ViewModel.InputViewModel
 
         public List<string> ReviewersId { get; set; }
         [DisplayName("Document")]
-
-
         public IFormFile? File { get; set; }
         public Prioritization? Prioritization { get; set; }
         public string? Subject { get; set; }
         public string? Description { get; set; }
 		public DocumentType DocumentType { get; set; }
-		public Status Status { get; set; } = Status.Pending;
         public bool IsApproved { get; set; }
         public ReviewerStatus ReviewerStatus { get; set; }
     }

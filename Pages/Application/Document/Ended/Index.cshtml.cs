@@ -43,7 +43,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Admin.Document.Ended
             var docsAttachments = await _docRepo.DocumentAttachments();
             var account = await _userManager.FindByNameAsync(User?.Identity?.Name);
             var finalDocsAttachments = docsAttachments
-               .Where(x => x.DocumentAttachment.Status == Status.Approved || x.DocumentAttachment.Status == Status.Disapproved)
+               .Where(x => x.DocumentAttachment.Status == Status.Completed)
                .ToList();
             if (User.IsInRole("Admin") || User.IsInRole("Reviewer"))
                 DocsAttachments = finalDocsAttachments;

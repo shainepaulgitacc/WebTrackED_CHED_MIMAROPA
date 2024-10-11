@@ -12,7 +12,7 @@
 														}
 			};
 }
-@if (Model.RecordsOfficeId != null)
+@if (Model.RecordsDesignationId != null)
 {
 	@await Component.InvokeAsync("BreadCrump", breadcrump_data)
 	<div class="rounded-2 overflow-hidden bg-white shadow">
@@ -25,7 +25,7 @@
                 <input type="hidden" asp-for="InputModel.DocumentType" />
                 @if (User.IsInRole("Sender"))
                 {
-                    <input type="hidden" asp-for="InputModel.ReviewersId" value="@Model.RecordsOfficeId" />
+                    <input type="hidden" asp-for="InputModel.ReviewersId" value="@Model.RecordsDesignationId" />
                 }
 
                 <div class="row">

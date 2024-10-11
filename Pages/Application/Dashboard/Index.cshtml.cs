@@ -50,6 +50,10 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Dashboard
         public int CountOnProcessDocs { get; set; }
         public List<DocumentAttachmentViewModel> RecentDocuments { get; set; }
         public List<AppIdentityUser> RecentSenders { get; set; }
+        private ReviewerStatus CReviewerStatus(List<DocumentTracking> trackings, string userId)
+        {
+            return trackings.OrderByDescending(x => x.AddedAt).FirstOrDefault(x => x.ReviewerId == userId).ReviewerStatus;
+        }
         public async Task OnGetAsync()
         {
             var chedPersonels = await _chedPRepo.GetAll();
@@ -59,30 +63,30 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Dashboard
             var docsAttachments = await _docsAttachRepo.DocumentAttachments();
             var fDocsAttachments = docsAttachments
                .ToList();
-          //  CountIncomingDocs = fDocsAttachments.Where(x =>   (x.DocumentAttachment.Status != Status.Approved && x.DocumentAttachment.Status != Status.Disapproved) && x.ReviewerAccount.UserName == User.Identity?.Name).Count();
+         
             var account = await _userManager.FindByNameAsync(User.Identity?.Name);
             var role = await _userManager.GetRolesAsync(account);
             CountIncomingDocs = docsAttachments
-                .Where(s => s.DocumentTrackings.OrderByDescending(x => x.Id).FirstOrDefault(x => x.ReviewerId == account.Id)?.ReviewerStatus == ReviewerStatus.ToReceived || s.DocumentTrackings.OrderByDescending(x => x.Id).FirstOrDefault(x => x.ReviewerId == account.Id)?.ReviewerStatus == ReviewerStatus.OnReview || s.DocumentTrackings.OrderByDescending(x => x.Id).FirstOrDefault(x => x.ReviewerId == account.Id)?.ReviewerStatus == ReviewerStatus.Reviewed && (int)s.DocumentAttachment.Status < 2 || s.DocumentAttachment.Status == Status.PreparingRelease && role.Any(x => x == "Admin"))
-                .Count();
+            .Where(x => CReviewerStatus(x.DocumentTrackings, account.Id) == ReviewerStatus.ToReceived || CReviewerStatus(x.DocumentTrackings, account.Id) == ReviewerStatus.OnReview || CReviewerStatus(x.DocumentTrackings, account.Id) == ReviewerStatus.Reviewed || CReviewerStatus(x.DocumentTrackings, account.Id) == ReviewerStatus.PreparingRelease)
+            .Count();
 
             if (User.IsInRole("Sender"))
             {
                 CountAllDocs = fDocsAttachments.Where(x => x.SenderAccount.UserName == User.Identity?.Name).Count();
                 RecentDocuments = fDocsAttachments
-                   .Where(x => (x.DocumentAttachment.Status == Status.Approved || x.DocumentAttachment.Status == Status.Disapproved) && x.SenderAccount.UserName == User.Identity?.Name)
-                   .OrderByDescending(x => x.DocumentAttachment.UpdatedAt)
+                   .Where(x => (x.DocumentTrackings.First().ReviewerStatus == ReviewerStatus.Completed) && x.SenderAccount.UserName == User.Identity?.Name)
+                   .OrderByDescending(x => x.DocumentTrackings.First().AddedAt)
                    .Take(5)
                    .ToList();
-                CountOnProcessDocs = fDocsAttachments.Where(x => x.SenderAccount.UserName == User.Identity?.Name && x.DocumentAttachment.Status == Status.OnProcess || x.DocumentAttachment.Status == Status.PreparingRelease).Count();
-                CountPendingDocs = fDocsAttachments.Where(x => x.SenderAccount.UserName == User.Identity?.Name && x.DocumentAttachment.Status == Status.Pending).Count();
+                CountOnProcessDocs = fDocsAttachments.Where(x => x.SenderAccount.UserName == User.Identity?.Name && x.DocumentTrackings.Count() > 1 && !x.DocumentTrackings.Any(r => r.ReviewerStatus == ReviewerStatus.Completed)).Count();
+                CountPendingDocs = fDocsAttachments.Where(x => x.SenderAccount.UserName == User.Identity?.Name && x.DocumentTrackings.Count() <=1 ).Count();
             }
 
             else
             {
                 CountAllDocs = fDocsAttachments.Count();
                 RecentDocuments = fDocsAttachments
-                   .Where(x => x.DocumentAttachment.Status == Status.Approved || x.DocumentAttachment.Status == Status.Disapproved)
+                   .Where(x => x.DocumentTrackings.Any(x => x.ReviewerStatus == ReviewerStatus.Completed))
                    .OrderByDescending(x => x.DocumentAttachment.UpdatedAt)
                    .Take(5)
                    .ToList();
@@ -113,99 +117,100 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Dashboard
                 fDocuments = documents.Where(x => x.SenderId == account?.Id).ToList();
             else
                     fDocuments = documents.ToList();
-            var result = new ApprovedDisapproved()
+            var result = new
             {
-                CountApproved = fDocuments.Where(x => x.Status == Status.Approved).Count(),
-                CountDisapproved = fDocuments.Where(x => x.Status == Status.Disapproved).Count()
+                CountWalkIn = fDocuments.Where(x => x.DocumentType == DocumentType.WalkIn).Count(),
+                CountElectronic = fDocuments.Where(x => x.DocumentType == DocumentType.OnlineSubmission).Count()
             };
             return new JsonResult(result);
         }
 
         public async Task<JsonResult> OnGetEndedDocsPerMonth()
         {
-            var fDocuments = new List<DocumentAttachment>();
-            var documents = await _docsAttachRepo.GetAll();
+           // var fDocuments = new List<DocumentAttachment>();
+            var docsAttachments = await _docsAttachRepo.DocumentAttachments();
+            //var documents = await _docsAttachRepo.GetAll();
             var account = await _userManager.FindByNameAsync(User.Identity.Name);
            
             if (User.IsInRole("Sender"))
-                fDocuments = documents.Where(x => x.SenderId == account?.Id).ToList();
+                docsAttachments.Where(x => x.DocumentAttachment.SenderId == account?.Id).ToList();
             else
-                fDocuments = documents.ToList();
+                docsAttachments.ToList();
             int currentYear = DateTime.Now.Year;
 
             var result = new EndedDocsPerMonthViewModel
             {
-                January = fDocuments
-                    .Where(x => (x.Status == Status.Approved || x.Status == Status.Disapproved) &&
-                                x.UpdatedAt.Month == 1 &&
-                                x.UpdatedAt.Year == currentYear)
+                January = docsAttachments
+                    .Where(x => (x.DocumentTrackings.Any(x => x.ReviewerStatus == ReviewerStatus.Completed)) &&
+                                x.DocumentTrackings.First().UpdatedAt.Month == 1 &&
+                                x.DocumentTracking.UpdatedAt.Year == currentYear)
                     .Count(),
 
-                February = fDocuments
-                    .Where(x => (x.Status == Status.Approved || x.Status == Status.Disapproved) &&
-                                x.UpdatedAt.Month == 2 &&
-                                x.UpdatedAt.Year == currentYear)
+                February = docsAttachments
+                    .Where(x => (x.DocumentTrackings.Any(x => x.ReviewerStatus == ReviewerStatus.Completed)) &&
+                                x.DocumentTrackings.First().UpdatedAt.Month == 2 &&
+                                x.DocumentTracking.UpdatedAt.Year == currentYear)
                     .Count(),
 
-                March = fDocuments
-                    .Where(x => (x.Status == Status.Approved || x.Status == Status.Disapproved) &&
-                                x.UpdatedAt.Month == 3 &&
-                                x.UpdatedAt.Year == currentYear)
+                March = docsAttachments
+                    .Where(x => (x.DocumentTrackings.Any(x => x.ReviewerStatus == ReviewerStatus.Completed)) &&
+                                x.DocumentTrackings.First().UpdatedAt.Month == 3 &&
+                                x.DocumentTracking.UpdatedAt.Year == currentYear)
                     .Count(),
 
-                April = fDocuments
-                    .Where(x => (x.Status == Status.Approved || x.Status == Status.Disapproved) &&
-                                x.UpdatedAt.Month == 4 &&
-                                x.UpdatedAt.Year == currentYear)
+                April = docsAttachments
+                    .Where(x => (x.DocumentTrackings.Any(x => x.ReviewerStatus == ReviewerStatus.Completed)) &&
+                                x.DocumentTrackings.First().UpdatedAt.Month == 4 &&
+                                x.DocumentTracking.UpdatedAt.Year == currentYear)
                     .Count(),
 
-                May = fDocuments
-                    .Where(x => (x.Status == Status.Approved || x.Status == Status.Disapproved) &&
-                                x.UpdatedAt.Month == 5 &&
-                                x.UpdatedAt.Year == currentYear)
+                May = docsAttachments
+                    .Where(x => (x.DocumentTrackings.Any(x => x.ReviewerStatus == ReviewerStatus.Completed)) &&
+                                x.DocumentTrackings.First().UpdatedAt.Month == 5 &&
+                                x.DocumentTracking.UpdatedAt.Year == currentYear)
                     .Count(),
 
-                June = fDocuments
-                    .Where(x => (x.Status == Status.Approved || x.Status == Status.Disapproved) &&
-                                x.UpdatedAt.Month == 6 &&
-                                x.UpdatedAt.Year == currentYear)
+                June = docsAttachments
+                    .Where(x => (x.DocumentTrackings.Any(x => x.ReviewerStatus == ReviewerStatus.Completed)) &&
+                                x.DocumentTrackings.First().UpdatedAt.Month == 6 &&
+                                x.DocumentTracking.UpdatedAt.Year == currentYear)
                     .Count(),
 
-                July = fDocuments
-                    .Where(x => (x.Status == Status.Approved || x.Status == Status.Disapproved) &&
-                                x.UpdatedAt.Month == 7 &&
-                                x.UpdatedAt.Year == currentYear)
+                July = docsAttachments
+                    .Where(x => (x.DocumentTrackings.Any(x => x.ReviewerStatus == ReviewerStatus.Completed)) &&
+                                x.DocumentTrackings.First().UpdatedAt.Month == 7 &&
+                                x.DocumentTracking.UpdatedAt.Year == currentYear)
                     .Count(),
 
-                August = fDocuments
-                    .Where(x => (x.Status == Status.Approved || x.Status == Status.Disapproved) &&
-                                x.UpdatedAt.Month == 8 &&
-                                x.UpdatedAt.Year == currentYear)
+                August = docsAttachments
+                    .Where(x => (x.DocumentTrackings.Any(x => x.ReviewerStatus == ReviewerStatus.Completed)) &&
+                                x.DocumentTrackings.First().UpdatedAt.Month == 8 &&
+                                x.DocumentTracking.UpdatedAt.Year == currentYear)
                     .Count(),
 
-                September = fDocuments
-                    .Where(x => (x.Status == Status.Approved || x.Status == Status.Disapproved) &&
-                                x.UpdatedAt.Month == 9 &&
-                                x.UpdatedAt.Year == currentYear)
+                September = docsAttachments
+                    .Where(x => (x.DocumentTrackings.Any(x => x.ReviewerStatus == ReviewerStatus.Completed)) &&
+                                x.DocumentTrackings.First().UpdatedAt.Month == 9 &&
+                                x.DocumentTracking.UpdatedAt.Year == currentYear)
                     .Count(),
 
-                October = fDocuments
-                    .Where(x => (x.Status == Status.Approved || x.Status == Status.Disapproved) &&
-                                x.UpdatedAt.Month == 10 &&
-                                x.UpdatedAt.Year == currentYear)
+                October = docsAttachments
+                    .Where(x => (x.DocumentTrackings.Any(x => x.ReviewerStatus == ReviewerStatus.Completed)) &&
+                                x.DocumentTrackings.First().UpdatedAt.Month == 10 &&
+                                x.DocumentTracking.UpdatedAt.Year == currentYear)
                     .Count(),
 
-                November = fDocuments
-                    .Where(x => (x.Status == Status.Approved || x.Status == Status.Disapproved) &&
-                                x.UpdatedAt.Month == 11 &&
-                                x.UpdatedAt.Year == currentYear)
+                November = docsAttachments
+                    .Where(x => (x.DocumentTrackings.Any(x => x.ReviewerStatus == ReviewerStatus.Completed)) &&
+                                x.DocumentTrackings.First().UpdatedAt.Month == 11 &&
+                                x.DocumentTracking.UpdatedAt.Year == currentYear)
                     .Count(),
 
-                December = fDocuments
-                    .Where(x => (x.Status == Status.Approved || x.Status == Status.Disapproved) &&
-                                x.UpdatedAt.Month == 12 &&
-                                x.UpdatedAt.Year == currentYear)
-                    .Count()
+                December = docsAttachments
+                    .Where(x => (x.DocumentTrackings.Any(x => x.ReviewerStatus == ReviewerStatus.Completed)) &&
+                                x.DocumentTrackings.First().UpdatedAt.Month == 12 &&
+                                x.DocumentTracking.UpdatedAt.Year == currentYear)
+                    .Count(),
             };
 
             return new JsonResult(result);

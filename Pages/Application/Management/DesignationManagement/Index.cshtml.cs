@@ -28,5 +28,30 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Management.DesignationManag
             Records = designations.ToList();
           
         }
+
+        public override async Task<IActionResult> OnPostAsync(string? pageName = null, string? pId = null, bool hasMessage = true)
+        {
+            var designations = await _repo.GetAll();
+          
+            if(designations.Any(x => x.DesignationName.Contains(InputModel.DesignationName)))
+            {
+                TempData["validation-message"] = "Already existing designation name";
+                return RedirectToPage();
+            }
+            await base.OnPostAsync(pageName, pId, hasMessage);
+            return RedirectToPage();
+        }
+        public override async Task<IActionResult> OnGetDelete(string Id, string? returnUrl = null, string? pId = null, bool hasMessage = true)
+        {
+            var designations = await _repo.GetAll();
+            var firstDesignation = designations.OrderBy(x => x.AddedAt).First();
+            if (firstDesignation.Id == int.Parse(Id))
+            {
+                TempData["validation-message"] = "Can't delete the first designation record";
+                return RedirectToPage();
+            }
+            await base.OnGetDelete(Id, returnUrl, pId, hasMessage);
+            return RedirectToPage();
+        }
     }
 }

@@ -36,7 +36,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.Pending
             var user = await _userManager.FindByNameAsync(User?.Identity?.Name);
             var senderId = senders.FirstOrDefault(x => x.IdentityUserId == user?.Id)?.Id;
             var docAttachments = await _docAttRepo.DocumentAttachments();
-            this.docAttachments = docAttachments.Where(x => x.SenderAccount.Id == user.Id && x.DocumentAttachment.Status == Status.Pending).ToList();
+            this.docAttachments = docAttachments.Where(x => x.SenderAccount.Id == user.Id && x.DocumentTrackings.Count() <= 1).ToList();
         }
         public async override Task<IActionResult> OnGetDelete(string Id, string? returnUrl = null, string? pId = null, bool hasMessage = true)
         {

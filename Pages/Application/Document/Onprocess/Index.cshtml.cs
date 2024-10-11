@@ -41,7 +41,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.OnProcess
           
             var filterRecords = docsAttachments.OrderByDescending(x => x.DocumentTracking.Id).ToList();
             docAttachments = docsAttachments
-               .Where(x => x.DocumentAttachment.SenderId == account.Id && x.DocumentAttachment.Status == Status.OnProcess || x.DocumentAttachment.Status == Status.PreparingRelease)
+               .Where(x => x.DocumentAttachment.SenderId == account.Id && x.DocumentTrackings.Count() > 1 && !x.DocumentTrackings.Any(u => u.ReviewerStatus == ReviewerStatus.Completed))
                .ToList();
         }
         public async Task<IActionResult> OnGetDownloadFile(string filename)

@@ -17,7 +17,7 @@ namespace WebTrackED_CHED_MIMAROPA.Model.Entities
         public string? Description { get; set; }
 
         public DocumentType DocumentType { get; set; }
-        public Status Status { get; set; } = Status.Pending;
+       // public Status Status { get; set; } = Status.Pending;
         public Prioritization? Prioritization { get; set; }
         public string? Comment { get; set; }
      
