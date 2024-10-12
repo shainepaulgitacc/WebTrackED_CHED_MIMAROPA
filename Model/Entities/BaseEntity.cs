@@ -28,17 +28,6 @@ namespace WebTrackED_CHED_MIMAROPA.Model.Entities
         Completed
 
     }
-    /*
-    public enum Status
-    {
-        Pending,
-        OnProcess,
-        Approved,
-        PreparingRelease,
-        Completed
-    }
-    */
-
     public enum MaritalStatus
     {
         Single,

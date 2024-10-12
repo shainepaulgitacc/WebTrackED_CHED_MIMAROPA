@@ -132,7 +132,7 @@ namespace WebTrackED_CHED_MIMAROPA.Model.Repositories.Implementation
                     SenderAccount = result.First().SenderAccount,
                     SubCategory = result.First().SubCategory,
                     Designation = result.First().Designation,
-                    DocumentTrackings = docTrackings.Where(x => x.DocumentAttachmentId == result.Key).ToList()
+                    DocumentTrackings = docTrackings.Where(x => x.DocumentAttachmentId == result.Key).OrderByDescending(x => x.AddedAt).ToList()
                 })
                 .ToList();
             return finRec;
@@ -149,7 +149,7 @@ namespace WebTrackED_CHED_MIMAROPA.Model.Repositories.Implementation
             if(serviceId != null && from!= null && to != null)
             {
                 fRec = rec
-                     .Where(x => x.SubCategory.Id ==  serviceId && x.DocumentAttachment.AddedAt >= from && x.DocumentAttachment.AddedAt <= to)
+                     .Where(x => x.SubCategory.Id ==  serviceId && x.DocumentTracking.AddedAt.Month >= from?.Month && x.DocumentTracking.AddedAt.Month <= to?.Month)
                      .ToList();
             }
             else

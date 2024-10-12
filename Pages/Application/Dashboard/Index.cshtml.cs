@@ -50,9 +50,9 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Dashboard
         public int CountOnProcessDocs { get; set; }
         public List<DocumentAttachmentViewModel> RecentDocuments { get; set; }
         public List<AppIdentityUser> RecentSenders { get; set; }
-        private ReviewerStatus CReviewerStatus(List<DocumentTracking> trackings, string userId)
+        private bool CReviewerStatus(List<DocumentTracking> trackings, string userId,ReviewerStatus status)
         {
-            return trackings.OrderByDescending(x => x.AddedAt).FirstOrDefault(x => x.ReviewerId == userId).ReviewerStatus;
+			return trackings.FirstOrDefault(x => x.ReviewerId == userId)!= null && trackings.FirstOrDefault(x => x.ReviewerId == userId)?.ReviewerStatus == status;
         }
         public async Task OnGetAsync()
         {
@@ -67,7 +67,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Dashboard
             var account = await _userManager.FindByNameAsync(User.Identity?.Name);
             var role = await _userManager.GetRolesAsync(account);
             CountIncomingDocs = docsAttachments
-            .Where(x => CReviewerStatus(x.DocumentTrackings, account.Id) == ReviewerStatus.ToReceived || CReviewerStatus(x.DocumentTrackings, account.Id) == ReviewerStatus.OnReview || CReviewerStatus(x.DocumentTrackings, account.Id) == ReviewerStatus.Reviewed || CReviewerStatus(x.DocumentTrackings, account.Id) == ReviewerStatus.PreparingRelease)
+            .Where(x => CReviewerStatus(x.DocumentTrackings, account.Id,ReviewerStatus.ToReceived) || CReviewerStatus(x.DocumentTrackings, account.Id, ReviewerStatus.OnReview) || CReviewerStatus(x.DocumentTrackings, account.Id, ReviewerStatus.Reviewed)    )
             .Count();
 
             if (User.IsInRole("Sender"))

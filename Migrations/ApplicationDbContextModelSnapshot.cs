@@ -410,9 +410,6 @@ namespace WebTrackED_CHED_MIMAROPA.Migrations
                     b.Property<int?>("SenderId1")
                         .HasColumnType("int");
 
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
                     b.Property<int>("SubCategoryId")
                         .HasColumnType("int");
 

@@ -82,10 +82,10 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document
 			DocumentAttachment = document;
 
 			// Set status flags
-			IsPending = document.DocumentAttachment.Status == Status.Pending;
-			IsOnProcess = document.DocumentAttachment.Status == Status.OnProcess;
-			IsPreparingForRelease = document.DocumentAttachment.Status == Status.PreparingRelease;
-			IsCompleted = document.DocumentAttachment.Status == Status.Completed;
+			IsPending = documentAtt.DocumentTrackings.Count() <= 1;
+			IsOnProcess = documentAtt.DocumentTrackings.Count() > 1 && !documentAtt.DocumentTrackings.Any(x => x.ReviewerStatus == ReviewerStatus.Completed || x.ReviewerStatus == ReviewerStatus.PreparingRelease);
+			IsPreparingForRelease =documentAtt.DocumentTrackings.First().ReviewerStatus == ReviewerStatus.PreparingRelease;
+			IsCompleted = documentAtt.DocumentTrackings.First().ReviewerStatus == ReviewerStatus.Completed;
 
 			return Page();
 		}

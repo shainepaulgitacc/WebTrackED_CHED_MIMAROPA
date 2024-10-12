@@ -52,12 +52,12 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Admin.Document.Incoming
 
             var role = await _userManager.GetRolesAsync(account);
             DocsAttachments = docsAttachments
-            .Where(x =>  CReviewerStatus(x.DocumentTrackings,account.Id)==ReviewerStatus.ToReceived || CReviewerStatus(x.DocumentTrackings, account.Id) == ReviewerStatus.OnReview || CReviewerStatus(x.DocumentTrackings, account.Id) == ReviewerStatus.Reviewed || CReviewerStatus(x.DocumentTrackings, account.Id) == ReviewerStatus.PreparingRelease)
-            .ToList();
+            .Where(x => CReviewerStatus(x.DocumentTrackings, account.Id, ReviewerStatus.ToReceived) || CReviewerStatus(x.DocumentTrackings, account.Id, ReviewerStatus.OnReview) || CReviewerStatus(x.DocumentTrackings, account.Id, ReviewerStatus.Reviewed))
+			.ToList();
         }
-        private ReviewerStatus CReviewerStatus(List<DocumentTracking> trackings,string userId)
-        {
-            return trackings.OrderByDescending(x => x.AddedAt).FirstOrDefault(x => x.ReviewerId == userId).ReviewerStatus;
-        } 
-    }
+		private bool CReviewerStatus(List<DocumentTracking> trackings, string userId, ReviewerStatus status)
+		{
+			return trackings.FirstOrDefault(x => x.ReviewerId == userId) != null && trackings.FirstOrDefault(x => x.ReviewerId == userId)?.ReviewerStatus == status;
+		}
+	}
 }

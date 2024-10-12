@@ -22,21 +22,21 @@
                 <div class="col-12 col-lg-4 col-md-6">
                     <div class="mb-3">
                         <label class="mb-2 fw-bolder">Service</label>
-                        <select required name="s" class="form-select form-slect-sm">
+                        <select required value="@Model.Records.ServiceId" name="s" class="form-select form-slect-sm" asp-items="@Model.SubCategories.Select(x => new SelectListItem(x.SubCategoryName,x.Id.ToString()))">
+                            <option value="" disabled hidden selected>Select...</option>
                         </select>
-
                     </div>
                 </div>
                 <div class="col-12 col-lg-4 col-md-6">
                     <div class="mb-3">
                         <label class="mb-2 fw-bolder">From</label>
-                        <input value="@Model.Records.From?.ToString("yyyy-MM-dd")" name="f" type="date" class="form-control form-control-sm" />
+                        <input required value="@Model.Records.From?.ToString("yyyy-MM-dd")" name="f" type="date" class="form-control" />
                     </div>
                 </div>
                 <div class="col-12 col-lg-4 col-md-6">
                     <div class="mb-3">
-                        <label class="mb-2 fw-bolder">From</label>
-                        <input value="@Model.Records.From?.ToString("yyyy-MM-dd")" name="f" type="date" class="form-control form-control-sm" />
+                        <label class="mb-2 fw-bolder">To</label>
+                        <input required value="@Model.Records.To?.ToString("yyyy-MM-dd")" name="t" type="date" class="form-control" />
                     </div>
                 </div>
               

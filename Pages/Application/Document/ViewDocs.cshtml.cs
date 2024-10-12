@@ -261,7 +261,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document
                 UpdatedAt = DateTime.Now,
                 ReviewerId = reviewer.CHEDPersonel.IdentityUserId,
                 DocumentAttachmentId = docAttachment.Id,
-                ReviewerStatus = ReviewerStatus.Reviewed
+                ReviewerStatus = status
             });
 
           
@@ -292,55 +292,9 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document
             {
                 _notifHub.Clients.Users(tracking.ReviewerId).ReviewerRealtime();
             }
+
             TempData["validation-message"] = "Successfully perform the action.";
             return RedirectToPage("ViewDocs", new { prevPage, pId });
         }
-
-
-        public async Task<IActionResult> OnGetReviewed(string prevPage, string pId)
-        {
-            var docAttachment = await _docRepo.GetOne(pId);
-            var documentTrackings = await _docTrackRepo.GetAll();
-            var account = await _userManager.FindByNameAsync(User.Identity?.Name);
-            var reviewers = await _reviewerRepo.CHEDPersonelRecords();
-            var reviewer = reviewers.FirstOrDefault(x => x.Account.Id == account?.Id);
-            await _docTrackRepo.Add(new DocumentTracking
-            {
-                AddedAt = DateTime.Now,
-                UpdatedAt = DateTime.Now,
-                ReviewerId = reviewer.CHEDPersonel.IdentityUserId,
-                DocumentAttachmentId = docAttachment.Id,
-                ReviewerStatus = ReviewerStatus.Reviewed
-            });
-            var notification = new Notification
-            {
-                Title = "Document Reviewed",
-                Recepient = docAttachment.SenderId,
-                IsViewed = false,
-                Description =$"Your document has been reviewed by ({reviewer.Designation.DesignationName}).",
-                NotificationType = NotificationType.Document,
-                RedirectLink = docAttachment.DocumentType != DocumentType.WalkIn ? "/Application/Document/Onprocess/Index" : "/Application/Document/Outgoing/Index",
-                AddedAt = DateTime.Now,
-                UpdatedAt = DateTime.Now,
-            };
-            var settings = await _settingsRepo.GetAll();
-            if (settings.OrderByDescending(x => x.Id).First().DocumentNotif)
-            {
-                await _notificationRepo.Add(notification);
-                _notifHub.Clients.User(docAttachment.SenderId).ReceiveNotification(
-                    notification.Title,
-                    notification.Description.Length > 30 ? $"{notification.Description.Substring(0, 30)}..." : notification.Description,
-                    notification.NotificationType.ToString(),
-                    notification.AddedAt.ToString("MMMM dd, yyyy"),
-                    notification.RedirectLink
-                );
-             
-              
-            }
-            TempData["validation-message"] = "Successfully perform the action.";
-			await _docRepo.Update(docAttachment, docAttachment.Id.ToString());
-            return RedirectToPage("ViewDocs", new { prevPage, pId });
-        }
-
     }
 }

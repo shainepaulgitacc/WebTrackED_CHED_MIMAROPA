@@ -80,7 +80,7 @@
 						{
 							<h5 class="text-body-tertiary fw-bolder p-0 m-0">Not Set</h5>
 						}
-						@if (pending)
+						@if (onprocess)
 						{
 							<form id="form-prioritization" method="post" asp-page-handler="SetPrioritization" asp-route-prevPage="@Model.PreviousPage" asp-route-pId="@Model.DocumentAttachment.DocumentAttachment.Id">
 								@Html.AntiForgeryToken()
@@ -128,7 +128,7 @@
 						{
 
 							<div class="d-flex align-items-center">
-								@if (completed && !User.IsInRole("Sender"))
+								@if (!completed && !User.IsInRole("Sender"))
 								{
 									<form enctype="multipart/form-data" id="form-new-docs" asp-page-handler="ChangeDocument" asp-route-prevPage="@Model.PreviousPage" asp-route-pId="@Model.DocumentAttachment.DocumentAttachment.Id">
 										@Html.AntiForgeryToken()
@@ -162,19 +162,12 @@
 						}
 						else if (Model.CurrentStatus == ReviewerStatus.OnReview)
 						{
-							@if (Model.DocumentAttachment.DocumentAttachment.Prioritization != null)
-							{
-								<button data-bs-toggle="modal" data-bs-target="#disapproved" class="btn btn-danger">Disapproved <i class="fa-solid fa-xmark"></i></button>
-								<button data-bs-toggle="modal" data-bs-target="#reviewed" class="btn btn-success text-white">Reviewed <i class="fa-solid fa-circle-check"></i></button>
-							}
-							else
-							{
-								<span class="text-body-tertiary fs-italic">Set prioritization</span>
-							}
+							<button data-bs-toggle="modal" data-bs-target="#reviewed" class="btn btn-success text-white">Reviewed <i class="fa-solid fa-circle-check"></i></button>
 						}
 						else if (Model.CurrentStatus == ReviewerStatus.Reviewed)
 						{
-							<button data-bs-toggle="modal" data-bs-target="#approved" class="btn btn-success text-white">Approved <i class="fa fa-check-all"></i></button>
+							<button data-bs-toggle="modal" data-bs-target="#disapproved" class="btn btn-danger">Disapproved <i class="fa-solid fa-xmark"></i></button>
+							<button data-bs-toggle="modal" data-bs-target="#approved" class="btn btn-success text-white">Approved <i class="fa fa-check"></i></button>
 							<a asp-page="./ForwardDocument/Index" asp-route-prevPage="@Model.PreviousPage" asp-route-pId="@Model.DocumentAttachment.DocumentAttachment.Id" class="btn btn-info text-white">Next <i class="fa-solid fa-arrow-right"></i></a>
 						}
 					}
@@ -184,7 +177,7 @@
 						@if (Model.ReviewerDesignationName.Contains(Model.FirstDesignationName))
 						{
 							<button id="button-print" class="btn btn-primary text-white"><i class="fa fa-print"></i> Print Document Ref#.Code</button>
-							<a class="btn btn-success text-white">Completed <i class="fa fa-check"></i></a>
+							<a class="btn btn-success text-white">Completed <i class="fa fa-check-double"></i></a>
 						}
 						else
 						{
