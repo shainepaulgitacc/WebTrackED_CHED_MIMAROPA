@@ -26,7 +26,6 @@
 	var approved = Model.DocumentAttachment.DocumentTrackings.First().ReviewerStatus == ReviewerStatus.Approved;
 	var preparingRelease = Model.DocumentAttachment.DocumentTrackings.First().ReviewerStatus == ReviewerStatus.PreparingRelease;
 	var completed = Model.DocumentAttachment.DocumentTrackings.First().ReviewerStatus == ReviewerStatus.Completed;
-
 }
 @await Component.InvokeAsync("BreadCrump", breadcrump_data)
 <div class="rounded-2 overflow-hidden bg-white shadow">
@@ -166,14 +165,24 @@
 						}
 						else if (Model.CurrentStatus == ReviewerStatus.Reviewed)
 						{
-
-							<button data-bs-toggle="modal" data-bs-target="#approved-document" class="btn btn-success text-white">Approved <i class="fa fa-check"></i></button>
+							@if (Model.ReviewerDesignationName.Contains(Model.SecondDesignationName))
+							{
+								<button data-bs-toggle="modal" data-bs-target="#approved-document" class="btn btn-success text-white">Approved <i class="fa fa-check"></i></button>
+							}
 							<a asp-page="./ForwardDocument/Index" asp-route-prevPage="@Model.PreviousPage" asp-route-pId="@Model.DocumentAttachment.DocumentAttachment.Id" class="btn btn-info text-white">Next <i class="fa-solid fa-arrow-right"></i></a>
 						}
 					}
 					else if (approved)
 					{
-						<button data-bs-toggle="modal" data-bs-target="#prepare-release" class="text-white btn btn-warning">Prepare release document <i class="fa fa-file-pen"></i></button>
+						@if (Model.ReviewerDesignationName.Contains(Model.FirstDesignationName))
+						{
+							<button data-bs-toggle="modal" data-bs-target="#prepare-release" class="text-white btn btn-warning">Prepare release document <i class="fa fa-file-pen"></i></button>
+						}
+						else
+						{
+							<a asp-page="./Outgoing/Index" class="btn btn-info text-white">Go to outgoing document page</a>
+						}
+
 					}
 
 					else if (preparingRelease)
@@ -181,7 +190,7 @@
 						@if (Model.ReviewerDesignationName.Contains(Model.FirstDesignationName))
 						{
 							<button id="button-print" class="btn btn-primary text-white"><i class="fa fa-print"></i> Print Document Ref#.Code</button>
-							<a class="btn btn-success text-white">Completed <i class="fa fa-check-double"></i></a>
+							<button data-bs-toggle="modal" data-bs-target="#complete-document" class="btn btn-success text-white">Completed <i class="fa fa-check-double"></i></button>
 						}
 						else
 						{
@@ -225,35 +234,5 @@
 @section Scripts {
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.min.js"></script>
 	<script src="~/js/ViewDocument.js" asp-append-version="true"></script>
-	<script>
-		$(function () {
-			$("#button-print").on("click", function () {
-				//start_loader();
-				var head = $('head').clone();
-				var p = $('#outprint').clone();
-				var el = $('<div class="print-wrapper">');
-				var pContent = $($('noscript#print-content').html()).clone();
-				head.find('title').text("Report - Print View");
-				el.append(head);
-				el.append(pContent);
-				var nw = window.open("", "_blank", "width=1010,height=1000,top=50,left=75");
-				nw.document.write(el.html());
-				nw.document.close();
-
-				// Maximize the window before printing
-
-				nw.moveTo(0, 0);
-				nw.resizeTo(screen.width, screen.height);
-
-				setTimeout(() => {
-					nw.print();
-					setTimeout(() => {
-						nw.close();
-						end_loader();
-					}, 200);
-				}, 500);
-			});
-		})
-	</script>
 
 }

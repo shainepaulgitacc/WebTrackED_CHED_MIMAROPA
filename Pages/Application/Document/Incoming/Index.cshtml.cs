@@ -9,7 +9,7 @@ using WebTrackED_CHED_MIMAROPA.Model.Repositories.Contracts;
 using WebTrackED_CHED_MIMAROPA.Model.ViewModel.InputViewModel;
 using WebTrackED_CHED_MIMAROPA.Model.ViewModel.ListViewModel;
 
-namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Admin.Document.Incoming
+namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.Incoming
 {
 
     [Authorize(Roles = "Admin,Reviewer")]
@@ -52,7 +52,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Admin.Document.Incoming
 
             var role = await _userManager.GetRolesAsync(account);
             DocsAttachments = docsAttachments
-            .Where(x => CReviewerStatus(x.DocumentTrackings, account.Id, ReviewerStatus.ToReceived) || CReviewerStatus(x.DocumentTrackings, account.Id, ReviewerStatus.OnReview) || CReviewerStatus(x.DocumentTrackings, account.Id, ReviewerStatus.Reviewed) || x.DocumentTracking.ReviewerStatus == ReviewerStatus.Approved && reviewer.Designation.DesignationName == firstDesignationName || CReviewerStatus(x.DocumentTrackings, account.Id, ReviewerStatus.PreparingRelease))
+            .Where(x => CReviewerStatus(x.DocumentTrackings, account.Id, ReviewerStatus.ToReceived) || CReviewerStatus(x.DocumentTrackings, account.Id, ReviewerStatus.OnReview) || CReviewerStatus(x.DocumentTrackings, account.Id, ReviewerStatus.Reviewed) && !x.DocumentTrackings.Any(x => x.ReviewerStatus == ReviewerStatus.Approved) || x.DocumentTracking.ReviewerStatus == ReviewerStatus.Approved && reviewer.Designation.DesignationName == firstDesignationName || CReviewerStatus(x.DocumentTrackings, account.Id, ReviewerStatus.PreparingRelease))
 			.ToList();
         }
 		private bool CReviewerStatus(List<DocumentTracking> trackings, string userId, ReviewerStatus status)

@@ -74,6 +74,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document
 		[BindProperty]
 		public Prioritization? Prioritization { get; set; }
 		public string FirstDesignationName { get; set; }
+		public string SecondDesignationName { get; set; }
 
 		public DocumentAttachmentViewModel DocumentAttachment { get; set; }
 		public Designation Designation { get; set; }
@@ -94,7 +95,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document
 			var accounts = _userManager.Users.ToList();
 			var designations = await _desigRepo.GetAll();
 
-			ReviewerDesignationName = reviewers
+			var rDesignationName = reviewers
 				.Join(designations,
 				r => r.DesignationId,
 				o => o.Id,
@@ -114,17 +115,21 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document
 				})
 				.FirstOrDefault(x => x.Account.Id == user.Id)?
 				.Designation.DesignationName;
+			var fDesignationName = designations.OrderBy(x => x.AddedAt).First().DesignationName;
+            ReviewerDesignationName = rDesignationName;
+			FirstDesignationName = fDesignationName;
+			SecondDesignationName = designations.OrderBy(x => x.AddedAt).Skip(1).First().DesignationName;
+			var sample = !docAttachment.DocumentTrackings.Any(x => x.ReviewerId == user.Id);
 
-
-			FirstDesignationName = designations.OrderBy(x => x.AddedAt).First().DesignationName;
-			var getRoles = await _userManager.GetRolesAsync(user);
+            var getRoles = await _userManager.GetRolesAsync(user);
 			if (docAttachment == null)
 				return BadRequest($"Unknown document");
-			if (User.IsInRole("Sender") && docAttachment.DocumentAttachment.SenderId != user.Id)
+			if (User.IsInRole("Sender") && docAttachment.DocumentAttachment.SenderId != user.Id || !User.IsInRole("Sender") && !docAttachment.DocumentTrackings.Any(x => x.ReviewerId == user.Id) && fDesignationName != rDesignationName)
 				return BadRequest("Can't access this page");
 			DocumentAttachment = docAttachment;
 			AccountId = user.Id;
-			CurrentStatus = (ReviewerStatus)docAttachment.DocumentTrackings.OrderByDescending(x => x.Id).FirstOrDefault(x => x.ReviewerId == user.Id)?.ReviewerStatus;
+			var cStatus = docAttachment.DocumentTrackings.OrderByDescending(x => x.Id).FirstOrDefault(x => x.ReviewerId == user.Id);
+			CurrentStatus = cStatus != null ? cStatus.ReviewerStatus : ReviewerStatus.Approved;
 
 
 
@@ -217,7 +222,6 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document
 		public async Task<IActionResult> OnPostChangeDocument(string prevPage, int pId)
 		{
 			var docAttachment = await _docRepo.GetOne(pId.ToString());
-
 			if (!ModelState.IsValid)
 				return BadRequest(ModelState);
 			docAttachment.FileName = await _fileUploader.Uploadfile(NewDocuments, "Documents");
@@ -262,39 +266,64 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document
 
 			var settings = await _settingsRepo.GetAll();
 
-			if (settings.OrderByDescending(x => x.Id).First().DocumentNotif && (status == ReviewerStatus.Reviewed || status == ReviewerStatus.PreparingRelease || status == ReviewerStatus.Approved))
+			if (settings.OrderByDescending(x => x.Id).First().DocumentNotif && (status != ReviewerStatus.OnReview))
 			{
-				var notification = new Notification
+				if(account?.Id != docAttachment.SenderId)
 				{
-					Title = status == ReviewerStatus.Reviewed ? "Document Reviewed": status == ReviewerStatus.Approved ? "Your Document Has Been Approved": status == ReviewerStatus.PreparingRelease ? "Document Approved and Ready for Release":"",
-					Recepient = docAttachment.SenderId,
-					IsViewed = false,
-					Description = status == ReviewerStatus.Reviewed ? $"Your document has been reviewed by ({reviewer.Designation.DesignationName}).You can now view document tracking status": status == ReviewerStatus.Approved ? $"Good news! Your document has been reviewed and approved by {reviewer.Designation.DesignationName}. You can now view document tracking status.": $"The document has been approved by {reviewer.Account.FirstName} {reviewer.Account.MiddleName} {reviewer.Account.LastName} {reviewer.Account.Suffixes} ({reviewer.Designation.DesignationName}) and is now ready for release. You can now view document tracking status",
-					NotificationType = NotificationType.Document,
-					RedirectLink = docAttachment.DocumentType != DocumentType.WalkIn ? "/Application/Document/Onprocess/Index" : "/Application/Document/Outgoing/Index",
-					AddedAt = DateTime.Now,
-					UpdatedAt = DateTime.Now,
-				};
-				_notifHub.Clients.User(docAttachment.SenderId).ReceiveNotification(
-					notification.Title,
-					notification.Description.Length > 30 ? $"{notification.Description.Substring(0, 30)}..." : notification.Description,
-					notification.NotificationType.ToString(),
-					notification.AddedAt.ToString("MMMM dd, yyyy"),
-					notification.RedirectLink
-				);
-				await _notificationRepo.Add(notification);
+					var title = status == ReviewerStatus.Reviewed ?
+							"Document Review Completed" :
+							status == ReviewerStatus.Approved ?
+							"Document Approved" :
+							status == ReviewerStatus.PreparingRelease ?
+							"Document Approved and Ready for Release" :
+							"Document Completed";
+
+					var description = status == ReviewerStatus.Reviewed ?
+									  $"Your document has been reviewed by {reviewer.Designation.DesignationName}. You can now check the document tracking for more details." :
+									  status == ReviewerStatus.Approved ?
+									  $"Good news! Your document has been completely reviewed and approved by {reviewer.Designation.DesignationName}. You can now track its progress." :
+									  status == ReviewerStatus.PreparingRelease ?
+									  $"The document has been completely reviewed and approved by {reviewer.Designation.DesignationName} and is ready for release. Check the tracking status for more details." :
+									  $"Your document has been successfully reviewed and completed, meeting all the required conditions. You can now view the tracking status.";
+
+
+					var notification = new Notification
+					{
+						Title = title,
+						Recepient = docAttachment.SenderId,
+						IsViewed = false,
+						Description = description,
+						NotificationType = NotificationType.Document,
+						RedirectLink = docAttachment.DocumentType != DocumentType.WalkIn ? "/Application/Document/Onprocess/Index" : status == ReviewerStatus.Approved ? "/Application/Document/Incoming/Index" : "/Application/Document/Outgoing/Index",
+						AddedAt = DateTime.Now,
+						UpdatedAt = DateTime.Now,
+					};
+					_notifHub.Clients.User(docAttachment.SenderId).ReceiveNotification(
+						notification.Title,
+						notification.Description.Length > 30 ? $"{notification.Description.Substring(0, 30)}..." : notification.Description,
+						notification.NotificationType.ToString(),
+						notification.AddedAt.ToString("MMMM dd, yyyy"),
+						notification.RedirectLink
+					);
+					await _notificationRepo.Add(notification);
+				}
+				
+				
+				
 			}
-			foreach (var tracking in documentTrackings.Where(x => x.DocumentAttachmentId == int.Parse(pId)))
+			foreach (var tracking in documentTrackings.Where(x => x.DocumentAttachmentId == int.Parse(pId) && x.ReviewerId != account.Id))
 			{
 				_notifHub.Clients.Users(tracking.ReviewerId).ReviewerRealtime();
 			}
 
 			TempData["validation-message"] = "Successfully perform the action.";
 			if (status == ReviewerStatus.Approved)
-				return RedirectToPage("/Application/Document/Outgoing/Index");
+				return RedirectToPage("./Outgoing/Index");
+			else if (status == ReviewerStatus.Completed)
+				return RedirectToPage("./Ended/Index");
 			return RedirectToPage("ViewDocs", new { prevPage, pId });
-		}
 
-	
+		}	
+
 	}
 }

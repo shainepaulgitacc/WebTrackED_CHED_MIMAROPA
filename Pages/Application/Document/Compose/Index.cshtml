@@ -58,15 +58,6 @@
                                 <span class="text-danger" asp-validation-for="InputModel.ReviewersId"></span>
                             </div>
                         </div>
-                        <div class="col-12 col-lg-6">
-                            <div class="mb-3">
-                                <label asp-for="InputModel.Prioritization" class="mb-2 fw-bolder"></label><span class="text-danger fw-bolder">*</span>
-                                <select required asp-for="InputModel.Prioritization" asp-items="@Html.GetEnumSelectList<Prioritization>()" class="form-select">
-                                    <option selected hidden disabled value="">Select...</option>
-                                </select>
-                                <span class="text-danger" asp-validation-for="InputModel.Prioritization"></span>
-                            </div>
-                        </div>
                     }
 
                     <div class="col-12 col-lg-6">

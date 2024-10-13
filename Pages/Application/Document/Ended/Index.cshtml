@@ -1,5 +1,5 @@
 ﻿@page
-@model WebTrackED_CHED_MIMAROPA.Pages.Application.Admin.Document.Ended.IndexModel
+@model WebTrackED_CHED_MIMAROPA.Pages.Application.Document.Ended.IndexModel
 @{
 	ViewData["Title"] = "Completed Document";
 	var breadcrump_data = new BreadCrumpViewModel
@@ -28,7 +28,7 @@
 					<th>Details</th>
 					<th>Status</th>
 					<th>Prioritization</th>
-					<th>Date</th>
+					<th>Last Transaction</th>
 					<th>Actions</th>
 				</tr>
 			</thead>
@@ -36,7 +36,7 @@
 				@foreach (var docAttachment in Model.DocsAttachments)
 				{
 					var IsPending = docAttachment.DocumentTrackings.Count() <= 1 || docAttachment.DocumentTrackings.Count() > 1 && !docAttachment.DocumentTrackings.Any(x => x.ReviewerStatus == ReviewerStatus.OnReview); 
-					var IsOnProcess = docAttachment.DocumentTrackings.Count() > 1 && docAttachment.DocumentTrackings.Any(x => x.ReviewerStatus == ReviewerStatus.Completed || x.ReviewerStatus == ReviewerStatus.PreparingRelease || x.ReviewerStatus == ReviewerStatus.Approved);
+					var IsOnProcess = docAttachment.DocumentTrackings.Count() > 1 && !docAttachment.DocumentTrackings.Any(x => x.ReviewerStatus == ReviewerStatus.Completed || x.ReviewerStatus == ReviewerStatus.PreparingRelease || x.ReviewerStatus == ReviewerStatus.Approved);
 					var approved = docAttachment.DocumentTrackings.First().ReviewerStatus == ReviewerStatus.Approved;
 					var IsPreparingForRelease = docAttachment.DocumentTrackings.First().ReviewerStatus == ReviewerStatus.PreparingRelease;
 					var IsCompleted = docAttachment.DocumentTrackings.First().ReviewerStatus == ReviewerStatus.Completed;
@@ -59,7 +59,7 @@
 						</td>
 						<td>
 							<span class="fw-bolder px-3 text-white text-nowrap  px-3 py-1 rounded-pill  @(IsPending ?"bg-info":IsOnProcess?"bg-primary":IsPreparingForRelease ? "bg-warning":IsCompleted || approved?"bg-success":"bg-danger") ">@(IsPreparingForRelease ? "Ready for Release" : IsPending ? "Peding" : IsOnProcess ? "On process" : IsCompleted ? "Completed" : approved ? "Approved":"")</span>
-						<td>
+						</td>
 						<td>
 							@if (docAttachment.DocumentAttachment.Prioritization != null)
 							{

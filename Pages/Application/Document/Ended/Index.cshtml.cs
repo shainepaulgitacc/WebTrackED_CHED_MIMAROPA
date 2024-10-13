@@ -9,7 +9,7 @@ using WebTrackED_CHED_MIMAROPA.Model.Repositories.Contracts;
 using WebTrackED_CHED_MIMAROPA.Model.ViewModel.InputViewModel;
 using WebTrackED_CHED_MIMAROPA.Model.ViewModel.ListViewModel;
 
-namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Admin.Document.Ended
+namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.Ended
 {
     [Authorize]
     public class IndexModel : BasePageModel<DocumentAttachment, DocumentAttachmentInputModel>

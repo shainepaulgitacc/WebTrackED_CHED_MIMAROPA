@@ -45,9 +45,10 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Management.DesignationManag
         {
             var designations = await _repo.GetAll();
             var firstDesignation = designations.OrderBy(x => x.AddedAt).First();
-            if (firstDesignation.Id == int.Parse(Id))
+            var secondDesignation = designations.OrderBy(x => x.AddedAt).Skip(1).First();
+            if (firstDesignation.Id == int.Parse(Id) || secondDesignation.Id == int.Parse(Id))
             {
-                TempData["validation-message"] = "Can't delete the first designation record";
+                TempData["validation-message"] = "Can't delete this designation record";
                 return RedirectToPage();
             }
             await base.OnGetDelete(Id, returnUrl, pId, hasMessage);

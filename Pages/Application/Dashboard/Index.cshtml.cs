@@ -18,21 +18,23 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Dashboard
     public class IndexModel : PageModel
     {
         private readonly IDocumentAttachmentRepository _docsAttachRepo;
-        private readonly IBaseRepository<CHEDPersonel> _chedPRepo;
+        private readonly ICHEDPersonelRepository _chedPRepo;
 		private readonly UserManager<AppIdentityUser> _userManager;
 		private readonly IBaseRepository<Sender> _senderRepo;
 		private readonly IBaseRepository<AppIdentityUser> _accRepo;
         private readonly IBaseRepository<Notification> _notificationRepo;
         private readonly IHubContext<NotificationHub, INotificationHub> _notifHub;
+        private readonly IBaseRepository<Designation> _desigRepo;
 
         public IndexModel(
             IDocumentAttachmentRepository docsAttachRepo,
-            IBaseRepository<CHEDPersonel> chedPRepo,
+            ICHEDPersonelRepository chedPRepo,
             UserManager<AppIdentityUser> userManager,
             IBaseRepository<Sender> senderRepo,
             IBaseRepository<AppIdentityUser> accRepo,
 			IBaseRepository<Notification> notificationRepo,
-			IHubContext<NotificationHub, INotificationHub> notifHub)
+			IHubContext<NotificationHub, INotificationHub> notifHub,
+            IBaseRepository<Designation> desigRepo)
         {
             _docsAttachRepo = docsAttachRepo;
             _chedPRepo = chedPRepo;
@@ -41,6 +43,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Dashboard
             _accRepo = accRepo;
             _notifHub = notifHub;
             _notificationRepo = notificationRepo;
+            _desigRepo = desigRepo;
         }
         public int CountChedPersonel { get; set; }
         public int CountRSender { get; set; }
@@ -63,13 +66,8 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Dashboard
             var docsAttachments = await _docsAttachRepo.DocumentAttachments();
             var fDocsAttachments = docsAttachments
                .ToList();
-         
             var account = await _userManager.FindByNameAsync(User.Identity?.Name);
             var role = await _userManager.GetRolesAsync(account);
-            CountIncomingDocs = docsAttachments
-            .Where(x => CReviewerStatus(x.DocumentTrackings, account.Id,ReviewerStatus.ToReceived) || CReviewerStatus(x.DocumentTrackings, account.Id, ReviewerStatus.OnReview) || CReviewerStatus(x.DocumentTrackings, account.Id, ReviewerStatus.Reviewed)    )
-            .Count();
-
             if (User.IsInRole("Sender"))
             {
                 CountAllDocs = fDocsAttachments.Where(x => x.SenderAccount.UserName == User.Identity?.Name).Count();
@@ -84,12 +82,21 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Dashboard
 
             else
             {
+
+                var reviewerRecord = await _chedPRepo.CHEDPersonelRecords();
+                var reviewer = reviewerRecord.FirstOrDefault(x => x.Account.UserName == User.Identity.Name);
+                var designations = await _desigRepo.GetAll();
+                var firstDesignationName = designations.OrderBy(x => x.AddedAt).First().DesignationName;
+                CountIncomingDocs = docsAttachments
+                                   .Where(x => CReviewerStatus(x.DocumentTrackings, account.Id, ReviewerStatus.ToReceived) || CReviewerStatus(x.DocumentTrackings, account.Id, ReviewerStatus.OnReview) || CReviewerStatus(x.DocumentTrackings, account.Id, ReviewerStatus.Reviewed) && !x.DocumentTrackings.Any(x => x.ReviewerStatus == ReviewerStatus.Approved) || x.DocumentTracking.ReviewerStatus == ReviewerStatus.Approved && reviewer.Designation.DesignationName == firstDesignationName || CReviewerStatus(x.DocumentTrackings, account.Id, ReviewerStatus.PreparingRelease))
+                                   .Count();
                 CountAllDocs = fDocsAttachments.Count();
                 RecentDocuments = fDocsAttachments
                    .Where(x => x.DocumentTrackings.Any(x => x.ReviewerStatus == ReviewerStatus.Completed))
                    .OrderByDescending(x => x.DocumentAttachment.UpdatedAt)
                    .Take(5)
                    .ToList();
+
             }
                
 

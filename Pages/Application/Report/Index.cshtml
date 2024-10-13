@@ -22,8 +22,33 @@
                 <div class="col-12 col-lg-4 col-md-6">
                     <div class="mb-3">
                         <label class="mb-2 fw-bolder">Service</label>
-                        <select required value="@Model.Records.ServiceId" name="s" class="form-select form-slect-sm" asp-items="@Model.SubCategories.Select(x => new SelectListItem(x.SubCategoryName,x.Id.ToString()))">
-                            <option value="" disabled hidden selected>Select...</option>
+                        <select required name="s" class="form-select">
+                            @if(Model.Records.ServiceId != 0)
+                            {
+                                @foreach (var service in Model.SubCategories)
+                                {
+                                    if (service.Id == Model.Records.ServiceId)
+                                    {
+                                        <option value="@service.Id" selected>@service.SubCategoryName</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@service.Id">@service.SubCategoryName</option>
+                                    }
+
+                                }
+                            }
+                            else
+                            {
+                                <option value="" disabled hidden selected>Select...</option>
+
+                                @foreach (var service in Model.SubCategories)
+                                {
+                                    <option value="@service.Id">@service.SubCategoryName</option>
+                                }
+                            }
+
+                            
                         </select>
                     </div>
                 </div>
@@ -43,26 +68,23 @@
                 
                 <div class="col-12">
                     <div class="d-flex gap-2 mb-5">
-                        <button type="submit" id="submitButton" class="btn btn-primary btn-sm">
+                        <button type="submit" id="submitButton" class="btn btn-success btn-sm">
                             <i class="fa-solid fa-filter"></i>
                             <span class="button-text d-none d-lg-inline d-md-inline">Filter</span>
+                           
                             <span class="d-none spinner-grow spinner-grow-sm loading-spinner"></span>
                             <span class="d-none loading-text">Loading...</span>
                         </button>
+                        <button data-bs-target="#refresh" data-bs-toggle="modal" type="button" class="btn btn-primary text-white btn-sm"><i class="fa-solid fa-file-import"></i> <span class="d-none d-lg-inline d-md-inline">Get All</span> </button>
+                      
                         <button id="button-excel" type="button" class="btn btn-info text-white btn-sm"><i class="fa-solid fa-file-excel"></i> <span class="d-none d-lg-inline d-md-inline">Excel</span> </button>
-                       
                         <button id="button-print" type="button" class="btn btn-light btn-flat border btn-sm"><i class="fa fa-print"></i> <span class="d-none d-lg-inline d-md-inline">Print</span></button>
                     </div>
                 </div>
             </div>
         </form>
+        <partial name="_Refresh" />
         <div class="col-12">
-            <div class="d-flex justify-content-end mb-2">
-                <button data-bs-target="#refresh" data-bs-toggle="modal" class="btn btn-primary rounded-3">Refresh 
-                    <i class="fa-solid fa-arrows-rotate"></i>
-                </button>
-                <partial name="_Refresh"/>
-            </div>
             <div class="p-2 rounded-3 bg-white shadow ">
                 <div class="overflow-x-scroll remove-scrollbar">
                     <div class="p-2">
@@ -124,7 +146,7 @@
                 <th>Category</th>
                 <th>Service</th>
                 <th>Prioritization</th>
-                <th>Last Transaction In</th>
+                <th>Last Transaction</th>
             </tr>
         </thead>
         <tbody class="table-group-divider">

@@ -106,6 +106,12 @@ using (var scope = app.Services.CreateScope())
 			AddedAt = DateTime.Now,
 			UpdatedAt = DateTime.Now,
 		}) ;
+		await designationRepo.Add(new Designation
+		{
+			DesignationName = "Regional Director",
+			AddedAt = DateTime.Now,
+			UpdatedAt = DateTime.Now,
+		});
 	}
 };
 

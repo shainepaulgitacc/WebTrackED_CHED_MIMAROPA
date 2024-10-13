@@ -36,7 +36,7 @@
             const data2 = {
                 labels: labels,
                 datasets: [{
-                    label: 'Ended Document',
+                    label: 'Completed Document This Year',
                     data: [result.january, result.february, result.march, result.april, result.may, result.june, result.july, result.august, result.september, result.october, result.november, result.december],
                     fill: false,
                     borderColor: 'rgb(75, 192, 192)',

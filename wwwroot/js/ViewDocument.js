@@ -56,6 +56,35 @@
             $('#change-document i').addClass('d-none');
         })
     });
+    connection.on('reviewerRealtime', function () {
+        location.reload();
+    });
+    $("#button-print").on("click", function () {
+        //start_loader();
+        var head = $('head').clone();
+        var p = $('#outprint').clone();
+        var el = $('<div class="print-wrapper">');
+        var pContent = $($('noscript#print-content').html()).clone();
+        head.find('title').text("Report - Print View");
+        el.append(head);
+        el.append(pContent);
+        var nw = window.open("", "_blank", "width=1010,height=1000,top=50,left=75");
+        nw.document.write(el.html());
+        nw.document.close();
+
+        // Maximize the window before printing
+
+        nw.moveTo(0, 0);
+        nw.resizeTo(screen.width, screen.height);
+
+        setTimeout(() => {
+            nw.print();
+            setTimeout(() => {
+                nw.close();
+                end_loader();
+            }, 200);
+        }, 500);
+    });
 
     /*
     $('#form-new-docs').on('submit', function (event) {

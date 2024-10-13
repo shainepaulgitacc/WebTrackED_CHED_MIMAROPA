@@ -1,74 +1,94 @@
 ﻿@model ViewDocumentActionInputModel
+<!-- Reviewing Confirmation Modal -->
 <div class="modal fade" data-bs-backdrop="static" id="reviewing">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5>Confirmation</h5>
+                <h5>Start Reviewing</h5>
                 <button class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body px-4">
-                <p>Are you sure you want to start reviewing this document?</p>
+                <p>You're about to start reviewing this document. Are you ready to proceed?</p>
             </div>
             <div class="modal-footer">
                 <button data-bs-dismiss="modal" class="btn btn-light">Cancel</button>
-                <a asp-page-handler="ViewDocumentAction" asp-route-prevPage="@Model.PrevPage" asp-route-pId="@Model.Id" asp-route-status="@ReviewerStatus.OnReview" class="btn btn-primary">Proceed</a>
+                <a asp-page-handler="ViewDocumentAction" asp-route-prevPage="@Model.PrevPage" asp-route-pId="@Model.Id" asp-route-status="@ReviewerStatus.OnReview" class="btn btn-primary">Yes, Start Reviewing</a>
             </div>
         </div>
     </div>
 </div>
 
+<!-- Reviewed Confirmation Modal -->
 <div class="modal fade" data-bs-backdrop="static" id="reviewed">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5>Confirmation</h5>
+                <h5>Finalize Review</h5>
                 <button class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body px-4">
-                <p>Are you sure you want to finalize your review and proceed with the action?</p>
+                <p>You're about to finalize your review and submit your feedback. Are you sure you want to proceed?</p>
             </div>
             <div class="modal-footer">
                 <button data-bs-dismiss="modal" class="btn btn-light">Cancel</button>
-                <a asp-page-handler="ViewDocumentAction" asp-route-prevPage="@Model.PrevPage" asp-route-pId="@Model.Id" asp-route-status="@ReviewerStatus.Reviewed" class="btn btn-primary">Proceed</a>
+                <a asp-page-handler="ViewDocumentAction" asp-route-prevPage="@Model.PrevPage" asp-route-pId="@Model.Id" asp-route-status="@ReviewerStatus.Reviewed" class="btn btn-primary">Yes, Finalize Review</a>
             </div>
         </div>
     </div>
 </div>
 
-
+<!-- Approved Document Confirmation Modal -->
 <div class="modal fade" data-bs-backdrop="static" id="approved-document">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5>Confirmation</h5>
+                <h5>Approve Document</h5>
                 <button class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body px-4">
-                <p>Are you sure you want to approved this document?</p>
+                <p>You're about to approve this document. Once approved, no further changes can be made. Are you sure you want to approve it?</p>
             </div>
             <div class="modal-footer">
                 <button data-bs-dismiss="modal" class="btn btn-light">Cancel</button>
-                <a asp-page-handler="ViewDocumentAction" asp-route-prevPage="@Model.PrevPage" asp-route-pId="@Model.Id" asp-route-status="@ReviewerStatus.Approved" class="btn btn-primary">Proceed</a>
+                <a asp-page-handler="ViewDocumentAction" asp-route-prevPage="@Model.PrevPage" asp-route-pId="@Model.Id" asp-route-status="@ReviewerStatus.Approved" class="btn btn-primary">Yes, Approve Document</a>
             </div>
         </div>
     </div>
 </div>
 
-
-
+<!-- Prepare for Release Confirmation Modal -->
 <div class="modal fade" data-bs-backdrop="static" id="prepare-release">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5>Confirmation</h5>
+                <h5>Prepare for Release</h5>
                 <button class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body px-4">
-                <p>Are you sure you want to prepare this document for prepare document</p>
+                <p>You are about to prepare this document for release. Is everything in order to proceed?</p>
             </div>
             <div class="modal-footer">
                 <button data-bs-dismiss="modal" class="btn btn-light">Cancel</button>
-                <a asp-page-handler="ViewDocumentAction" asp-route-prevPage="@Model.PrevPage" asp-route-pId="@Model.Id" asp-route-status="@ReviewerStatus.PreparingRelease" class="btn btn-primary">Proceed</a>
+                <a asp-page-handler="ViewDocumentAction" asp-route-prevPage="@Model.PrevPage" asp-route-pId="@Model.Id" asp-route-status="@ReviewerStatus.PreparingRelease" class="btn btn-primary">Yes, Prepare for Release</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Complete Document Confirmation Modal -->
+<div class="modal fade" data-bs-backdrop="static" id="complete-document">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5>Complete Document</h5>
+                <button class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body px-4">
+                <p>You're about to mark this document as completed. Make sure all steps are finished. Are you ready to proceed?</p>
+            </div>
+            <div class="modal-footer">
+                <button data-bs-dismiss="modal" class="btn btn-light">Cancel</button>
+                <a asp-page-handler="ViewDocumentAction" asp-route-prevPage="@Model.PrevPage" asp-route-pId="@Model.Id" asp-route-status="@ReviewerStatus.Completed" class="btn btn-primary">Yes, Mark as Completed</a>
             </div>
         </div>
     </div>

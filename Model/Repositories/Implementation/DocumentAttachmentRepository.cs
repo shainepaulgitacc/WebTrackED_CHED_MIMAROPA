@@ -149,7 +149,7 @@ namespace WebTrackED_CHED_MIMAROPA.Model.Repositories.Implementation
             if(serviceId != null && from!= null && to != null)
             {
                 fRec = rec
-                     .Where(x => x.SubCategory.Id ==  serviceId && x.DocumentTracking.AddedAt.Month >= from?.Month && x.DocumentTracking.AddedAt.Month <= to?.Month)
+                     .Where(x => x.SubCategory.Id ==  serviceId && x.DocumentTracking.AddedAt.Date >= from?.Date && x.DocumentTracking.AddedAt.Date <= to?.Date)
                      .ToList();
             }
             else
@@ -159,13 +159,14 @@ namespace WebTrackED_CHED_MIMAROPA.Model.Repositories.Implementation
              
             var finRecords =  fRec
                 .ToList();
-            return new ReportsRecords
+            var finval =  new ReportsRecords
             {
                 Records = finRecords,
-                ServiceId = serviceId,
+                ServiceId = serviceId ?? 0,
                 From = from,
                 To = to,
             };
+            return finval;
 
         }
 
