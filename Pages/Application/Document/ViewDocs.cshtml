@@ -22,8 +22,8 @@
 	var qrCode = ViewData["qr-code"] as string;
 
 	var pending = Model.DocumentAttachment.DocumentTrackings.Count() <= 1 || Model.DocumentAttachment.DocumentTrackings.Count() > 1 && !Model.DocumentAttachment.DocumentTrackings.Any(x => x.ReviewerStatus == ReviewerStatus.OnReview); ;
-	var onprocess = Model.DocumentAttachment.DocumentTrackings.Count() > 1 && Model.DocumentAttachment.DocumentTrackings.Any(x => !(x.ReviewerStatus == ReviewerStatus.PreparingRelease || x.ReviewerStatus == ReviewerStatus.Completed));
-
+	var onprocess = Model.DocumentAttachment.DocumentTrackings.Count() > 1 && !Model.DocumentAttachment.DocumentTrackings.Any(x => x.ReviewerStatus == ReviewerStatus.Completed || x.ReviewerStatus == ReviewerStatus.PreparingRelease || x.ReviewerStatus == ReviewerStatus.Approved);
+	var approved = Model.DocumentAttachment.DocumentTrackings.First().ReviewerStatus == ReviewerStatus.Approved;
 	var preparingRelease = Model.DocumentAttachment.DocumentTrackings.First().ReviewerStatus == ReviewerStatus.PreparingRelease;
 	var completed = Model.DocumentAttachment.DocumentTrackings.First().ReviewerStatus == ReviewerStatus.Completed;
 
@@ -49,7 +49,7 @@
 							}
 
 						</span>
-						<span class="@(pending ? "bg-info":onprocess ? "bg-primary":preparingRelease  ?"bg-warning" :completed ? "bg-success":"bg-danger") text-white fw-bolder px-3 py-2 rounded-pill">@(preparingRelease ? "Ready for Release" : pending ? "Pending": onprocess ? "On proccess": completed? "Completed":"")</span>
+						<span class="@(pending ? "bg-info":onprocess ? "bg-primary":preparingRelease  ?"bg-warning" :completed || approved ? "bg-success":"bg-danger") text-white fw-bolder px-3 py-2 rounded-pill">@(preparingRelease ? "Ready for Release" : pending ? "Pending": onprocess ? "On proccess": completed? "Completed":approved ? "Approved":"")</span>
 						<span class="text-dark fw-bolder px-3 py-2 rounded-pill bg-secondary-subtle">@(Model.DocumentAttachment.DocumentAttachment.DocumentType == DocumentType.WalkIn ? "Walk In" : "Electronic")</span>
 					</div>
 
@@ -128,7 +128,7 @@
 						{
 
 							<div class="d-flex align-items-center">
-								@if (!completed && !User.IsInRole("Sender"))
+								@if (onprocess && !User.IsInRole("Sender"))
 								{
 									<form enctype="multipart/form-data" id="form-new-docs" asp-page-handler="ChangeDocument" asp-route-prevPage="@Model.PreviousPage" asp-route-pId="@Model.DocumentAttachment.DocumentAttachment.Id">
 										@Html.AntiForgeryToken()
@@ -168,9 +168,12 @@
 						{
 
 							<button data-bs-toggle="modal" data-bs-target="#approved-document" class="btn btn-success text-white">Approved <i class="fa fa-check"></i></button>
-							<partial name="PartialViews/_ApprovedDocument" model="@Model.DocumentAttachment.DocumentAttachment.Id" />
 							<a asp-page="./ForwardDocument/Index" asp-route-prevPage="@Model.PreviousPage" asp-route-pId="@Model.DocumentAttachment.DocumentAttachment.Id" class="btn btn-info text-white">Next <i class="fa-solid fa-arrow-right"></i></a>
 						}
+					}
+					else if (approved)
+					{
+						<button data-bs-toggle="modal" data-bs-target="#prepare-release" class="text-white btn btn-warning">Prepare release document <i class="fa fa-file-pen"></i></button>
 					}
 
 					else if (preparingRelease)

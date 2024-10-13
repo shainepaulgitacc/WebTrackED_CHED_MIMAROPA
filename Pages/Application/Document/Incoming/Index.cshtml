@@ -34,7 +34,8 @@
                 @foreach (var docAttachment in Model.DocsAttachments)
                 {
                     var IsPending = docAttachment.DocumentTrackings.Count() <= 1 || docAttachment.DocumentTrackings.Count() > 1 && !docAttachment.DocumentTrackings.Any(x => x.ReviewerStatus == ReviewerStatus.OnReview); ;
-                    var IsOnProcess = docAttachment.DocumentTrackings.Count() > 1 && !docAttachment.DocumentTrackings.Any(x => x.ReviewerStatus == ReviewerStatus.Completed || x.ReviewerStatus == ReviewerStatus.PreparingRelease);
+                    var IsOnProcess = docAttachment.DocumentTrackings.Count() > 1 && !docAttachment.DocumentTrackings.Any(x => x.ReviewerStatus == ReviewerStatus.Completed || x.ReviewerStatus == ReviewerStatus.PreparingRelease || x.ReviewerStatus == ReviewerStatus.Approved);
+                    var approved = docAttachment.DocumentTrackings.First().ReviewerStatus == ReviewerStatus.Approved;
                     var IsPreparingForRelease = docAttachment.DocumentTrackings.First().ReviewerStatus == ReviewerStatus.PreparingRelease;
                     var IsCompleted = docAttachment.DocumentTrackings.First().ReviewerStatus == ReviewerStatus.Completed;
                     <tr>
@@ -51,7 +52,8 @@
                             <span class="fw-light">@(docAttachment.DocumentAttachment.Description?.Length > 20 ? $"{docAttachment.DocumentAttachment.Description.Substring(0, 20)}..." : docAttachment.DocumentAttachment.Description)</span>
                         </td>
                         <td>
-                            <span class="fw-bolder px-3 text-white text-nowrap  px-3 py-1 rounded-pill  @(IsPending ?"bg-info":IsOnProcess?"bg-primary":IsPreparingForRelease ? "bg-warning":IsCompleted?"bg-success":"bg-danger") ">@(IsPreparingForRelease ? "Ready for Release":IsPending ? "Peding": IsOnProcess? "On process":IsCompleted ? "Completed":"")</span>
+                            <span class="fw-bolder px-3 text-white text-nowrap  px-3 py-1 rounded-pill  @(IsPending ?"bg-info":IsOnProcess?"bg-primary":IsPreparingForRelease ? "bg-warning":IsCompleted || approved?"bg-success":"bg-danger") ">@(IsPreparingForRelease ? "Ready for Release" : IsPending ? "Peding" : IsOnProcess ? "On process" : IsCompleted ? "Completed" : approved ? "Approved" : "")</span>
+                        </td>
                         <td>
                             @if(docAttachment.DocumentAttachment.Prioritization != null)
                             {

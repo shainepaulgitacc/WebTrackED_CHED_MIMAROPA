@@ -42,53 +42,48 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document
 
 
         public bool IsPending { get; set; }
+		
         public bool IsOnProcess { get; set; }
+		public bool IsApproved { get; set; }
         public bool IsPreparingForRelease { get; set; }
         public bool IsCompleted { get; set; }
 		public async Task<IActionResult> OnGetAsync(string prevPage, int pId)
 		{
-			var user = await _userManager.FindByNameAsync(User.Identity.Name);
-			var documentAtt = await _docAttachmentRepo.GetOne(pId.ToString());
+            var user = await _userManager.FindByNameAsync(User.Identity.Name);
 
-			// Determine if the document is "WalkIn" (skip the first record for walk-ins, otherwise no skip)
-			var skipValue = documentAtt.DocumentType == DocumentType.WalkIn ? 1 : 0;
+            var docsAttachment = await _docAttachmentRepo.DocumentAttachments();
+            var document = docsAttachment.FirstOrDefault(x => x.DocumentAttachment.Id == pId);
 
 			UserId = user.Id;
 			PreviousPage = prevPage;
 
 			var docsTrackings = await _docTrackRepo.DocumentTrackings();
 
-			// Apply filtering and conditional skipping
+		
 			var filteredDocsTracking = docsTrackings
 				.Where(x => x.DocumentAttachment.Id == pId)
-				//.Skip(skipValue) // Skip if it's a WalkIn document, otherwise no skip
 				.OrderByDescending(x => x.DocumentTracking.Id)
 				.ToList();
 
-			if(User.IsInRole("Sender")&& documentAtt.SenderId != user.Id)
+			if(User.IsInRole("Sender")&& document.SenderAccount.Id != user.Id)
                 return RedirectToPage("/Account/AccessDenied", new { area = "Identity" });
 
             if (!filteredDocsTracking.Any())
 				return BadRequest("Document doesn't exist");
 
 			DocumentTrackings = filteredDocsTracking;
-
-			var mxId = filteredDocsTracking.Max(x => x.DocumentTracking.Id);
-			MaxId = mxId;
-
-			var docsAttachment = await _docAttachmentRepo.DocumentAttachments();
-			var document = docsAttachment.FirstOrDefault(x => x.DocumentTracking.Id == mxId);
-
 			DocumentAttachment = document;
 
 			// Set status flags
-			IsPending = documentAtt.DocumentTrackings.Count() <= 1 || documentAtt.DocumentTrackings.Count() > 1 && !documentAtt.DocumentTrackings.Any(x => x.ReviewerStatus == ReviewerStatus.OnReview); ;
-			IsOnProcess = documentAtt.DocumentTrackings.Count() > 1 && !documentAtt.DocumentTrackings.Any(x => x.ReviewerStatus == ReviewerStatus.Completed || x.ReviewerStatus == ReviewerStatus.PreparingRelease);
-			IsPreparingForRelease =documentAtt.DocumentTrackings.First().ReviewerStatus == ReviewerStatus.PreparingRelease;
-			IsCompleted = documentAtt.DocumentTrackings.First().ReviewerStatus == ReviewerStatus.Completed;
+			IsPending = document.DocumentTrackings.Count() <= 1 || document.DocumentTrackings.Count() > 1 && !document.DocumentTrackings.Any(x => x.ReviewerStatus == ReviewerStatus.OnReview); ;
+			IsOnProcess = document.DocumentTrackings.Count() > 1 && document.DocumentTrackings.Any(x => x.ReviewerStatus == ReviewerStatus.OnReview) && !document.DocumentTrackings.Any(x => x.ReviewerStatus == ReviewerStatus.Completed || x.ReviewerStatus == ReviewerStatus.PreparingRelease || x.ReviewerStatus == ReviewerStatus.Approved);
+			IsApproved = document.DocumentTrackings.First().ReviewerStatus == ReviewerStatus.Approved;
+            IsPreparingForRelease =document.DocumentTrackings.First().ReviewerStatus == ReviewerStatus.PreparingRelease;
+			IsCompleted = document.DocumentTrackings.First().ReviewerStatus == ReviewerStatus.Completed;
 
 			return Page();
 		}
 
 	}
 }
+	
