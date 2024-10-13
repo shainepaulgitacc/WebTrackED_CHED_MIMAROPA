@@ -214,8 +214,6 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.ForwardDocument
 
                	
 			}
-            await _documentAttachmentRepository.Update(documentAttachment,pId);
-
             await _docsTrackRepo.Add(new DocumentTracking
             {
                 AddedAt = DateTime.Now,
@@ -262,7 +260,8 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.ForwardDocument
                         notificationPassed.RedirectLink
                     );
                     */
-                    /*
+                    
+
                     //notification for the next reviewer
                     var notificationPassedReviewer = new Notification
                     {
@@ -288,7 +287,6 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.ForwardDocument
                         notificationPassedReviewer.AddedAt.ToString("MMMM dd, yyyy"),
                         notificationPassedReviewer.RedirectLink
                     );
-                    */
 
                 }
 

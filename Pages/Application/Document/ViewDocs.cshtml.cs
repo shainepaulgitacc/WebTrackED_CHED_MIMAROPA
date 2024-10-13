@@ -1,17 +1,14 @@
+
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.CodeAnalysis.FlowAnalysis.DataFlow;
-using System.Net.WebSockets;
 using WebTrackED_CHED_MIMAROPA.Hubs;
 using WebTrackED_CHED_MIMAROPA.Model.Entities;
 using WebTrackED_CHED_MIMAROPA.Model.Repositories.Contracts;
-using WebTrackED_CHED_MIMAROPA.Model.Repositories.Implementation;
 using WebTrackED_CHED_MIMAROPA.Model.Service;
-using WebTrackED_CHED_MIMAROPA.Model.ViewModel.InputViewModel;
 using WebTrackED_CHED_MIMAROPA.Model.ViewModel.ListViewModel;
 
 namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document
@@ -230,9 +227,6 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document
 			return RedirectToPage("ViewDocs", new { prevPage, pId });
         }
 
-
-
-
         public async Task<IActionResult> OnPostSetPrioritization(string prevPage, int pId)
         {
             var docAttachment = await _docRepo.GetOne(pId.ToString());
@@ -264,9 +258,9 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document
                 ReviewerStatus = status
             });
 
-          
-            var settings = await _settingsRepo.GetAll();
-            if (settings.OrderByDescending(x => x.Id).First().DocumentNotif && status == ReviewerStatus.Reviewed)
+			var settings = await _settingsRepo.GetAll();
+
+			if (settings.OrderByDescending(x => x.Id).First().DocumentNotif && status == ReviewerStatus.Reviewed)
             {
                 var notification = new Notification
                 {
@@ -295,6 +289,90 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document
 
             TempData["validation-message"] = "Successfully perform the action.";
             return RedirectToPage("ViewDocs", new { prevPage, pId });
+        }
+
+        public async Task<IActionResult> OnGetApproved(string pId)
+        {
+			var reviewers = await _reviewerRepo.CHEDPersonelRecords();
+			var reviewer = reviewers.FirstOrDefault(x => x.Account.UserName == User.Identity.Name);
+			var docAttachment = await _docRepo.GetOne(pId);
+			var settings = await _settingsRepo.GetAll();
+			var documentTrackings = await _docTrackRepo.GetAll();
+            var designations = await _desigRepo.GetAll();
+            var firstDesignation = designations.OrderBy(x => x.AddedAt).First().DesignationName;
+            var records = reviewers.FirstOrDefault(x => x.Designation.DesignationName == firstDesignation);
+
+			await _docTrackRepo.Add(new DocumentTracking
+			{
+				AddedAt = DateTime.Now,
+				UpdatedAt = DateTime.Now,
+				ReviewerId = reviewer.CHEDPersonel.IdentityUserId,
+				DocumentAttachmentId = docAttachment.Id,
+				ReviewerStatus = ReviewerStatus.Approved
+			});
+
+			await _docTrackRepo.Add(new DocumentTracking
+			{
+				AddedAt = DateTime.Now,
+				UpdatedAt = DateTime.Now,
+				ReviewerId = records.Account.Id,
+				DocumentAttachmentId = docAttachment.Id,
+				ReviewerStatus = ReviewerStatus.PreparingRelease
+			});
+
+			if (settings.OrderByDescending(x => x.Id).First().DocumentNotif)
+			{var notification = new Notification
+{
+    Title = "Your Document Has Been Approved!",
+    Recepient = docAttachment.SenderId,
+    IsViewed = false,
+    Description = $"Good news! Your document has been reviewed and approved by {reviewer.Designation.DesignationName}. You can now proceed to the next steps.",
+    NotificationType = NotificationType.Document,
+    RedirectLink = docAttachment.DocumentType != DocumentType.WalkIn ? "/Application/Document/Onprocess/Index" : "/Application/Document/Outgoing/Index",
+    AddedAt = DateTime.Now,
+    UpdatedAt = DateTime.Now,
+};
+
+var notificationReviewer = new Notification
+{
+    Title = "Document Approved and Ready for Release",
+    Recepient = records.Account.Id,
+    IsViewed = false,
+    Description = $"The document has been approved by {reviewer.Account.FirstName} {reviewer.Account.MiddleName} {reviewer.Account.LastName} {reviewer.Account.Suffixes} ({reviewer.Designation.DesignationName}) and is now ready for release. Please proceed with the next steps.",
+    NotificationType = NotificationType.Document,
+    RedirectLink = "/Application/Document/Incoming/Index",
+    AddedAt = DateTime.Now,
+    UpdatedAt = DateTime.Now,
+};
+
+
+
+				await _notificationRepo.Add(notification);
+				_notifHub.Clients.User(notification.Recepient).ReceiveNotification(
+					notification.Title,
+					notification.Description.Length > 30 ? $"{notification.Description.Substring(0, 30)}..." : notification.Description,
+					notification.NotificationType.ToString(),
+					notification.AddedAt.ToString("MMMM dd, yyyy"),
+					notification.RedirectLink
+				);
+
+				await _notificationRepo.Add(notificationReviewer);
+				_notifHub.Clients.User(notificationReviewer.Recepient).ReceiveNotification(
+					notification.Title,
+					notification.Description.Length > 30 ? $"{notification.Description.Substring(0, 30)}..." : notification.Description,
+					notification.NotificationType.ToString(),
+					notification.AddedAt.ToString("MMMM dd, yyyy"),
+					notification.RedirectLink
+				);
+			}
+
+			foreach (var tracking in documentTrackings.Where(x => x.DocumentAttachmentId == int.Parse(pId)))
+			{
+				_notifHub.Clients.Users(tracking.ReviewerId).ReviewerRealtime();
+			}
+
+			TempData["validation-message"] = "Successfully approved the document";
+			return RedirectToPage("/Application/Document/Outgoing/Index");
         }
     }
 }

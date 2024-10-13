@@ -170,23 +170,33 @@
                 <div class="row">
                     @foreach(var docTracking in Model.DocumentTrackings)
                     {
-                        <div class="col-5 mb-3">
+                        <div class="col-5 mb-5">
                             <h6 class="text-end">@docTracking.DocumentTracking.AddedAt.ToString("dd MMM,yyy hh:mm tt")</h6>
                         </div>
-                        <div class="col-1 mb-3">
+                        <div class="col-1 mb-5">
                             <div class="d-flex align-items-center justify-content-center">
                                 <span class="bg-secondary rounded-circle p-2 z-1">
                                 </span>
                             </div>
                         </div>
-                        <div class="col-6 mb-3">
+                        <div class="col-6 mb-5">
                             <h6>@(docTracking.DocumentTracking.ReviewerStatus == ReviewerStatus.OnReview ? "Reviewing by" : docTracking.DocumentTracking.ReviewerStatus == ReviewerStatus.Reviewed ? "Reviewed by" : docTracking.DocumentTracking.ReviewerStatus == ReviewerStatus.ToReceived ? "To Be Recieved by" : "Successfully Passed by")
                                 <span>
-                                    @($"{docTracking.Account.FirstName} {docTracking.Account.MiddleName} {docTracking.Account.LastName} {docTracking.Account.Suffixes}")
-                                    @(Model.UserId == docTracking.Account.Id ? "(You)" : "")
+                                    @if (!User.IsInRole("Sender"))
+                                    {
+                                        @($"{docTracking.Account.FirstName} {docTracking.Account.MiddleName} {docTracking.Account.LastName} {docTracking.Account.Suffixes}")
+                                        @(Model.UserId == docTracking.DocumentTracking.ReviewerId ? "(You)":"")
+                                    }
+                                    else
+                                    {
+                                        @docTracking.Designation?.DesignationName
+                                    }
                                 </span>
                             </h6>
-                            <span class="text-primary fw-bold">@(docTracking.Designation != null ? docTracking.Designation.DesignationName:"N/A")</span>
+                            @if (!User.IsInRole("Sender"))
+                            {
+                                <h6 class="text-primary fw-bolder">@docTracking.Designation?.DesignationName</h6>
+                            }
                             @if (!string.IsNullOrEmpty(docTracking.DocumentTracking.Note))
                             {
                                 <h6 class="fst-italic text-secondary m-0 p-0">(Remarks/Notes)</h6>

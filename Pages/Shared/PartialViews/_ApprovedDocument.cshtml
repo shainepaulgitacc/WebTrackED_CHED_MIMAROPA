@@ -1,0 +1,18 @@
+﻿@model string
+<div class="modal fade" data-bs-backdrop="static" id="approved-document">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5>Confirmation</h5>
+                <button class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body px-4">
+                <p>Are you sure you want to approved this document?</p>
+            </div>
+            <div class="modal-footer">
+                <button data-bs-dismiss="modal" class="btn btn-light">Cancel</button>
+                <a asp-page-handler="Approved" asp-route-pId="@Model" class="btn btn-primary">Proceed</a>
+            </div>
+        </div>
+    </div>
+</div>

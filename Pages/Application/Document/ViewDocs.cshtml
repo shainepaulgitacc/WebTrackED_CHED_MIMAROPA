@@ -21,7 +21,7 @@
 	var returnUrlVal = "./Ended/Index";
 	var qrCode = ViewData["qr-code"] as string;
 
-	var pending = Model.DocumentAttachment.DocumentTrackings.Count() <= 1;
+	var pending = Model.DocumentAttachment.DocumentTrackings.Count() <= 1 || Model.DocumentAttachment.DocumentTrackings.Count() > 1 && !Model.DocumentAttachment.DocumentTrackings.Any(x => x.ReviewerStatus == ReviewerStatus.OnReview); ;
 	var onprocess = Model.DocumentAttachment.DocumentTrackings.Count() > 1 && Model.DocumentAttachment.DocumentTrackings.Any(x => !(x.ReviewerStatus == ReviewerStatus.PreparingRelease || x.ReviewerStatus == ReviewerStatus.Completed));
 
 	var preparingRelease = Model.DocumentAttachment.DocumentTrackings.First().ReviewerStatus == ReviewerStatus.PreparingRelease;
@@ -166,8 +166,9 @@
 						}
 						else if (Model.CurrentStatus == ReviewerStatus.Reviewed)
 						{
-							<button data-bs-toggle="modal" data-bs-target="#disapproved" class="btn btn-danger">Disapproved <i class="fa-solid fa-xmark"></i></button>
-							<button data-bs-toggle="modal" data-bs-target="#approved" class="btn btn-success text-white">Approved <i class="fa fa-check"></i></button>
+
+							<button data-bs-toggle="modal" data-bs-target="#approved-document" class="btn btn-success text-white">Approved <i class="fa fa-check"></i></button>
+							<partial name="PartialViews/_ApprovedDocument" model="@Model.DocumentAttachment.DocumentAttachment.Id" />
 							<a asp-page="./ForwardDocument/Index" asp-route-prevPage="@Model.PreviousPage" asp-route-pId="@Model.DocumentAttachment.DocumentAttachment.Id" class="btn btn-info text-white">Next <i class="fa-solid fa-arrow-right"></i></a>
 						}
 					}
