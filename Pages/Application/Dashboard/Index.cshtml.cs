@@ -76,9 +76,10 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Dashboard
                    .OrderByDescending(x => x.DocumentTrackings.First().AddedAt)
                    .Take(5)
                    .ToList();
-                CountOnProcessDocs = fDocsAttachments.Where(x => x.SenderAccount.UserName == User.Identity?.Name && x.DocumentTrackings.Count() > 1 && !x.DocumentTrackings.Any(r => r.ReviewerStatus == ReviewerStatus.Completed)).Count();
-                CountPendingDocs = fDocsAttachments.Where(x => x.SenderAccount.UserName == User.Identity?.Name && x.DocumentTrackings.Count() <=1 ).Count();
+                CountOnProcessDocs = fDocsAttachments.Where(x => x.SenderAccount.UserName == User.Identity?.Name && x.DocumentTrackings.Any(y => y.ReviewerStatus == ReviewerStatus.OnReview) && !x.DocumentTrackings.Any(y => y.ReviewerStatus == ReviewerStatus.Completed)).Count();
+                CountPendingDocs = fDocsAttachments.Where(x => x.SenderAccount.UserName == User.Identity?.Name && !x.DocumentTrackings.Any(y => y.ReviewerStatus == ReviewerStatus.OnReview)).Count();
             }
+
 
             else
             {

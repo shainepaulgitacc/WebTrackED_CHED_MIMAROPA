@@ -33,8 +33,8 @@
             <tbody class="table-group-divider">
                 @foreach (var docAttachment in Model.DocsAttachments)
                 {
-                    var IsPending = docAttachment.DocumentTrackings.Count() <= 1 || docAttachment.DocumentTrackings.Count() > 1 && !docAttachment.DocumentTrackings.Any(x => x.ReviewerStatus == ReviewerStatus.OnReview); ;
-                    var IsOnProcess = docAttachment.DocumentTrackings.Count() > 1 && !docAttachment.DocumentTrackings.Any(x => x.ReviewerStatus == ReviewerStatus.Completed || x.ReviewerStatus == ReviewerStatus.PreparingRelease || x.ReviewerStatus == ReviewerStatus.Approved);
+                    var IsPending = !docAttachment.DocumentTrackings.Any(x => x.ReviewerStatus == ReviewerStatus.OnReview);
+                    var IsOnProcess = docAttachment.DocumentTrackings.Any(x => x.ReviewerStatus == ReviewerStatus.OnReview) && !docAttachment.DocumentTrackings.Any(x => x.ReviewerStatus == ReviewerStatus.Completed || x.ReviewerStatus == ReviewerStatus.PreparingRelease || x.ReviewerStatus == ReviewerStatus.Approved);
                     var approved = docAttachment.DocumentTrackings.First().ReviewerStatus == ReviewerStatus.Approved;
                     var IsPreparingForRelease = docAttachment.DocumentTrackings.First().ReviewerStatus == ReviewerStatus.PreparingRelease;
                     var IsCompleted = docAttachment.DocumentTrackings.First().ReviewerStatus == ReviewerStatus.Completed;

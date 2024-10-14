@@ -75,8 +75,8 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document
 			DocumentAttachment = document;
 
 			// Set status flags
-			IsPending = document.DocumentTrackings.Count() <= 1 || document.DocumentTrackings.Count() > 1 && !document.DocumentTrackings.Any(x => x.ReviewerStatus == ReviewerStatus.OnReview); ;
-			IsOnProcess = document.DocumentTrackings.Count() > 1 && document.DocumentTrackings.Any(x => x.ReviewerStatus == ReviewerStatus.OnReview) && !document.DocumentTrackings.Any(x => x.ReviewerStatus == ReviewerStatus.Completed || x.ReviewerStatus == ReviewerStatus.PreparingRelease || x.ReviewerStatus == ReviewerStatus.Approved);
+			IsPending = !document.DocumentTrackings.Any(x => x.ReviewerStatus == ReviewerStatus.OnReview); ;
+			IsOnProcess = document.DocumentTrackings.Any(x => x.ReviewerStatus == ReviewerStatus.OnReview) && !document.DocumentTrackings.Any(x => x.ReviewerStatus == ReviewerStatus.Completed || x.ReviewerStatus == ReviewerStatus.PreparingRelease || x.ReviewerStatus == ReviewerStatus.Approved);
 			IsApproved = document.DocumentTrackings.First().ReviewerStatus == ReviewerStatus.Approved;
             IsPreparingForRelease =document.DocumentTrackings.First().ReviewerStatus == ReviewerStatus.PreparingRelease;
 			IsCompleted = document.DocumentTrackings.First().ReviewerStatus == ReviewerStatus.Completed;

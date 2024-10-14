@@ -180,29 +180,43 @@
                             </div>
                         </div>
                         <div class="col-6 mb-5">
-                            <h6>
+                            <h6 class="@(docTracking.DocumentTracking.ReviewerStatus == ReviewerStatus.Completed ? "text-white fw-bolder bg-success rounded-pill px-3 py-2 d-inline":"")">
                                 @(docTracking.DocumentTracking.ReviewerStatus == ReviewerStatus.ToReceived ? "To Be Recieved by" : docTracking.DocumentTracking.ReviewerStatus == ReviewerStatus.OnReview ? "Reviewing by" : docTracking.DocumentTracking.ReviewerStatus == ReviewerStatus.Reviewed ? "Reviewed by" : docTracking.DocumentTracking.ReviewerStatus == ReviewerStatus.Passed ? "Successfully Passed By" : docTracking.DocumentTracking.ReviewerStatus == ReviewerStatus.Approved ? "Successfully Approved" : docTracking.DocumentTracking.ReviewerStatus == ReviewerStatus.PreparingRelease ? "Preparing for Release" : "Completed")
-                                <span>
-                                    @if (!User.IsInRole("Sender"))
-                                    {
-                                        @($"{docTracking.Account.FirstName} {docTracking.Account.MiddleName} {docTracking.Account.LastName} {docTracking.Account.Suffixes}")
-                                        @(Model.UserId == docTracking.DocumentTracking.ReviewerId ? "(You)":"")
-                                    }
-                                    else
-                                    {
+                                @if(docTracking.DocumentTracking.ReviewerStatus != ReviewerStatus.Completed)
+                                {
+                                    <span>
                                         @docTracking.Designation?.DesignationName
+                                        @(Model.UserId == docTracking.DocumentTracking.ReviewerId ? "(You)" : "")
+
+                                        @*
+                                @if (!User.IsInRole("Sender"))
+                                {
+                                @($"{docTracking.Account.FirstName} {docTracking.Account.MiddleName} {docTracking.Account.LastName} {docTracking.Account.Suffixes}")
+
+                                }
+                                else
+                                {
+                                @docTracking.Designation?.DesignationName
+                                }
+                                *@
+
+                                    </span>
+                                    @if (!string.IsNullOrEmpty(docTracking.DocumentTracking.Note))
+                                    {
+                                        <h6 class="fst-italic text-secondary m-0 p-0">(Remarks/Notes)</h6>
+                                        <p class="fst-italic text-secondary m-0">@(docTracking.DocumentTracking.Note)</p>
                                     }
-                                </span>
+                                }
+                              
                             </h6>
-                            @if (!User.IsInRole("Sender"))
-                            {
-                                <h6 class="text-primary fw-bolder">@docTracking.Designation?.DesignationName</h6>
-                            }
-                            @if (!string.IsNullOrEmpty(docTracking.DocumentTracking.Note))
-                            {
-                                <h6 class="fst-italic text-secondary m-0 p-0">(Remarks/Notes)</h6>
-                                <p class="fst-italic text-secondary m-0">@(docTracking.DocumentTracking.Note)</p>
-                            }
+                            @*
+                        @if (!User.IsInRole("Sender"))
+                        {
+                        <h6 class="text-primary fw-bolder">@docTracking.Designation?.DesignationName</h6>
+                        }
+                            *@
+                         
+                          
                         </div>
                     }
               

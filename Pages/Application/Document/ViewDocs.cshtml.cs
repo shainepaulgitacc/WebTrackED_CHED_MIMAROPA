@@ -119,8 +119,6 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document
             ReviewerDesignationName = rDesignationName;
 			FirstDesignationName = fDesignationName;
 			SecondDesignationName = designations.OrderBy(x => x.AddedAt).Skip(1).First().DesignationName;
-			var sample = !docAttachment.DocumentTrackings.Any(x => x.ReviewerId == user.Id);
-
             var getRoles = await _userManager.GetRolesAsync(user);
 			if (docAttachment == null)
 				return BadRequest($"Unknown document");
@@ -280,14 +278,14 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document
 
 					var description = status == ReviewerStatus.Reviewed ?
 									  $"Your document has been reviewed by {reviewer.Designation.DesignationName}. You can now check the document tracking for more details." :
-									  status == ReviewerStatus.Approved ?
-									  $"Good news! Your document has been completely reviewed and approved by {reviewer.Designation.DesignationName}. You can now track its progress." :
 									  status == ReviewerStatus.PreparingRelease ?
 									  $"The document has been completely reviewed and approved by {reviewer.Designation.DesignationName} and is ready for release. Check the tracking status for more details." :
+									  status == ReviewerStatus.Approved ?
+										docAttachment.DocumentType == DocumentType.OnlineSubmission
+										? $"Your document has been fully reviewed and approved by {reviewer.Designation.DesignationName}. You can now track its progress."
+										: "A document has been reviewed and approved. You may view it in your 'Incoming' section for release." : 
 									  $"Your document has been successfully reviewed and completed, meeting all the required conditions. You can now view the tracking status.";
-
-
-					var notification = new Notification
+                    var notification = new Notification
 					{
 						Title = title,
 						Recepient = docAttachment.SenderId,
@@ -307,9 +305,6 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document
 					);
 					await _notificationRepo.Add(notification);
 				}
-				
-				
-				
 			}
 			foreach (var tracking in documentTrackings.Where(x => x.DocumentAttachmentId == int.Parse(pId) && x.ReviewerId != account.Id))
 			{
