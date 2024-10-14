@@ -12,6 +12,7 @@ namespace WebTrackED_CHED_MIMAROPA.Model.ViewModel.ListViewModel
         public AppIdentityUser ReviewerAccount { get; set; }
         public AppIdentityUser SenderAccount { get; set; }
         public List<DocumentTracking> DocumentTrackings{ get; set; }
+     
        
         public Designation Designation { get; set; }
     }

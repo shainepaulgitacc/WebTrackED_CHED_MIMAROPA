@@ -167,8 +167,16 @@
 						{
 							@if (Model.ReviewerDesignationName.Contains(Model.SecondDesignationName))
 							{
-								<button data-bs-toggle="modal" data-bs-target="#approved-document" class="btn btn-success text-white">Approved <i class="fa fa-check"></i></button>
-							}
+								@if (!Model.HasCurrentlyReviewing)
+								{
+									<button data-bs-toggle="modal" data-bs-target="#approved-document" class="btn btn-success text-white">Approved <i class="fa fa-check"></i></button>
+								}
+								else
+								{
+									<button disabled class="btn btn-success text-white">Approved <i class="fa fa-check"></i></button>
+								}
+
+					}
 							<a asp-page="./ForwardDocument/Index" asp-route-prevPage="@Model.PreviousPage" asp-route-pId="@Model.DocumentAttachment.DocumentAttachment.Id" class="btn btn-info text-white">Next <i class="fa-solid fa-arrow-right"></i></a>
 						}
 					}

@@ -85,11 +85,22 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document
 		//public bool HasCurrentlyReviewing { get; set; }
 		public string AccountId { get; set; }
 
+		public bool HasCurrentlyReviewing { get; set; }
+
 		public async Task<IActionResult> OnGetAsync(string prevPage, int pId)
 		{
 			PreviousPage = prevPage;
 			var docsAttachments = await _docRepo.DocumentAttachments();
 			var docAttachment = docsAttachments.FirstOrDefault(x => x.DocumentAttachment.Id == pId);
+
+			HasCurrentlyReviewing = docAttachment.DocumentTrackings
+				.GroupBy(x => x.ReviewerId)
+				.Select(result => new
+				{
+					ReviewerStatus = result.OrderByDescending(x => x.AddedAt).First().ReviewerStatus
+				})
+				.Any(x => (int)x.ReviewerStatus < 2);
+
 			var user = await _userManager.FindByNameAsync(User.Identity.Name);
 			var reviewers = await _reviewerRepo.GetAll();
 			var accounts = _userManager.Users.ToList();

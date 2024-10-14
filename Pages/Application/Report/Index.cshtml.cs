@@ -38,7 +38,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Report
             Logo = settings.OrderByDescending(x => x.Id).First().LogoFileName;
 
         }
-        public async Task<IActionResult> OnGetGetAll()
+        public async Task<IActionResult> OnGetRetreivedAll()
         {
             TempData["validation-message"] = "Successfully retreived all records";
             return RedirectToPage();

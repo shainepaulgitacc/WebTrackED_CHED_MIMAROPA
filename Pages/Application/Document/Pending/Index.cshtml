@@ -21,7 +21,7 @@
 			<thead class="bg-primary-subtle">
 				<tr>
 					<th>Document Ref#.Code</th>
-					<th>Current Reviewer</th>
+					
 					<th>Details</th>
 					<th>Last Transaction</th>
 					<th>Actions</th>
@@ -37,7 +37,7 @@
 								<span>@(docAttachment.DocumentAttachment.DocumentType == DocumentType.WalkIn ? $"dW{docAttachment.DocumentAttachment.Id.ToString("00000")}" : $"dE{docAttachment.DocumentAttachment.Id.ToString("00000")}")</span>
 							</div>
 						</td>
-						<td>@($"{docAttachment.ReviewerAccount.FirstName} {docAttachment.ReviewerAccount.LastName} ({docAttachment.Designation.DesignationName})")</td>
+						
 						<td>
 							<span class="text-primary">@docAttachment.DocumentAttachment.Category.CategoryName</span>
 							<span class="fw-bold"> - @docAttachment.DocumentAttachment.SubCategory.SubCategoryName</span>
@@ -62,7 +62,7 @@
 	<script>
 		$(function () {
 			$('#table-data').DataTable({
-				"order": [[3, "desc"]] // Order by the 6th column (index 5) in descending order
+				"order": [[2, "desc"]] // Order by the 6th column (index 5) in descending order
 			});
 		})
 	</script>

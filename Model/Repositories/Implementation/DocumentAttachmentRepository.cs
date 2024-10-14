@@ -127,12 +127,13 @@ namespace WebTrackED_CHED_MIMAROPA.Model.Repositories.Implementation
                     DocumentAttachment = result.First().DocumentAttachment,
                     DocumentTracking = result.OrderByDescending(x => x.DocumentTracking.AddedAt).First().DocumentTracking,
                     Category = result.First().Category,
-                    Reviewer = result.First().Reviewer,
-                    ReviewerAccount = result.First().ReviewerAccount,
+                    Reviewer = result.OrderByDescending(x => x.DocumentTracking.AddedAt).First().Reviewer,
+                    ReviewerAccount = result.OrderByDescending(x => x.DocumentTracking.AddedAt).First().ReviewerAccount,
                     SenderAccount = result.First().SenderAccount,
                     SubCategory = result.First().SubCategory,
-                    Designation = result.First().Designation,
-                    DocumentTrackings = docTrackings.Where(x => x.DocumentAttachmentId == result.Key).OrderByDescending(x => x.AddedAt).ToList()
+                    Designation = result.OrderByDescending(x => x.DocumentTracking.AddedAt).First().Designation,
+                    DocumentTrackings = docTrackings.Where(x => x.DocumentAttachmentId == result.Key).OrderByDescending(x => x.AddedAt).ToList(),
+
                 })
                 .ToList();
             return finRec;

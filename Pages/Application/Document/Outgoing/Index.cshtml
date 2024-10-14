@@ -41,6 +41,29 @@
                     var approved = docAttachment.DocumentTrackings.First().ReviewerStatus == ReviewerStatus.Approved;
                     var IsPreparingForRelease = docAttachment.DocumentTrackings.First().ReviewerStatus == ReviewerStatus.PreparingRelease;
                     var IsCompleted = docAttachment.DocumentTrackings.First().ReviewerStatus == ReviewerStatus.Completed;
+                    var reviewers = Model.Reviewers;
+                    var records = reviewers.FirstOrDefault(x => x.Designation != null && x.Designation.DesignationName.Contains(Model.FirstDesignation));
+                    var currentReviewers = reviewers
+                        .Join(docAttachment.DocumentTrackings,
+                    a => a.Account.Id,
+                    d => d.ReviewerId,
+                    (a, d) => new
+                    {
+                        Reviewer = a.Account,
+                        Designation = a.Designation,
+                        DocumentTracking = d
+                    })
+                    .GroupBy(x => x.Reviewer.Id)
+                    .Select(result => new
+                    {
+                        Reviewer = result.First().Reviewer,
+                        Designation = result.First().Designation,
+                        IsCurrentReviewer = result.OrderByDescending(x => x.DocumentTracking.AddedAt).First().DocumentTracking.ReviewerStatus != ReviewerStatus.Passed
+
+                    })
+                    .Where(x => x.IsCurrentReviewer)
+                    .ToList();
+                
                     <tr>
                         <td>
                             <div class=" text-primary align-items-center d-flex gap-2 justify-content-center">
@@ -57,7 +80,28 @@
                         <td>
                             <span class="fw-bolder px-3 text-white text-nowrap  px-3 py-1 rounded-pill  @(IsPending ?"bg-info":IsOnProcess?"bg-primary":IsPreparingForRelease ? "bg-warning":IsCompleted || approved?"bg-success":"bg-danger") ">@(IsPreparingForRelease ? "Ready for Release" : IsPending ? "Peding" : IsOnProcess ? "On process" : IsCompleted ? "Completed" : approved ? "Approved" : "")</span>
                         </td>
-                        <td>@($"{docAttachment.ReviewerAccount.FirstName} {docAttachment.ReviewerAccount.LastName} ({docAttachment.Designation.DesignationName})")</td>
+                        <td>
+
+                            <ul>
+                                @if(docAttachment.DocumentTrackings.Any(x => x.ReviewerStatus == ReviewerStatus.Approved))
+                                {
+                                    <li>
+                                        @($"{records.Account.FirstName} {records.Account.LastName} ({records.Designation.DesignationName})")
+                                    </li>
+                                }
+                                else
+                                {
+                                    @foreach (var reviewer in currentReviewers)
+                                    {
+                                        <li>
+                                            @($"{reviewer.Reviewer.FirstName} {reviewer.Reviewer.LastName} ({reviewer.Designation.DesignationName})")
+                                        </li>
+                                    }
+                                }
+                               
+                            </ul>
+                          
+                        </td>
                         <td>
                             @if (docAttachment.DocumentAttachment.Prioritization != null)
                             {
