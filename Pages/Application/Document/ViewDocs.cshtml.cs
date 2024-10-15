@@ -86,22 +86,25 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document
 		public string AccountId { get; set; }
 
 		public bool HasCurrentlyReviewing { get; set; }
-
+		public int CurrentlyReviewingCount { get; set; }
 		public async Task<IActionResult> OnGetAsync(string prevPage, int pId)
 		{
 			PreviousPage = prevPage;
 			var docsAttachments = await _docRepo.DocumentAttachments();
 			var docAttachment = docsAttachments.FirstOrDefault(x => x.DocumentAttachment.Id == pId);
 
-			HasCurrentlyReviewing = docAttachment.DocumentTrackings
+			var reviewing = docAttachment.DocumentTrackings
 				.GroupBy(x => x.ReviewerId)
 				.Select(result => new
 				{
 					ReviewerStatus = result.OrderByDescending(x => x.AddedAt).First().ReviewerStatus
-				})
-				.Any(x => (int)x.ReviewerStatus < 2);
+				});
+				//
+			HasCurrentlyReviewing = reviewing.Any(x => (int)x.ReviewerStatus < 2);
+			CurrentlyReviewingCount = reviewing.Where(x => (int)x.ReviewerStatus < 2).Count();
 
-			var user = await _userManager.FindByNameAsync(User.Identity.Name);
+
+            var user = await _userManager.FindByNameAsync(User.Identity.Name);
 			var reviewers = await _reviewerRepo.GetAll();
 			var accounts = _userManager.Users.ToList();
 			var designations = await _desigRepo.GetAll();
@@ -303,11 +306,11 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document
 						IsViewed = false,
 						Description = description,
 						NotificationType = NotificationType.Document,
-						RedirectLink = docAttachment.DocumentType != DocumentType.WalkIn ? "/Application/Document/Onprocess/Index" : status == ReviewerStatus.Approved ? "/Application/Document/Incoming/Index" : "/Application/Document/Outgoing/Index",
+						RedirectLink = docAttachment.DocumentType != DocumentType.WalkIn ? status == ReviewerStatus.Completed? "/Application/Document/Ended/Index" : "/Application/Document/Onprocess/Index" : status == ReviewerStatus.Approved ? "/Application/Document/Incoming/Index" : "/Application/Document/Outgoing/Index",
 						AddedAt = DateTime.Now,
 						UpdatedAt = DateTime.Now,
 					};
-					_notifHub.Clients.User(docAttachment.SenderId).ReceiveNotification(
+					_notifHub.Clients.User(notification.Recepient).ReceiveNotification(
 						notification.Title,
 						notification.Description.Length > 30 ? $"{notification.Description.Substring(0, 30)}..." : notification.Description,
 						notification.NotificationType.ToString(),
@@ -315,13 +318,36 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document
 						notification.RedirectLink
 					);
 					await _notificationRepo.Add(notification);
+
+
+					if(status == ReviewerStatus.Approved && docAttachment.DocumentType == DocumentType.OnlineSubmission)
+					{
+						var notificationRecords = new Notification
+						{
+							Title = "Document Approved",
+							Recepient = records?.Account.Id,
+							IsViewed = false,
+							Description = "A document has been reviewed and approved. You may view it in your 'Incoming' section for release.",
+							NotificationType = NotificationType.Document,
+							RedirectLink = "/Application/Document/Incoming/Index",
+							AddedAt = DateTime.Now,
+							UpdatedAt = DateTime.Now,
+						};
+						_notifHub.Clients.User(notificationRecords.Recepient).ReceiveNotification(
+							notificationRecords.Title,
+							notificationRecords.Description.Length > 30 ? $"{notificationRecords.Description.Substring(0, 30)}..." : notificationRecords.Description,
+							notificationRecords.NotificationType.ToString(),
+							notificationRecords.AddedAt.ToString("MMMM dd, yyyy"),
+							notificationRecords.RedirectLink
+						);
+						await _notificationRepo.Add(notificationRecords);
+					}
 				}
 			}
 			foreach (var tracking in documentTrackings.Where(x => x.DocumentAttachmentId == int.Parse(pId) && x.ReviewerId != account.Id))
 			{
 				_notifHub.Clients.Users(tracking.ReviewerId).ReviewerRealtime();
 			}
-
 			TempData["validation-message"] = "Successfully perform the action.";
 			if (status == ReviewerStatus.Approved)
 				return RedirectToPage("./Outgoing/Index");

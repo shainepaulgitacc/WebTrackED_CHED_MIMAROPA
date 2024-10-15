@@ -138,13 +138,11 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Profiles
 						Address = sender.User.Address,
 						DateOfBirth = sender.User.DateOfBirth,
 						Sex = (Sex)sender.User.Sex,
-
-
-						SenderId = (int)sender.Sender.Id,
+						SenderId = sender.Sender.Id,
 						Designation = sender.Sender.Designation,
 						Department = sender.Sender.Department,
 						DateOfHire = sender.Sender.DateOfHire,
-						EmploymentStatus = (EmploymentStatus)sender.Sender.EmploymentStatus,
+						EmploymentStatus = sender.Sender.EmploymentStatus,
 						WorkLocationOffice = sender.Sender.WorkLocationOffice,
 						ProjectAssignment = sender.Sender.ProjectAssignment,
 						SkillCompetencies = sender.Sender.SkillCompetencies,

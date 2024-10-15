@@ -89,7 +89,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Dashboard
                 var designations = await _desigRepo.GetAll();
                 var firstDesignationName = designations.OrderBy(x => x.AddedAt).First().DesignationName;
                 CountIncomingDocs = docsAttachments
-                                   .Where(x => CReviewerStatus(x.DocumentTrackings, account.Id, ReviewerStatus.ToReceived) || CReviewerStatus(x.DocumentTrackings, account.Id, ReviewerStatus.OnReview) || CReviewerStatus(x.DocumentTrackings, account.Id, ReviewerStatus.Reviewed) && !x.DocumentTrackings.Any(x => x.ReviewerStatus == ReviewerStatus.Approved) || x.DocumentTracking.ReviewerStatus == ReviewerStatus.Approved && reviewer.Designation.DesignationName == firstDesignationName || CReviewerStatus(x.DocumentTrackings, account.Id, ReviewerStatus.PreparingRelease))
+                                   .Where(x => CReviewerStatus(x.DocumentTrackings, account.Id, ReviewerStatus.ToReceived) || CReviewerStatus(x.DocumentTrackings, account.Id, ReviewerStatus.OnReview) || CReviewerStatus(x.DocumentTrackings, account.Id, ReviewerStatus.Reviewed) && !x.DocumentTrackings.Any(x => x.ReviewerStatus == ReviewerStatus.Approved) || x.DocumentTracking.ReviewerStatus == ReviewerStatus.Approved && reviewer.Designation != null && reviewer.Designation.DesignationName == firstDesignationName || CReviewerStatus(x.DocumentTrackings, account.Id, ReviewerStatus.PreparingRelease))
                                    .Count();
                 CountAllDocs = fDocsAttachments.Count();
                 RecentDocuments = fDocsAttachments
