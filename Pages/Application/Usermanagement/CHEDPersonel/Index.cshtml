@@ -60,6 +60,7 @@
                             <partial name="PartialViews/_UpdatePassword" model="new UpdatePasswordInputModel{UserId = personel.Account.Id}" />
                             <button class="rounded-4 btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal-@personel.Account.Id"><i class="fa-regular fa-trash-can"></i></button>
                             <partial name="PartialViews/_DeleteDataModal" model="new DeleteModalViewModel(){Id=personel.Account.Id.ToString(),returnUrl = null}" />
+                         
 
                         </td>
                     </tr>
