@@ -3,8 +3,8 @@
     public class BaseInputModel
     {
         public int? Id { get; set; }
-        public DateTime AddedAt { get; set; } = DateTime.Now;
-        public DateTime UpdatedAt { get; set; } = DateTime.Now;
+        public DateTime AddedAt { get; set; } = DateTime.UtcNow.AddHours(8);
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow.AddHours(8);
     }
 
     public enum ExportAsPdfExcel

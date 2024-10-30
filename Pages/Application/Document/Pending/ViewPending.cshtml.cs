@@ -21,7 +21,8 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.Pending
         private readonly IBaseRepository<Category> _categRepo;
         private readonly IBaseRepository<SubCategory> _subCategRepo;
         private readonly IMapper _mapper;
-        private readonly FileUploader _fileUploader;    
+        private readonly FileUploader _fileUploader;
+        private readonly IBaseRepository<Designation> _desigRepo;
         public ViewPendingModel(
             IDocumentAttachmentRepository docRepo,
             IBaseRepository<DocumentTracking> docTrackingRepo,
@@ -29,7 +30,8 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.Pending
             IBaseRepository<Category> categRepo,
             IBaseRepository<SubCategory> subCategRepo,
             IMapper mapper,
-            FileUploader fileUplaoder)
+            FileUploader fileUplaoder,
+            IBaseRepository<Designation> desigRepo)
         {
             _docRepo = docRepo;
             _docTrackingRepo = docTrackingRepo;
@@ -38,6 +40,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.Pending
             _subCategRepo = subCategRepo;
             _mapper = mapper;
             _fileUploader = fileUplaoder;
+            _desigRepo = desigRepo;
         }
         public IEnumerable<CHEDPersonelListViewModel> Reviewers { get; set; }
         public IEnumerable<Category> Categories { get; set; }
@@ -53,8 +56,12 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.Pending
             if (docsAttachment == null)
                 return BadRequest($"{pId} invalid DocumentId");
             DocumentAttachment = docsAttachment;
-            var reviewers = new List<string>();
-            reviewers.Add(docsAttachment.Reviewer.IdentityUserId);
+          
+            var designations = await _desigRepo.GetAll();
+            var reviewers = await _reviewerRepo.CHEDPersonelRecords();
+            var recordDesignation = designations.OrderBy(x => x.AddedAt).First();
+            var reviewerId = reviewers.FirstOrDefault(x => x.Designation != null && x.Designation.Id == recordDesignation.Id).Account.Id;
+         
             InputModel = new ComposeInputModel
             {
                  
@@ -63,7 +70,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.Pending
                 CategoryId = docsAttachment.Category.Id,
                 SubCategoryId = docsAttachment.SubCategory.Id,
                 SenderId = docsAttachment.SenderAccount.Id,
-                ReviewersId =reviewers,
+                ReviewersId = reviewerId,
                 Subject = docsAttachment.DocumentAttachment.Subject,
                 Description = docsAttachment.DocumentAttachment.Description,
              

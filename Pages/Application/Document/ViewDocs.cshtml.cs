@@ -237,7 +237,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document
 			if (!ModelState.IsValid)
 				return BadRequest(ModelState);
 			docAttachment.FileName = await _fileUploader.Uploadfile(NewDocuments, "Documents");
-			docAttachment.UpdatedAt = DateTime.Now;
+			docAttachment.UpdatedAt = DateTime.UtcNow.AddHours(8);
 			await _docRepo.Update(docAttachment, docAttachment.Id.ToString());
 			TempData["validation-message"] = "Successfully replace document";
 			return RedirectToPage("ViewDocs", new { prevPage, pId });
@@ -250,7 +250,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document
 			if (!ModelState.IsValid)
 				return BadRequest(ModelState);
 			docAttachment.Prioritization = Prioritization;
-			docAttachment.UpdatedAt = DateTime.Now;
+			docAttachment.UpdatedAt = DateTime.UtcNow.AddHours(8);
 			await _docRepo.Update(docAttachment, docAttachment.Id.ToString());
 			TempData["validation-message"] = "Successfully set prioritization";
 			return RedirectToPage("ViewDocs", new { prevPage, pId });
@@ -269,8 +269,8 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document
 
 			await _docTrackRepo.Add(new DocumentTracking
 			{
-				AddedAt = DateTime.Now,
-				UpdatedAt = DateTime.Now,
+				AddedAt = DateTime.UtcNow.AddHours(8),
+				UpdatedAt = DateTime.UtcNow.AddHours(8),
 				ReviewerId = reviewer.CHEDPersonel.IdentityUserId,
 				DocumentAttachmentId = docAttachment.Id,
 				ReviewerStatus = status
@@ -307,8 +307,8 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document
 						Description = description,
 						NotificationType = NotificationType.Document,
 						RedirectLink = docAttachment.DocumentType != DocumentType.WalkIn ? status == ReviewerStatus.Completed? "/Application/Document/Ended/Index" : "/Application/Document/Onprocess/Index" : status == ReviewerStatus.Approved ? "/Application/Document/Incoming/Index" : "/Application/Document/Outgoing/Index",
-						AddedAt = DateTime.Now,
-						UpdatedAt = DateTime.Now,
+						AddedAt = DateTime.UtcNow.AddHours(8),
+						UpdatedAt = DateTime.UtcNow.AddHours(8),
 					};
 					_notifHub.Clients.User(notification.Recepient).ReceiveNotification(
 						notification.Title,
@@ -330,8 +330,8 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document
 							Description = "A document has been reviewed and approved. You may view it in your 'Incoming' section for release.",
 							NotificationType = NotificationType.Document,
 							RedirectLink = "/Application/Document/Incoming/Index",
-							AddedAt = DateTime.Now,
-							UpdatedAt = DateTime.Now,
+							AddedAt = DateTime.UtcNow.AddHours(8),
+							UpdatedAt = DateTime.UtcNow.AddHours(8),
 						};
 						_notifHub.Clients.User(notificationRecords.Recepient).ReceiveNotification(
 							notificationRecords.Title,

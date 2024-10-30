@@ -248,8 +248,8 @@ namespace WebTrackED_CHED_MIMAROPA.Areas.Identity.Pages.Account
 						Description = "New sender has been registered",
 						NotificationType = NotificationType.Registration,
 						RedirectLink = "/Application/Usermanagement/SenderManagement/Index",
-						AddedAt = DateTime.Now,
-						UpdatedAt = DateTime.Now,
+						AddedAt = DateTime.UtcNow.AddHours(8),
+						UpdatedAt = DateTime.UtcNow.AddHours(8),
 					};
 
 					await _notificationRepo.Add(notification);

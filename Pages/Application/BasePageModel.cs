@@ -32,8 +32,8 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application
             if(!ModelState.IsValid)
                 return BadRequest(ModelState);
             var converted = _mapper.Map<T>(InputModel);
-            converted.AddedAt = DateTime.Now;
-            converted.UpdatedAt = DateTime.Now;
+            converted.AddedAt = DateTime.UtcNow.AddHours(8);
+            converted.UpdatedAt = DateTime.UtcNow.AddHours(8);
             
             await _repo.Add(converted);
             TempData["validation-message"] = hasMessage ? "Successfully added":null;
@@ -50,7 +50,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
             var converted = _mapper.Map<T>(InputModel);
-            converted.UpdatedAt = DateTime.Now;
+            converted.UpdatedAt = DateTime.UtcNow.AddHours(8);
             await _repo.Update(converted, converted.Id.ToString());
             TempData["validation-message"] = "Successfully updated";
             return RedirectToPage();

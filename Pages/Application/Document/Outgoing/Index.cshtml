@@ -7,7 +7,8 @@
     var breadcrump_data = new BreadCrumpViewModel
             {
                 pageName = "Outgoing Document",
-                date = DateTime.Now,
+                date = DateTime.UtcNow.AddHours(8)
+                ,
                 breadCrump = new (string, string?, string, bool,int?)[]
                                                         {
                 ("fa-solid fa-list-check",null,"Document List",true,null)
@@ -127,11 +128,16 @@
     </div>
 </div>
 @section Scripts {
-    <script>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+   <script src="https://cdn.datatables.net/plug-ins/1.10.20/sorting/datetime-moment.js" ></script>
+   <script>
         $(function () {
+            // Load the moment.js sorting plugin for DataTables
+            $.fn.dataTable.moment('MM/DD/YYYY hh:mm A'); // Specify the format
+
             $('#table-data').DataTable({
                 "order": [[6, "desc"]] // Order by the 6th column (index 5) in descending order
             });
-        })
+        });
     </script>
 }

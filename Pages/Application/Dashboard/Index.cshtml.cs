@@ -144,7 +144,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Dashboard
                 docsAttachments.Where(x => x.DocumentAttachment.SenderId == account?.Id).ToList();
             else
                 docsAttachments.ToList();
-            int currentYear = DateTime.Now.Year;
+            int currentYear = DateTime.UtcNow.AddHours(8).Year;
 
             var result = new EndedDocsPerMonthViewModel
             {

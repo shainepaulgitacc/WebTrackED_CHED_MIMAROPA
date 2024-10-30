@@ -80,7 +80,8 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.NotificationManagement
 				notification.IsArchived = false;
 				TempData["validation-message"] = "Successfully restore notification";
 			}
-			notification.UpdatedAt = DateTime.Now;
+			notification.UpdatedAt = DateTime.UtcNow.AddHours(8) 
+				;
 			await _notificationRepo.Update(notification, notification.Id.ToString());
 			return RedirectToPage("./Index", new { fNotif_From = From, fNotif_To = To });
 		}

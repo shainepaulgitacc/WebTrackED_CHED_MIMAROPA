@@ -5,7 +5,7 @@
     var breadcrump_data = new BreadCrumpViewModel
             {
                 pageName = "Message",
-                date = DateTime.Now,
+                date = DateTime.UtcNow.AddHours(8),
                 breadCrump = new (string, string?, string, bool, int?)[]
                 {
                     ("fa-solid fa-message",null,"Chat Page",true,null)
@@ -112,7 +112,7 @@
                             <div class="r-message d-flex">
                                 <div class="d-flex flex-column align-items-center" style="width:20%;">
                                    <img src="~/@(!string.IsNullOrEmpty(message.Sender.ProfileFileName)?$"ProfilePicture/{message.Sender.ProfileFileName}":"image/NoProfile.jfif" )" width="40" height="40" class="rounded-circle" />
-                                    <p style="font-size: 12px">@(message.Message.AddedAt.Date == DateTime.Now.Date ? message.Message.AddedAt.ToString("hh:mm tt") : message.Message.AddedAt.ToString("dd/MM/yyyy hh:mm tt"))</p>
+                                    <p style="font-size: 12px">@(message.Message.AddedAt.Date == DateTime.UtcNow.AddHours(8).Date ? message.Message.AddedAt.ToString("hh:mm tt") : message.Message.AddedAt.ToString("dd/MM/yyyy hh:mm tt"))</p>
                                 </div>
                                 <div style="width: 80%">
                                     @if (!message.Message.IsDeleted)

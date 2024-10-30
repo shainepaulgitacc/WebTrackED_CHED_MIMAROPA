@@ -8,8 +8,8 @@ namespace WebTrackED_CHED_MIMAROPA.Model.ViewModel.InputViewModel.BaseIdentityUs
     {
         [DisplayName("Type Of User")]
         public TypeOfUser TypeOfUser { get; set; }
-		public DateTime AddedAt { get; set; } = DateTime.Now;
-		public DateTime UpdatedAt { get; set; } = DateTime.Now;
+		public DateTime AddedAt { get; set; } = DateTime.UtcNow.AddHours(8);
+		public DateTime UpdatedAt { get; set; } = DateTime.UtcNow.AddHours(8);
 
 		public bool Active { get; set; } = true;
 

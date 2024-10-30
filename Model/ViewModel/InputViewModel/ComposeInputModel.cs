@@ -13,7 +13,7 @@ namespace WebTrackED_CHED_MIMAROPA.Model.ViewModel.InputViewModel
         [Required, DisplayName("Sender")]
         public string SenderId { get; set; }
 
-        public List<string> ReviewersId { get; set; }
+        public string ReviewersId { get; set; }
         [DisplayName("Document")]
         public IFormFile? File { get; set; }
         public Prioritization? Prioritization { get; set; }

@@ -88,8 +88,8 @@ using (var scope = app.Services.CreateScope())
 		await settingsRepo.Add(new Settings
 		{
 			LogoFileName = "CHEDLogo.jpg",
-			AddedAt = DateTime.Now,
-			UpdatedAt = DateTime.Now,
+			AddedAt = DateTime.UtcNow.AddHours(8),
+			UpdatedAt = DateTime.UtcNow.AddHours(8),
 			DocumentNotif = true,
 			RegisteredUserNotif = true,
 			PasswordRequiredLength = 6,
@@ -103,14 +103,14 @@ using (var scope = app.Services.CreateScope())
 		await designationRepo.Add(new Designation
 		{
 			DesignationName = "Records",
-			AddedAt = DateTime.Now,
-			UpdatedAt = DateTime.Now,
+			AddedAt = DateTime.UtcNow.AddHours(8),
+			UpdatedAt = DateTime.UtcNow.AddHours(8),
 		}) ;
 		await designationRepo.Add(new Designation
 		{
 			DesignationName = "Regional Director",
-			AddedAt = DateTime.Now,
-			UpdatedAt = DateTime.Now,
+			AddedAt = DateTime.UtcNow.AddHours(8),
+			UpdatedAt = DateTime.UtcNow.AddHours(8),
 		});
 	}
 };

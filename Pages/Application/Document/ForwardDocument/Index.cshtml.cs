@@ -216,8 +216,8 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.ForwardDocument
 			}
             await _docsTrackRepo.Add(new DocumentTracking
             {
-                AddedAt = DateTime.Now,
-                UpdatedAt = DateTime.Now,
+                AddedAt = DateTime.UtcNow.AddHours(8),
+                UpdatedAt = DateTime.UtcNow.AddHours(8),
                 Note = InputModel.Note,
                 ReviewerId = cUser.Account.Id,
                 DocumentAttachmentId = InputModel.DocumentId,
@@ -231,8 +231,8 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.ForwardDocument
                 {
                     await _docsTrackRepo.Add(new DocumentTracking
                     {
-                        AddedAt = DateTime.Now,
-                        UpdatedAt = DateTime.Now,
+                        AddedAt = DateTime.UtcNow.AddHours(8),
+                        UpdatedAt = DateTime.UtcNow.AddHours(8),
                         ReviewerId = reviewer,
                         DocumentAttachmentId = InputModel.DocumentId,
                         ReviewerStatus = InputModel.TrackingStatus,
@@ -248,8 +248,11 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.ForwardDocument
                         Description = $"Your document has been passed to {newRevAcc.Account.FirstName} {newRevAcc?.Account.MiddleName} {newRevAcc?.Account.LastName} {newRevAcc?.Account.Suffixes})",
                         NotificationType = NotificationType.Document,
                         RedirectLink = documentAttachment.DocumentType != DocumentType.WalkIn ? "/Application/Document/Onprocess/Index" : "/Application/Document/Outgoing/Index",
-                        AddedAt = DateTime.Now,
-                        UpdatedAt = DateTime.Now,
+                        AddedAt = 
+                    
+                    
+                    ,
+                        UpdatedAt = DateTime.UtcNow.AddHours(8),
                     };
                     await _notificationRepo.Add(notificationPassed);
                     _notifHub.Clients.User(documentAttachment.SenderId).ReceiveNotification(
@@ -276,8 +279,8 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.ForwardDocument
                                  $"You have received a new document from {cUser?.Account.FirstName} {cUser.Account.MiddleName} {cUser.Account.LastName} {cUser.Account.Suffixes} ({cUser.Designation.DesignationName}). Kindly review the document at your convenience.",
                         NotificationType = NotificationType.Document,
                         RedirectLink = "/Application/Document/Incoming/Index",
-                        AddedAt = DateTime.Now,
-                        UpdatedAt = DateTime.Now,
+                        AddedAt = DateTime.UtcNow.AddHours(8),
+                        UpdatedAt = DateTime.UtcNow.AddHours(8),
                     };
                     await _notificationRepo.Add(notificationPassedReviewer);
                     _notifHub.Clients.User(notificationPassedReviewer.Recepient).ReceiveNotification(

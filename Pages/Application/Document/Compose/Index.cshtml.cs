@@ -134,42 +134,41 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Document.Compose
            
 
             convert.FileName = await _fileUploader.Uploadfile(InputModel.File,"Documents");
-
             await _repo.Add(convert);
-				foreach (var revId in InputModel.ReviewersId)
-            {
-                var docTracking = new DocumentTracking()
+				foreach (var revId in InputModel.ReviewersId.Split(','))
                 {
-                    AddedAt = DateTime.Now,
-                    UpdatedAt = DateTime.Now,
-                    ReviewerStatus = ReviewerStatus.ToReceived,
-                    ReviewerId = revId,
-                    DocsAttachment = convert
-                };
+                    var docTracking = new DocumentTracking()
+                    {
+                        AddedAt = DateTime.UtcNow.AddHours(8),
+                        UpdatedAt = DateTime.UtcNow.AddHours(8),
+                        ReviewerStatus = ReviewerStatus.ToReceived,
+                        ReviewerId = revId,
+                        DocsAttachment = convert
+                    };
 
-                await _docTrackingRepo.Add(docTracking);
+                    await _docTrackingRepo.Add(docTracking);
 
-                var users = await _chedRepo.GetAll();
-                var user = users.FirstOrDefault(x => x.IdentityUserId == revId);
-                var userAcc = await _userManager.FindByIdAsync(user.IdentityUserId);
-                var senderAcc = await _userManager.FindByNameAsync(User.Identity.Name);
-                var notification = new Notification
-                {
-                    Recepient = user.IdentityUserId,
-                    Title = "New Document Received",
-                    Description = User.IsInRole("Sender") ? $"You have received a new document from {senderAcc.FirstName} {senderAcc.MiddleName} {senderAcc.LastName} {senderAcc.Suffixes}. You can now review it." : $"You have received a new document from Records Office. You can now review it.",
-                    NotificationType = NotificationType.Document,
-                    RedirectLink = "/Application/Document/Incoming/Index",
-                    AddedAt = DateTime.Now,
-                    UpdatedAt = DateTime.Now,
-                };
-                var settings = await _settingsRepo.GetAll();
-                if (settings.OrderByDescending(x => x.Id).First().DocumentNotif)
-                {
-                    await _notificationRepo.Add(notification);
-                    _notifHub.Clients.User(user.IdentityUserId).ReceiveNotification(notification.Title, notification.Description.Length > 30 ? $"{notification.Description.Substring(0, 30)}..." : notification.Description, notification.NotificationType.ToString(), notification.AddedAt.ToString("MMMM dd, yyy"), notification.RedirectLink);
+                    var users = await _chedRepo.GetAll();
+                    var user = users.FirstOrDefault(x => x.IdentityUserId == revId);
+                    var userAcc = await _userManager.FindByIdAsync(user.IdentityUserId);
+                    var senderAcc = await _userManager.FindByNameAsync(User.Identity.Name);
+                    var notification = new Notification
+                    {
+                        Recepient = user.IdentityUserId,
+                        Title = "New Document Received",
+                        Description = User.IsInRole("Sender") ? $"You have received a new document from {senderAcc.FirstName} {senderAcc.MiddleName} {senderAcc.LastName} {senderAcc.Suffixes}. You can now review it." : $"You have received a new document from Records Office. You can now review it.",
+                        NotificationType = NotificationType.Document,
+                        RedirectLink = "/Application/Document/Incoming/Index",
+                        AddedAt = DateTime.UtcNow.AddHours(8),
+                        UpdatedAt = DateTime.UtcNow.AddHours(8),
+                    };
+                    var settings = await _settingsRepo.GetAll();
+                    if (settings.OrderByDescending(x => x.Id).First().DocumentNotif)
+                    {
+                        await _notificationRepo.Add(notification);
+                        _notifHub.Clients.User(user.IdentityUserId).ReceiveNotification(notification.Title, notification.Description.Length > 30 ? $"{notification.Description.Substring(0, 30)}..." : notification.Description, notification.NotificationType.ToString(), notification.AddedAt.ToString("MMMM dd, yyy"), notification.RedirectLink);
+                    }
                 }
-            }
 
            
 

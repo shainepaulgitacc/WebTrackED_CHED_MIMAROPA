@@ -1,7 +1,24 @@
 ﻿$(function () {
     $("#cancel").on("click", function () {
         $("#filename").text('');
-        $("#submit").prop("disabled", true)
+        $("#submitButton").prop("disabled", true)
+        $("#submitButton2").prop("disabled", true)
+    })
+
+    function checkReviewers() {
+        var reviewerSelected = $('.reviewer:checked').length > 0;
+        var selectedReviewers = [];
+
+        // Iterate over each checked checkbox and get its value
+        $('.reviewer:checked').each(function () {
+            selectedReviewers.push($(this).val());
+        });
+
+        $("#reviewers-id").val(selectedReviewers);
+        $("#proceed").prop('disabled',!reviewerSelected);
+    }
+    $(".reviewer").on("change", function () {
+        checkReviewers();
     })
     $("#docs-file").on("change", function () {
 
@@ -14,9 +31,17 @@
                 filenameSpan.text(this.files[0].name);
             }
             $("#submitButton").prop("disabled", false);
+
+            let categoryValue = $(".category").val();
+            let serviceValue = $(".service").val();
+            if (categoryValue != null && serviceValue != null) {
+                $("#submitButton2").prop("disabled", false)
+            }
+          
         } else {
             filenameSpan.text('');
             $("#submitButton").prop("disabled", true);
+            $("#submitButton2").prop("disabled", true)
         }
     });
 

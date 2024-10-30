@@ -27,8 +27,8 @@ public class MessageHub : Hub<IMessageHub>
                 Sender = senderId,
                 Recipient = recipientId,
                 MessageContent = messageContent,
-                UpdatedAt = DateTime.Now,
-                AddedAt = DateTime.Now
+                UpdatedAt = DateTime.UtcNow.AddHours(8),
+                AddedAt = DateTime.UtcNow.AddHours(8)
             });
 
             await _db.SaveChangesAsync();

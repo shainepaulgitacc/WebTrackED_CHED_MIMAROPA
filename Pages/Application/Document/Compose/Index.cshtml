@@ -5,7 +5,8 @@
 	var breadcrump_data = new BreadCrumpViewModel
 			{
 				pageName = "Compose Document",
-				date = DateTime.Now,
+				date = DateTime.UtcNow.AddHours(8) 
+                ,
 				breadCrump = new (string, string?, string, bool, int?)[]
 																{
 				("fa-solid fa-file-signature",null,"Compose",true,null)
@@ -32,7 +33,7 @@
                     <div class="col-12 col-lg-6">
                         <div class="mb-3">
                             <label asp-for="InputModel.CategoryId" class="mb-2 fw-bolder"></label><span class="text-danger fw-bolder">*</span>
-                            <select asp-for="InputModel.CategoryId" asp-items="@Model.Categories.Select(x => new SelectListItem(x.CategoryName, x.Id.ToString()))" class="form-select">
+                            <select asp-for="InputModel.CategoryId" asp-items="@Model.Categories.Select(x => new SelectListItem(x.CategoryName, x.Id.ToString()))" class="category form-select">
                                 <option selected hidden disabled value="">Select..</option>
                             </select>
                             <span class="text-danger" asp-validation-for="InputModel.CategoryId"></span>
@@ -41,7 +42,7 @@
                     <div class="col-12 col-lg-6">
                         <div class="mb-3">
                             <label asp-for="InputModel.SubCategoryId" class="mb-2 fw-bolder"></label><span class="text-danger fw-bolder">*</span>
-                            <select asp-for="InputModel.SubCategoryId" asp-items="@Model.SubCategories.Select(x => new SelectListItem(x.SubCategoryName, x.Id.ToString()))" class="form-select">
+                            <select asp-for="InputModel.SubCategoryId" asp-items="@Model.SubCategories.Select(x => new SelectListItem(x.SubCategoryName, x.Id.ToString()))" class="service form-select">
                                 <option selected hidden disabled value="">Select..</option>
                             </select>
                             <span class="text-danger" asp-validation-for="InputModel.SubCategoryId"></span>
@@ -49,15 +50,52 @@
                     </div>
                     @if (!User.IsInRole("Sender"))
                     {
-                        <div class="col-12 col-lg-6">
-                            <div class="mb-3">
-                                <label asp-for="InputModel.ReviewersId" class="mb-2 fw-bolder">Reviewer</label><span class="text-danger fw-bolder">*</span>
-                                <select multiple asp-for="InputModel.ReviewersId" asp-items="@Model.Reviewers.Select(x => new SelectListItem($"{x.Account.FirstName} {x.Account.MiddleName} {x.Account.LastName} {x.Account.Suffixes}({x.Designation.DesignationName})", x.Account.Id))" class="form-select">
-                                    <option selected hidden disabled value="">Select..</option>
-                                </select>
-                                <span class="text-danger" asp-validation-for="InputModel.ReviewersId"></span>
+                        <input type="hidden" id="reviewers-id" asp-for="InputModel.ReviewersId"/>
+                        <div class="modal fade" id="select-reviewers">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5><i class="fa-solid fa-user-pen"></i> Select Reviewers</h5>
+                                        <button class="btn-close" type="button" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body px-2">
+                                        <div class="overflow-y-scroll ps-2" style="height: 500px;">
+                                            @foreach (var reviewer in Model.Reviewers)
+                                            {
+                                                <div class="d-flex gap-3 mb-3">
+                                                    <div>
+                                                        <input value="@reviewer.Account.Id" class="reviewer form-check-input" type="checkbox" id="@reviewer.Account.Id" />
+                                                    </div>
+                                                    <label class="form-check-label" for="@reviewer.Account.Id">
+                                                        @($"{reviewer.Account.FirstName} {reviewer.Account.MiddleName} {reviewer.Account.LastName} {reviewer.Account.Suffixes} ({reviewer.Designation.DesignationName})")
+                                                    </label>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button disabled class="btn btn-primary" id="proceed" type="submit">
+                                            Proceed
+                                            <i class="fa fa-arrow-right"></i>
+                                        </button>
+                                    </div>
+
+
+                                </div>
                             </div>
                         </div>
+                        @*
+                <div class="col-12 col-lg-6">
+                <div class="mb-3">
+                <label asp-for="InputModel.ReviewersId" class="mb-2 fw-bolder">Reviewer</label><span class="text-danger fw-bolder">*</span>
+                <select multiple asp-for="InputModel.ReviewersId" asp-items="@Model.Reviewers.Select(x => new SelectListItem($"{x.Account.FirstName} {x.Account.MiddleName} {x.Account.LastName} {x.Account.Suffixes}({x.Designation.DesignationName})", x.Account.Id))" class="form-select">
+                <option selected hidden disabled value="">Select..</option>
+                </select>
+                <span class="text-danger" asp-validation-for="InputModel.ReviewersId"></span>
+                </div>
+                </div>
+                        *@
+                      
                     }
 
                     <div class="col-12 col-lg-6">
@@ -106,12 +144,25 @@
                     <div class="col-12">
                         <div class="d-flex justify-content-end align-items-center gap-2">
                             <button id="cancel" type="reset" class="btn btn-outline-primary">Cancel</button>
-                            <button id="submitButton" class="btn btn-primary" disabled>
-                                <span class="button-text">Submit</span>
-                                <span class="d-none spinner-grow spinner-grow-sm loading-spinner"></span>
-                                <span class="d-none loading-text">Loading...</span>
-                                <i class="fa-regular fa-paper-plane"></i>
-                            </button>
+                            @if (User.IsInRole("Sender"))
+                            {
+                                <button id="submitButton" class="btn btn-primary" disabled>
+                                    <span class="button-text">Submit</span>
+                                    <span class="d-none spinner-grow spinner-grow-sm loading-spinner"></span>
+                                    <span class="d-none loading-text">Loading...</span>
+                                    <i class="fa-regular fa-paper-plane"></i>
+                                </button>
+                            }
+                            else
+                            {
+                                <button type="button" data-bs-toggle="modal" data-bs-target="#select-reviewers" id="submitButton2" class="btn btn-primary" disabled>
+                                    <span class="button-text">Submit</span>
+                                    <span class="d-none spinner-grow spinner-grow-sm loading-spinner"></span>
+                                    <span class="d-none loading-text">Loading...</span>
+                                    <i class="fa-regular fa-paper-plane"></i>
+                                </button>
+                            }
+
                         </div>
                     </div>
                 </div>

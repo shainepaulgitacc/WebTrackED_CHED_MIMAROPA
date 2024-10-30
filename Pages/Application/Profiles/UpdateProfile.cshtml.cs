@@ -160,7 +160,9 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Profiles
 
 			var converted = _mapper.Map<Sender>(SenderInput);
 			converted.Id = (int)SenderInput.SenderId;
-			converted.UpdatedAt = DateTime.Now;
+			converted.UpdatedAt = DateTime.UtcNow.AddHours(8) 
+				
+				;
 			await _senderRepo.Update(converted, converted.Id.ToString());
 
 			
@@ -197,7 +199,7 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Profiles
 
 			var converted = _mapper.Map<CHEDPersonel>(ReviewerInput);
 			converted.Id = (int)ReviewerInput.ReviewerId;
-			converted.UpdatedAt = DateTime.Now;
+			converted.UpdatedAt = DateTime.UtcNow.AddHours(8);
 			await _chedRepo.Update(converted, converted.Id.ToString());
 
 			var user = await _userManager.FindByIdAsync(ReviewerInput.IdentityUserId);
