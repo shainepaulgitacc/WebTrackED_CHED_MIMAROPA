@@ -141,9 +141,9 @@ namespace WebTrackED_CHED_MIMAROPA.Pages.Application.Dashboard
             var account = await _userManager.FindByNameAsync(User.Identity.Name);
            
             if (User.IsInRole("Sender"))
-                docsAttachments.Where(x => x.DocumentAttachment.SenderId == account?.Id).ToList();
+                docsAttachments = docsAttachments.Where(x => x.DocumentAttachment.SenderId == account?.Id).ToList();
             else
-                docsAttachments.ToList();
+                docsAttachments = docsAttachments.ToList();
             int currentYear = DateTime.UtcNow.AddHours(8).Year;
 
             var result = new EndedDocsPerMonthViewModel
